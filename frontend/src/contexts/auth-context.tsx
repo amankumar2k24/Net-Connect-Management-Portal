@@ -1,10 +1,51 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { User, AuthContextType } from '@/types'
+import { AuthContextType, User } from '@/types'
 import { authApi } from '@/lib/api-functions'
 
+const STORAGE_TOKEN_KEY = 'token'
+const STORAGE_USER_KEY = 'user'
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+const normalizeUser = (raw: any): User => {
+  if (!raw) {
+    throw new Error('Missing user payload')
+  }
+
+  const id = raw.id ?? raw._id ?? ''
+
+  const firstName = raw.firstName ?? ''
+  const lastName = raw.lastName ?? ''
+  const fullName = [firstName, lastName].filter(Boolean).join(' ') || raw.name || raw.email || ''
+
+  return {
+    id,
+    firstName,
+    lastName,
+    email: raw.email ?? '',
+    phone: raw.phone ?? raw.mobile ?? undefined,
+    role: raw.role ?? 'user',
+    status: raw.status ?? 'active',
+    isEmailVerified: Boolean(raw.isEmailVerified),
+    profileImage: raw.profileImage ?? undefined,
+    qrCodeUrl: raw.qrCodeUrl ?? undefined,
+    upiId: raw.upiId ?? raw.upiNumber ?? undefined,
+    lastLogin: raw.lastLogin ?? raw.lastLoggedIn ?? undefined,
+    createdAt: raw.createdAt ?? new Date().toISOString(),
+    updatedAt: raw.updatedAt ?? raw.createdAt ?? new Date().toISOString(),
+    fullName,
+  }
+}
+
+const persistUser = (user: User | null) => {
+  if (!user) {
+    localStorage.removeItem(STORAGE_USER_KEY)
+    return
+  }
+  localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(user))
+}
 
 export const useAuth = () => {
   const context = useContext(AuthContext)
@@ -14,65 +55,39 @@ export const useAuth = () => {
   return context
 }
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const initAuth = () => {
-      const token = localStorage.getItem('token')
-      const userData = localStorage.getItem('user')
+    const token = localStorage.getItem(STORAGE_TOKEN_KEY)
+    const storedUser = localStorage.getItem(STORAGE_USER_KEY)
 
-      console.log('🔍 Auth Debug - Token:', token ? 'exists' : 'missing')
-      console.log('🔍 Auth Debug - User data:', userData ? 'exists' : 'missing')
-
-      if (token && userData) {
-        try {
-          const parsedUser = JSON.parse(userData)
-          console.log('✅ Auth Debug - Setting user:', parsedUser)
-          console.log('🔑 Auth Debug - User role:', parsedUser.role)
-          console.log('🔑 Auth Debug - Is admin:', parsedUser.role === 'admin')
-          setUser(parsedUser)
-        } catch (error) {
-          console.error('❌ Auth Debug - JSON parse error:', error)
-          localStorage.removeItem('token')
-          localStorage.removeItem('user')
-        }
-      } else {
-        console.log('⚠️ Auth Debug - No token or user data found')
+    if (token && storedUser) {
+      try {
+        const parsed = normalizeUser(JSON.parse(storedUser))
+        setUser(parsed)
+      } catch (error) {
+        console.error('AuthProvider:initAuth failed to parse stored user', error)
+        localStorage.removeItem(STORAGE_TOKEN_KEY)
+        localStorage.removeItem(STORAGE_USER_KEY)
       }
-      setIsLoading(false)
     }
 
-    initAuth()
+    setIsLoading(false)
   }, [])
 
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true)
-      console.log('🔄 Auth Debug - Starting login...')
-      const response = await authApi.login({ email, password })
-      // NestJS backend returns data directly, not nested in data.data
-      const { token, user: userData } = response.data
+      const { token, user: payload } = await authApi.login({ email, password })
+      const normalizedUser = normalizeUser(payload)
 
-      console.log('✅ Auth Debug - Login response received')
-      console.log('🔑 Auth Debug - Token:', token ? 'received' : 'missing')
-      console.log('👤 Auth Debug - User data:', userData)
-
-      if (!token || !userData) {
-        throw new Error('Invalid response: missing token or user data')
-      }
-
-      localStorage.setItem('token', token)
-      localStorage.setItem('user', JSON.stringify(userData))
-      setUser(userData)
-
-      console.log('✅ Auth Debug - Login completed, user set')
-    } catch (error: any) {
-      console.error('❌ Auth Debug - Login error:', error)
-      // Don't redirect here, let the component handle the error
+      localStorage.setItem(STORAGE_TOKEN_KEY, token)
+      persistUser(normalizedUser)
+      setUser(normalizedUser)
+    } catch (error) {
+      console.error('AuthProvider:login failed', error)
       throw error
     } finally {
       setIsLoading(false)
@@ -81,24 +96,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = async () => {
     try {
-      console.log('🔄 Auth Debug - Starting logout...')
       await authApi.logout()
-    } catch (error) {
-      console.error('Logout error:', error)
-      // Continue with logout even if API call fails
     } finally {
-      console.log('🔄 Auth Debug - Clearing local storage and user state')
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
+      localStorage.removeItem(STORAGE_TOKEN_KEY)
+      localStorage.removeItem(STORAGE_USER_KEY)
       setUser(null)
     }
   }
 
-  // Function to handle force logout (called by API interceptor)
   const forceLogout = () => {
-    console.log('🚨 Auth Debug - Force logout triggered')
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    localStorage.removeItem(STORAGE_TOKEN_KEY)
+    localStorage.removeItem(STORAGE_USER_KEY)
     setUser(null)
   }
 
@@ -108,7 +116,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     logout,
     forceLogout,
     isLoading,
-    isAuthenticated: !!user,
+    isAuthenticated: Boolean(user),
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -38,13 +38,13 @@ export default function PaymentHistoryPage() {
     enabled: !!user?.id,
   })
 
-  const payments = paymentsData?.data?.data || []
+  const payments = paymentsData?.payments ?? []
 
   // Filter payments based on search and status
   const filteredPayments = payments.filter((payment: Payment) => {
     const matchesSearch = searchQuery === '' ||
       payment.amount.toString().includes(searchQuery) ||
-      payment.duration.toString().includes(searchQuery)
+      payment.durationMonths.toString().includes(searchQuery)
 
     const matchesStatus = statusFilter === '' || payment.status === statusFilter
 
@@ -270,7 +270,7 @@ export default function PaymentHistoryPage() {
                             <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-2">
                               <span className="flex items-center">
                                 <CalendarIcon className="h-4 w-4 mr-1" />
-                                {payment.duration} months
+                                {payment.durationMonths} months
                               </span>
                               <span className="capitalize font-medium">{payment.method}</span>
                               {payment.upiNumber && (
@@ -343,7 +343,7 @@ export default function PaymentHistoryPage() {
                     </div>
                     <div>
                       <dt className="text-sm font-medium text-muted-foreground">Duration</dt>
-                      <dd className="text-sm text-foreground">{selectedPayment.duration} months</dd>
+                      <dd className="text-sm text-foreground">{selectedPayment.durationMonths} months</dd>
                     </div>
                     <div>
                       <dt className="text-sm font-medium text-muted-foreground">Payment Method</dt>
@@ -440,3 +440,5 @@ export default function PaymentHistoryPage() {
     </DashboardLayout>
   )
 }
+
+

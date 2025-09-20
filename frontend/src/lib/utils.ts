@@ -12,7 +12,8 @@ export function formatCurrency(amount: number): string {
   }).format(amount)
 }
 
-export function formatDate(date: Date | string): string {
+export function formatDate(date: Date | string | undefined): string {
+  if (!date) return 'N/A'
   return new Intl.DateTimeFormat('en-IN', {
     year: 'numeric',
     month: 'long',
@@ -44,4 +45,24 @@ export function getUserStatusColor(status: string): string {
     default:
       return 'bg-muted/20 text-muted-foreground'
   }
+}
+
+export function unwrapResponse<T>(payload: any): T {
+  if (payload === undefined || payload === null) {
+    return payload as T
+  }
+
+  if (typeof payload === 'object') {
+    const candidate = (payload as Record<string, unknown>)
+
+    if (candidate.data !== undefined && candidate.data !== payload) {
+      return unwrapResponse<T>(candidate.data)
+    }
+
+    if (candidate.result !== undefined) {
+      return unwrapResponse<T>(candidate.result)
+    }
+  }
+
+  return payload as T
 }

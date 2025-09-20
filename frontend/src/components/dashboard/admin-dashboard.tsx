@@ -29,8 +29,8 @@ export default function AdminDashboard() {
     queryFn: () => adminApi.getPaymentStats(),
   })
 
-  const users = userStats?.data?.data || {}
-  const payments = paymentStats?.data?.data || {}
+  const users = userStats || { totalUsers: 0, activeUsers: 0, inactiveUsers: 0, suspendedUsers: 0, recentUsers: [] }
+  const payments = paymentStats || { totalPayments: 0, pendingPayments: 0, approvedPayments: 0, rejectedPayments: 0, totalRevenue: 0, recentPayments: [] }
   const isLoading = isLoadingUsers || isLoadingPayments
 
   return (
@@ -49,9 +49,9 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-blue-700 mb-1">Total Users</p>
-                <p className="text-3xl font-bold text-blue-900">
+                <div className="text-3xl font-bold text-blue-900">
                   {isLoading ? <LoadingSpinner size="sm" /> : users.totalUsers || 0}
-                </p>
+                </div>
                 <p className="text-xs text-blue-600 mt-1">Registered accounts</p>
               </div>
               <div className="p-3 bg-blue-200 rounded-xl">
@@ -120,11 +120,11 @@ export default function AdminDashboard() {
         {/* Recent Activity */}
         <Card className="bg-gradient-to-br from-slate-50 to-slate-100 border-0 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-foreground font-poppins flex items-center">
-              <ChartBarIcon className="h-5 w-5 mr-2 text-muted-foreground" />
+            <CardTitle className="text-indigo-900 font-poppins flex items-center">
+              <ChartBarIcon className="h-5 w-5 mr-2 text-indigo-600" />
               Recent Activity
             </CardTitle>
-            <CardDescription className="text-muted-foreground">Latest user registrations and payment activities</CardDescription>
+            <CardDescription className="text-indigo-600">Latest user registrations and payment activities</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -135,22 +135,22 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {users.recentUsers?.slice(0, 3).map((user: any, index: number) => (
-                  <div key={user.id} className="flex items-center space-x-3 p-3 bg-card rounded-lg">
+                {users.recentUsers?.slice(0, 3).map((recentUser: any) => (
+                  <div key={recentUser.id} className="flex items-center space-x-3 p-3 bg-card rounded-lg">
                     <div className="flex-shrink-0">
                       <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
                         <span className="text-sm font-medium text-blue-600">
-                          {user.firstName?.charAt(0).toUpperCase()}
+                          {recentUser.firstName?.charAt(0).toUpperCase()}
                         </span>
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground">{user.firstName} {user.lastName}</p>
-                      <p className="text-xs text-muted-foreground">Joined recently</p>
+                      <p className="text-sm font-medium text-foreground">{recentUser.firstName} {recentUser.lastName}</p>
+                      <p className="text-xs text-black">Joined recently</p>
                     </div>
                   </div>
                 )) || (
-                    <p className="text-muted-foreground text-center py-4">No recent activity to display.</p>
+                    <p className="text-black text-center py-4">No recent activity to display.</p>
                   )}
               </div>
             )}
@@ -185,3 +185,4 @@ export default function AdminDashboard() {
     </div>
   )
 }
+

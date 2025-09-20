@@ -38,16 +38,15 @@ export default function NotificationsPage() {
 
   const { data: notificationsData, isLoading } = useQuery({
     queryKey: ['notifications', filter],
-    queryFn: () => notificationApi.getNotifications({
-      read: filter === 'all' ? undefined : filter === 'read'
-    }),
+    queryFn: () =>
+      notificationApi.getNotifications({
+        status: filter === 'all' ? undefined : filter === 'read' ? 'read' : 'unread',
+      }),
   })
 
-  // Transform notifications to add compatibility fields
-  const rawNotifications = notificationsData?.data?.notifications || notificationsData?.data?.data || []
+  const rawNotifications = notificationsData?.notifications ?? []
   const notifications = rawNotifications.map(transformNotification)
-  const unreadCount = notificationsData?.data?.unreadCount || notifications.filter((n: Notification) => !n.read).length
-
+  const unreadCount = notifications.filter((notification) => notification.status === 'unread').length
   const markAsReadMutation = useMutation({
     mutationFn: (notificationId: string) => notificationApi.markAsRead(notificationId),
     onSuccess: () => {
@@ -433,3 +432,5 @@ export default function NotificationsPage() {
     </DashboardLayout>
   )
 }
+
+

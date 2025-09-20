@@ -1,32 +1,66 @@
+export type UserRole = 'admin' | 'user'
+export type UserStatus = 'active' | 'inactive' | 'suspended'
+
 export interface User {
   id: string
-  name: string
   firstName: string
   lastName: string
   email: string
-  phone: string
-  address?: string
-  role: 'admin' | 'user'
-  status: 'active' | 'inactive' | 'suspended'
+  phone?: string
+  role: UserRole
+  status: UserStatus
   isEmailVerified: boolean
+  fullName?: string
+  profileImage?: string
+  qrCodeUrl?: string
+  upiId?: string
+  lastLogin?: string
   createdAt: string
   updatedAt: string
 }
+
+export interface Pagination {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
+
+export interface PaginatedUsers {
+  users: User[]
+  pagination: Pagination
+}
+
+export type PaymentMethod = 'qr_code' | 'upi'
+export type PaymentStatus = 'pending' | 'approved' | 'rejected'
 
 export interface Payment {
   id: string
   userId: string
   amount: number
-  duration: number // in months
-  method: 'qr' | 'upi'
-  status: 'pending' | 'approved' | 'rejected'
-  screenshot?: string
+  durationMonths: number
+  method: PaymentMethod
+  status: PaymentStatus
+  screenshotUrl?: string
   upiNumber?: string
-  activationDate?: string
-  expiryDate?: string
-  user?: User
+  notes?: string
+  rejectionReason?: string
+  approvedAt?: string
+  approvedBy?: string
+  startDate?: string
+  endDate?: string
   createdAt: string
   updatedAt: string
+  // Adding missing properties that are used in the frontend
+  activationDate?: string
+  expiryDate?: string
+  screenshot?: string
+  user?: Pick<User, 'id' | 'firstName' | 'lastName' | 'email'>
+}
+
+export interface PaginatedPayments {
+  payments: Payment[]
+  pagination: Pagination
 }
 
 export interface Notification {
@@ -36,44 +70,31 @@ export interface Notification {
   message: string
   type: 'payment_reminder' | 'payment_approved' | 'payment_rejected' | 'account_status' | 'system'
   status: 'read' | 'unread'
-  metadata?: any
+  metadata?: Record<string, unknown>
   readAt?: string
   createdAt: string
-  // Compatibility getter for old 'read' boolean field
-  read?: boolean
 }
 
-export interface DashboardStats {
+export interface NotificationList {
+  notifications: Notification[]
+  pagination: Pagination
+}
+
+export interface DashboardSnapshot {
   totalUsers: number
   activeUsers: number
+  inactiveUsers: number
+  suspendedUsers: number
+  recentUsers: User[]
+}
+
+export interface PaymentDashboardSnapshot {
   totalPayments: number
   pendingPayments: number
-  monthlyRevenue: number
-  newUsersThisMonth: number
-}
-
-export interface PaymentStats {
-  totalAmount: number
-  totalCount: number
-  pendingCount: number
-  approvedCount: number
-  rejectedCount: number
-}
-
-export interface ApiResponse<T> {
-  success: boolean
-  message: string
-  data: T
-}
-
-export interface PaginatedResponse<T> {
-  data: T[]
-  pagination: {
-    page: number
-    limit: number
-    total: number
-    pages: number
-  }
+  approvedPayments: number
+  rejectedPayments: number
+  totalRevenue: number
+  recentPayments: Payment[]
 }
 
 export interface AuthContextType {
@@ -87,8 +108,10 @@ export interface AuthContextType {
 
 export interface PaymentFormData {
   amount: number
-  duration: number
-  method: 'qr' | 'upi'
-  screenshot?: File
-  upiNumber?: string
+  durationMonths: number
+  method: PaymentMethod
+  screenshotFile?: File | null
+  upiId?: string
+  notes?: string
 }
+

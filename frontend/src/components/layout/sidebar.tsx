@@ -54,6 +54,11 @@ const adminMenuItems = [
 
 const userMenuItems = [
   {
+    name: 'Dashboard',
+    href: '/dashboard',
+    icon: HomeIcon,
+  },
+  {
     name: 'Payment History',
     href: '/dashboard/payment-history',
     icon: DocumentTextIcon,
@@ -89,6 +94,10 @@ export default function Sidebar({ className }: SidebarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
+  const isCollapsed = isSidebarCollapsed
+  const displayName = user?.fullName || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email || 'Guest'
+
+  // Determine which menu items to use based on user role
   const menuItems = user?.role === 'admin' ? adminMenuItems : userMenuItems
 
   const handleLogout = () => {
@@ -157,15 +166,8 @@ export default function Sidebar({ className }: SidebarProps) {
   )
 }
 
-interface SidebarContentProps {
-  menuItems: typeof adminMenuItems
-  pathname: string
-  user: any
-  onLogout: () => void
-  isCollapsed?: boolean
-}
-
 function SidebarContent({ menuItems, pathname, user, onLogout, isCollapsed = false }: SidebarContentProps) {
+  const displayName = user?.fullName || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email || 'Guest'
   return (
     <>
       {/* Header with Logo */}
@@ -239,12 +241,12 @@ function SidebarContent({ menuItems, pathname, user, onLogout, isCollapsed = fal
                   <div className="flex-shrink-0">
                     <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-lg border-2 border-blue-400/30">
                       <span className="text-sm font-bold text-white">
-                        {user?.name?.charAt(0).toUpperCase()}
+                        {displayName.charAt(0).toUpperCase()}
                       </span>
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-white truncate">{user?.name}</p>
+                    <p className="text-sm font-semibold text-white truncate">{displayName}</p>
                     <p className="text-xs text-slate-300 capitalize font-medium">{user?.role} Account</p>
                   </div>
                 </div>
@@ -264,7 +266,7 @@ function SidebarContent({ menuItems, pathname, user, onLogout, isCollapsed = fal
                 <div className="flex-shrink-0">
                   <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-lg border-2 border-blue-400/30">
                     <span className="text-xs font-bold text-white">
-                      {user?.name?.charAt(0).toUpperCase()}
+                      {displayName.charAt(0).toUpperCase()}
                     </span>
                   </div>
                 </div>

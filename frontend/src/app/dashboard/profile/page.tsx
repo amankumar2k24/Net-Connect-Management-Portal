@@ -91,8 +91,8 @@ export default function ProfilePage() {
     },
   })
 
-  const profile = profileData?.data?.data || user
-  const settings = adminSettings?.data?.data || {}
+  const profile = profileData?.user || user
+  const settings = adminSettings || {}
 
   const profileFormik = useFormik({
     initialValues: {

@@ -1,6 +1,32 @@
 @import "tailwindcss";
 
 :root {
+  color-scheme: light;
+  --color-background: 215 33% 98%;
+  --color-foreground: 223 47% 12%;
+  --color-card: 0 0% 100%;
+  --color-card-foreground: 223 47% 12%;
+  --color-popover: 0 0% 100%;
+  --color-popover-foreground: 223 47% 12%;
+  --color-primary: 203 88% 53%;
+  --color-primary-foreground: 210 40% 98%;
+  --color-secondary: 214 32% 91%;
+  --color-secondary-foreground: 223 47% 12%;
+  --color-muted: 214 32% 91%;
+  --color-muted-foreground: 223 27% 32%;
+  --color-accent: 203 88% 53%;
+  --color-accent-foreground: 210 40% 98%;
+  --color-destructive: 0 84% 60%;
+  --color-destructive-foreground: 210 40% 98%;
+  --color-border: 214 31% 86%;
+  --color-input: 214 31% 86%;
+  --color-ring: 203 88% 53%;
+  --font-sans: var(--font-inter);
+  --font-poppins: var(--font-poppins);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
   --color-background: 220 27% 8%;
   --color-foreground: 210 40% 98%;
   --color-card: 224 27% 10%;
@@ -8,7 +34,6 @@
   --color-popover: 224 27% 10%;
   --color-popover-foreground: 210 40% 98%;
   --color-primary: 200 98% 45%;
-  /* Bright blue like in the reference images */
   --color-primary-foreground: 210 40% 98%;
   --color-secondary: 217 32% 17%;
   --color-secondary-foreground: 210 40% 98%;
@@ -18,15 +43,10 @@
   --color-accent-foreground: 210 40% 98%;
   --color-destructive: 0 84% 60%;
   --color-destructive-foreground: 210 40% 98%;
-  --color-border: 217 32% 17%;
-  /* Subtle border color */
+  --color-border: 217 32% 20%;
   --color-input: 217 32% 15%;
-  /* Input background with subtle border */
   --color-ring: 200 98% 45%;
-  --font-sans: var(--font-inter);
-  --font-poppins: var(--font-poppins);
 }
-
 
 body {
   background: hsl(var(--color-background));
@@ -34,6 +54,7 @@ body {
   font-family: var(--font-poppins), var(--font-sans), Arial, Helvetica, sans-serif;
   font-weight: 400;
   line-height: 1.6;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .scrollbar-hide {
@@ -51,7 +72,7 @@ body {
 }
 
 .card-glow {
-  box-shadow: 0 4px 32px hsl(var(--color-primary) / 0.1);
+  box-shadow: 0 4px 32px hsl(var(--color-primary) / 0.12);
 }
 
 .gradient-text {
@@ -61,61 +82,55 @@ body {
   background-clip: text;
 }
 
-/* Primary button styling for consistent blue across the website */
 .btn-primary {
-  background: hsl(200 98% 45%);
-  color: white;
+  background: hsl(var(--color-primary));
+  color: hsl(var(--color-primary-foreground));
   border: none;
   transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
-  background: hsl(200 98% 40%);
+  background: hsl(var(--color-primary) / 0.9);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px hsl(200 98% 45% / 0.3);
+  box-shadow: 0 4px 12px hsl(var(--color-primary) / 0.35);
 }
 
 .btn-primary:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px hsl(200 98% 45% / 0.2);
+  box-shadow: 0 2px 8px hsl(var(--color-primary) / 0.25);
 }
 
-/* Input field refinements */
 .input-refined {
   border-width: 1px;
-  border-color: hsl(var(--color-border) / 0.3);
+  border-color: hsl(var(--color-border));
   transition: all 0.2s ease;
-  background: hsl(var(--color-muted) / 0.3);
+  background: hsl(var(--color-card));
 }
 
 .input-refined:hover {
-  border-color: hsl(var(--color-border) / 0.5);
-  background: hsl(var(--color-background));
+  border-color: hsl(var(--color-border) / 0.7);
+  background: hsl(var(--color-card));
 }
 
 .input-refined:focus {
-  border-color: hsl(var(--color-primary) / 0.5);
-  ring-width: 2px;
-  ring-color: hsl(var(--color-primary) / 0.2);
-  ring-offset-width: 0px;
-  background: hsl(var(--color-background));
+  border-color: hsl(var(--color-primary));
+  box-shadow: 0 0 0 3px hsl(var(--color-primary) / 0.15);
+  background: hsl(var(--color-card));
 }
 
-/* Enhanced card styling */
 .card-enhanced {
   background: hsl(var(--color-card));
-  border: 1px solid hsl(var(--color-border) / 0.5);
-  border-radius: 12px;
-  box-shadow: 0 4px 24px hsl(var(--color-primary) / 0.08);
+  border: 1px solid hsl(var(--color-border));
+  border-radius: 16px;
+  box-shadow: 0 8px 32px hsl(var(--color-primary) / 0.08);
   transition: all 0.3s ease;
 }
 
 .card-enhanced:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px hsl(var(--color-primary) / 0.12);
+  box-shadow: 0 16px 40px hsl(var(--color-primary) / 0.14);
 }
 
-/* Enhanced Loading Animations */
 .animate-spin-slow {
   animation: spin 3s linear infinite;
 }
@@ -156,7 +171,6 @@ body {
   }
 }
 
-/* Transform utilities */
 .transform-gpu {
   transform: translate3d(0, 0, 0);
 }
@@ -165,37 +179,33 @@ body {
   transform: scale(1.02);
 }
 
-/* Backdrop blur utilities */
 .backdrop-blur-xs {
   backdrop-filter: blur(2px);
 }
 
-/* Gradient text utilities */
 .text-gradient {
-  background: linear-gradient(135deg, var(--primary), var(--primary)/70);
+  background: linear-gradient(135deg, hsl(var(--color-primary)), hsl(var(--color-primary) / 0.65));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Enhanced shadows */
 .shadow-glow {
-  box-shadow: 0 0 20px -5px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 20px -5px hsl(var(--color-primary) / 0.45);
 }
 
 .shadow-glow-green {
-  box-shadow: 0 0 20px -5px rgba(34, 197, 94, 0.3);
+  box-shadow: 0 0 20px -5px rgba(34, 197, 94, 0.35);
 }
 
 .shadow-glow-yellow {
-  box-shadow: 0 0 20px -5px rgba(234, 179, 8, 0.3);
+  box-shadow: 0 0 20px -5px rgba(234, 179, 8, 0.35);
 }
 
 .shadow-glow-purple {
-  box-shadow: 0 0 20px -5px rgba(147, 51, 234, 0.3);
+  box-shadow: 0 0 20px -5px rgba(147, 51, 234, 0.35);
 }
 
-/* Button loading state */
 .btn-loading {
   position: relative;
   pointer-events: none;
@@ -206,6 +216,7 @@ body {
   position: absolute;
   width: 16px;
   height: 16px;
+  inset: 0;
   margin: auto;
   border: 2px solid transparent;
   border-top-color: currentColor;
@@ -213,7 +224,6 @@ body {
   animation: spin 1s linear infinite;
 }
 
-/* Card hover effects */
 .card-hover {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -223,7 +233,6 @@ body {
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
-/* Sidebar animations */
 .sidebar-enter {
   transform: translateX(-100%);
 }

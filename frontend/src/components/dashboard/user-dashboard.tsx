@@ -22,17 +22,17 @@ export default function UserDashboard() {
 
   const { data: paymentsData, isLoading: isLoadingPayments } = useQuery({
     queryKey: ['my-payments'],
-    queryFn: () => paymentApi.getPayments({ limit: 5 }),
+    queryFn: () => paymentApi.getMyPayments({ limit: 5 }),
   })
 
   const { data: upcomingPayments, isLoading: isLoadingUpcoming } = useQuery({
     queryKey: ['upcoming-payments'],
-    queryFn: () => paymentApi.getUserPayments(user?.id || ''),
+    queryFn: () => paymentApi.getUpcomingPayments(),
     enabled: !!user?.id,
   })
 
-  const recentPayments = paymentsData?.data?.payments || []
-  const upcoming = upcomingPayments?.data?.data || []
+  const recentPayments = paymentsData?.payments ?? []
+  const upcoming = upcomingPayments?.upcomingPayments ?? []
   const isLoading = isLoadingPayments || isLoadingUpcoming
 
   // Calculate stats
@@ -92,9 +92,9 @@ export default function UserDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-blue-700 mb-1">Total Payments</p>
-                <p className="text-3xl font-bold text-blue-900">
+                <div className="text-3xl font-bold text-blue-900">
                   {isLoading ? <LoadingSpinner size="sm" /> : totalPayments}
-                </p>
+                </div>
                 <p className="text-xs text-blue-600 mt-1">All time</p>
               </div>
               <div className="p-3 bg-blue-200 rounded-xl">
@@ -136,7 +136,7 @@ export default function UserDashboard() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-foreground">{formatCurrency(payment.amount)}</p>
-                        <p className="text-xs text-muted-foreground">{payment.duration} months</p>
+                        <p className="text-xs text-muted-foreground">{payment.durationMonths} months</p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -184,3 +184,4 @@ export default function UserDashboard() {
     </div>
   )
 }
+

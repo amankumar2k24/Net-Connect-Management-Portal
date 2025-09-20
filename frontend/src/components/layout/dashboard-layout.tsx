@@ -58,7 +58,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-muted-foreground hidden sm:inline">
-                Welcome back, {user?.name}
+                Welcome back, {user?.fullName || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email}
               </span>
             </div>
           </div>
@@ -72,7 +72,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </main>
       </div>
-      {process.env.NODE_ENV === 'development' && <AuthDebug />}
+      {/* {process.env.NODE_ENV === 'development' && <AuthDebug />} */}
     </div>
   )
 }
