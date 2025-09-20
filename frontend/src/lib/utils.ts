@@ -29,7 +29,7 @@ export function getPaymentStatusColor(status: string): string {
     case 'rejected':
       return 'bg-red-100 text-red-800'
     default:
-      return 'bg-gray-100 text-gray-800'
+      return 'bg-muted/20 text-muted-foreground'
   }
 }
 
@@ -42,6 +42,6 @@ export function getUserStatusColor(status: string): string {
     case 'suspended':
       return 'bg-yellow-100 text-yellow-800'
     default:
-      return 'bg-gray-100 text-gray-800'
+      return 'bg-muted/20 text-muted-foreground'
   }
 }

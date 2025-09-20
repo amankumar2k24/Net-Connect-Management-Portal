@@ -109,11 +109,11 @@ export default function UserDashboard() {
         {/* Recent Payments */}
         <Card className="bg-gradient-to-br from-slate-50 to-slate-100 border-0 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-slate-900 font-poppins flex items-center">
-              <CreditCardIcon className="h-5 w-5 mr-2 text-slate-600" />
+            <CardTitle className="text-foreground font-poppins flex items-center">
+              <CreditCardIcon className="h-5 w-5 mr-2 text-muted-foreground" />
               Recent Payments
             </CardTitle>
-            <CardDescription className="text-slate-600">Your latest payment history</CardDescription>
+            <CardDescription className="text-muted-foreground">Your latest payment history</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -125,24 +125,24 @@ export default function UserDashboard() {
             ) : recentPayments.length > 0 ? (
               <div className="space-y-4">
                 {recentPayments.slice(0, 3).map((payment: any) => (
-                  <div key={payment.id} className="flex items-center justify-between p-3 bg-white/70 rounded-lg">
+                  <div key={payment.id} className="flex items-center justify-between p-3 bg-card rounded-lg">
                     <div className="flex items-center space-x-3">
                       <div className={`p-2 rounded-lg ${payment.status === 'approved' ? 'bg-green-100' :
-                          payment.status === 'pending' ? 'bg-yellow-100' : 'bg-red-100'
+                        payment.status === 'pending' ? 'bg-yellow-100' : 'bg-red-100'
                         }`}>
                         <CreditCardIcon className={`h-4 w-4 ${payment.status === 'approved' ? 'text-green-600' :
-                            payment.status === 'pending' ? 'text-yellow-600' : 'text-red-600'
+                          payment.status === 'pending' ? 'text-yellow-600' : 'text-red-600'
                           }`} />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-slate-900">{formatCurrency(payment.amount)}</p>
-                        <p className="text-xs text-slate-500">{payment.duration} months</p>
+                        <p className="text-sm font-medium text-foreground">{formatCurrency(payment.amount)}</p>
+                        <p className="text-xs text-muted-foreground">{payment.duration} months</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${payment.status === 'approved' ? 'bg-green-100 text-green-800' :
-                          payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
+                        payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
                         }`}>
                         {payment.status}
                       </span>
@@ -151,7 +151,7 @@ export default function UserDashboard() {
                 ))}
               </div>
             ) : (
-              <p className="text-slate-500 text-center py-4">No recent payments to display.</p>
+              <p className="text-muted-foreground text-center py-4">No recent payments to display.</p>
             )}
           </CardContent>
         </Card>
@@ -166,15 +166,15 @@ export default function UserDashboard() {
             <CardDescription className="text-purple-600">Manage your subscription</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button className="w-full bg-white/70 hover:bg-white/90 text-purple-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
+            <Button className="w-full bg-card hover:bg-accent text-purple-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
               <CreditCardIcon className="h-4 w-4 mr-2" />
               Make Payment
             </Button>
-            <Button className="w-full bg-white/70 hover:bg-white/90 text-purple-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
+            <Button className="w-full bg-card hover:bg-accent text-purple-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
               <DocumentTextIcon className="h-4 w-4 mr-2" />
               View Payment History
             </Button>
-            <Button className="w-full bg-white/70 hover:bg-white/90 text-purple-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
+            <Button className="w-full bg-card hover:bg-accent text-purple-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
               <ClockIcon className="h-4 w-4 mr-2" />
               Check Next Payment
             </Button>

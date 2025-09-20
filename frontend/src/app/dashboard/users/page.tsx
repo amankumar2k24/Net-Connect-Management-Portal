@@ -143,9 +143,9 @@ export default function AllUsersPage() {
         </div>
 
         {/* Filters */}
-        <Card className="bg-gradient-to-br from-slate-50 to-slate-100 border-0 shadow-lg">
+        <Card className="bg-card border border-border shadow-lg">
           <CardHeader>
-            <CardTitle className="text-slate-900 font-poppins">Search & Filters</CardTitle>
+            <CardTitle className="text-foreground font-poppins">Search & Filters</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -155,13 +155,13 @@ export default function AllUsersPage() {
                   placeholder="Search by name or email..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-white border-slate-200 text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
+                  className="pl-10 bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
                 />
               </div>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 <option value="">All Status</option>
                 <option value="active">Active</option>
@@ -171,7 +171,7 @@ export default function AllUsersPage() {
               <select
                 value={paymentStatusFilter}
                 onChange={(e) => setPaymentStatusFilter(e.target.value)}
-                className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                className="rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 <option value="">All Payment Status</option>
                 <option value="paid">Paid</option>
@@ -185,7 +185,7 @@ export default function AllUsersPage() {
                   setPaymentStatusFilter('')
                 }}
                 variant="outline"
-                className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700"
+                className="bg-background border-border hover:bg-accent hover:text-accent-foreground text-foreground"
               >
                 Clear Filters
               </Button>
@@ -194,21 +194,21 @@ export default function AllUsersPage() {
         </Card>
 
         {/* Users List */}
-        <Card className="bg-gradient-to-br from-white to-slate-50 border-0 shadow-lg">
+        <Card className="bg-card border border-border shadow-lg">
           <CardHeader>
-            <CardTitle className="text-slate-900 font-poppins">Users ({users.length})</CardTitle>
-            <CardDescription className="text-slate-600">Manage user accounts and WiFi access</CardDescription>
+            <CardTitle className="text-foreground font-poppins">Users ({users.length})</CardTitle>
+            <CardDescription className="text-muted-foreground">Manage user accounts and WiFi access</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
               <div className="space-y-4">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="animate-pulse border rounded-lg p-4">
+                  <div key={i} className="animate-pulse border border-border rounded-lg p-4 bg-card">
                     <div className="flex items-center space-x-4">
-                      <div className="rounded-full bg-gray-200 h-12 w-12"></div>
+                      <div className="rounded-full bg-muted h-12 w-12"></div>
                       <div className="flex-1 space-y-2">
-                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                        <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                        <div className="h-4 bg-muted rounded w-3/4"></div>
+                        <div className="h-3 bg-muted rounded w-1/2"></div>
                       </div>
                     </div>
                   </div>
@@ -216,30 +216,30 @@ export default function AllUsersPage() {
               </div>
             ) : users.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-gray-500">No users found matching your criteria</p>
+                <p className="text-muted-foreground">No users found matching your criteria</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {users.map((user: User) => (
-                  <div key={user.id} className="border border-slate-200 rounded-xl p-6 hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50 transition-all duration-200 bg-white shadow-sm">
+                  <div key={user.id} className="border border-border rounded-xl p-6 hover:bg-accent transition-all duration-200 bg-card shadow-sm">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <div className="flex-shrink-0">
-                          <div className="h-14 w-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-                            <span className="text-xl font-bold text-white">
+                          <div className="h-14 w-14 rounded-full bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center shadow-lg">
+                            <span className="text-xl font-bold text-primary-foreground">
                               {user.name.charAt(0).toUpperCase()}
                             </span>
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-lg font-semibold text-slate-900 font-poppins">{user.name}</p>
-                          <p className="text-sm text-slate-600 font-medium">{user.email}</p>
-                          <p className="text-sm text-slate-500">{user.phone}</p>
+                          <p className="text-lg font-semibold text-foreground font-poppins">{user.name}</p>
+                          <p className="text-sm text-muted-foreground">{user.email}</p>
+                          <p className="text-sm text-muted-foreground">{user.phone}</p>
                           <div className="flex items-center space-x-2 mt-2">
                             <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${getUserStatusColor(user.status)}`}>
                               {user.status}
                             </span>
-                            <span className="text-xs text-slate-500 font-medium">
+                            <span className="text-xs text-muted-foreground font-medium">
                               Joined {formatDate(user.createdAt)}
                             </span>
                           </div>
@@ -250,7 +250,7 @@ export default function AllUsersPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => handleViewUser(user)}
-                          className="bg-white border-slate-200 hover:bg-slate-50 text-slate-700"
+                          className="bg-background border-border hover:bg-accent hover:text-accent-foreground text-foreground"
                         >
                           <EyeIcon className="h-4 w-4 mr-1" />
                           View
@@ -260,7 +260,7 @@ export default function AllUsersPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => handleUserStatusChange(user, 'inactive')}
-                            className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                            className="border-border text-foreground hover:bg-accent hover:text-accent-foreground"
                           >
                             <UserMinusIcon className="h-4 w-4 mr-1" />
                             Deactivate
@@ -269,7 +269,7 @@ export default function AllUsersPage() {
                           <Button
                             size="sm"
                             onClick={() => handleActivateUser(user)}
-                            className="bg-green-600 hover:bg-green-700 text-white border-0"
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground border-0"
                           >
                             <UserPlusIcon className="h-4 w-4 mr-1" />
                             Activate
@@ -279,7 +279,7 @@ export default function AllUsersPage() {
                           size="sm"
                           variant="destructive"
                           onClick={() => handleDeleteUser(user)}
-                          className="bg-red-600 hover:bg-red-700 border-0"
+                          className="bg-destructive hover:bg-destructive/90 border-0"
                         >
                           Delete
                         </Button>
@@ -303,26 +303,26 @@ export default function AllUsersPage() {
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900">User Information</h3>
+                  <h3 className="text-lg font-medium text-foreground">User Information</h3>
                   <dl className="mt-2 space-y-2">
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">Name</dt>
-                      <dd className="text-sm text-gray-900">{selectedUser.name}</dd>
+                      <dt className="text-sm font-medium text-muted-foreground">Name</dt>
+                      <dd className="text-sm text-foreground">{selectedUser.name}</dd>
                     </div>
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">Email</dt>
-                      <dd className="text-sm text-gray-900">{selectedUser.email}</dd>
+                      <dt className="text-sm font-medium text-muted-foreground">Email</dt>
+                      <dd className="text-sm text-foreground">{selectedUser.email}</dd>
                     </div>
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">Phone</dt>
-                      <dd className="text-sm text-gray-900">{selectedUser.phone}</dd>
+                      <dt className="text-sm font-medium text-muted-foreground">Phone</dt>
+                      <dd className="text-sm text-foreground">{selectedUser.phone}</dd>
                     </div>
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">Address</dt>
-                      <dd className="text-sm text-gray-900">{selectedUser.address}</dd>
+                      <dt className="text-sm font-medium text-muted-foreground">Address</dt>
+                      <dd className="text-sm text-foreground">{selectedUser.address}</dd>
                     </div>
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">Status</dt>
+                      <dt className="text-sm font-medium text-muted-foreground">Status</dt>
                       <dd>
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getUserStatusColor(selectedUser.status)}`}>
                           {selectedUser.status}
@@ -332,14 +332,14 @@ export default function AllUsersPage() {
                   </dl>
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900">Payment History</h3>
+                  <h3 className="text-lg font-medium text-foreground">Payment History</h3>
                   <div className="mt-2 space-y-2 max-h-64 overflow-y-auto">
                     {userPayments?.data?.data?.map((payment: Payment) => (
                       <div key={payment.id} className="border rounded p-2">
                         <div className="flex justify-between items-center">
                           <div>
                             <p className="text-sm font-medium">{formatCurrency(payment.amount)}</p>
-                            <p className="text-xs text-gray-500">{payment.duration} months</p>
+                            <p className="text-xs text-muted-foreground">{payment.duration} months</p>
                           </div>
                           <div className="text-right">
                             <p className="text-xs">{formatDate(payment.createdAt)}</p>
@@ -371,8 +371,8 @@ export default function AllUsersPage() {
             <div className="flex items-center space-x-3">
               <ExclamationTriangleIcon className="h-6 w-6 text-red-600" />
               <div>
-                <h3 className="text-lg font-medium text-gray-900">Are you sure?</h3>
-                <p className="text-sm text-gray-500">
+                <h3 className="text-lg font-medium text-foreground">Are you sure?</h3>
+                <p className="text-sm text-muted-foreground">
                   This action cannot be undone. This will permanently delete {userToDelete?.name}'s account and all associated data.
                 </p>
               </div>
@@ -404,21 +404,21 @@ export default function AllUsersPage() {
         >
           <div className="space-y-4">
             <div>
-              <h3 className="text-lg font-medium text-gray-900">
+              <h3 className="text-lg font-medium text-foreground">
                 Activate WiFi for {userToActivate?.name}
               </h3>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 Select the duration for WiFi activation
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-foreground">
                 Duration (months)
               </label>
               <select
                 value={activationDuration}
                 onChange={(e) => setActivationDuration(Number(e.target.value))}
-                className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 <option value={1}>1 Month - ₹500</option>
                 <option value={2}>2 Months - ₹1,000</option>

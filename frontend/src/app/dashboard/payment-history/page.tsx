@@ -83,7 +83,7 @@ export default function PaymentHistoryPage() {
       case 'rejected':
         return 'text-red-600 bg-red-100'
       default:
-        return 'text-gray-600 bg-gray-100'
+        return 'text-muted-foreground bg-muted/20'
     }
   }
 
@@ -93,7 +93,7 @@ export default function PaymentHistoryPage() {
       pending: 'bg-yellow-100 text-yellow-800',
       rejected: 'bg-red-100 text-red-800'
     }
-    return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800'
+    return colors[status as keyof typeof colors] || 'bg-muted/20 text-muted-foreground'
   }
 
   const totalAmount = filteredPayments
@@ -191,12 +191,12 @@ export default function PaymentHistoryPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="rounded-lg border-0 bg-muted/50 px-3 py-2.5 text-sm focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
+                className="rounded-lg border-0 bg-background text-foreground px-3 py-2.5 text-sm focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
               >
-                <option value="">All Status</option>
-                <option value="approved">Approved</option>
-                <option value="pending">Pending</option>
-                <option value="rejected">Rejected</option>
+                <option value="" className="bg-background text-foreground">All Status</option>
+                <option value="approved" className="bg-background text-foreground">Approved</option>
+                <option value="pending" className="bg-background text-foreground">Pending</option>
+                <option value="rejected" className="bg-background text-foreground">Rejected</option>
               </select>
               <Button
                 onClick={() => {
@@ -335,28 +335,28 @@ export default function PaymentHistoryPage() {
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Payment Information</h3>
+                  <h3 className="text-lg font-medium text-foreground mb-4">Payment Information</h3>
                   <dl className="space-y-3">
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">Amount</dt>
-                      <dd className="text-sm text-gray-900">{formatCurrency(selectedPayment.amount)}</dd>
+                      <dt className="text-sm font-medium text-muted-foreground">Amount</dt>
+                      <dd className="text-sm text-foreground">{formatCurrency(selectedPayment.amount)}</dd>
                     </div>
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">Duration</dt>
-                      <dd className="text-sm text-gray-900">{selectedPayment.duration} months</dd>
+                      <dt className="text-sm font-medium text-muted-foreground">Duration</dt>
+                      <dd className="text-sm text-foreground">{selectedPayment.duration} months</dd>
                     </div>
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">Payment Method</dt>
-                      <dd className="text-sm text-gray-900 capitalize">{selectedPayment.method}</dd>
+                      <dt className="text-sm font-medium text-muted-foreground">Payment Method</dt>
+                      <dd className="text-sm text-foreground capitalize">{selectedPayment.method}</dd>
                     </div>
                     {selectedPayment.upiNumber && (
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">UPI Number</dt>
-                        <dd className="text-sm text-gray-900">{selectedPayment.upiNumber}</dd>
+                        <dt className="text-sm font-medium text-muted-foreground">UPI Number</dt>
+                        <dd className="text-sm text-foreground">{selectedPayment.upiNumber}</dd>
                       </div>
                     )}
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">Status</dt>
+                      <dt className="text-sm font-medium text-muted-foreground">Status</dt>
                       <dd>
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(selectedPayment.status)}`}>
                           {selectedPayment.status}
@@ -367,28 +367,28 @@ export default function PaymentHistoryPage() {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Timeline</h3>
+                  <h3 className="text-lg font-medium text-foreground mb-4">Timeline</h3>
                   <dl className="space-y-3">
                     <div>
-                      <dt className="text-sm font-medium text-gray-500">Submitted</dt>
-                      <dd className="text-sm text-gray-900">{formatDate(selectedPayment.createdAt)}</dd>
+                      <dt className="text-sm font-medium text-muted-foreground">Submitted</dt>
+                      <dd className="text-sm text-foreground">{formatDate(selectedPayment.createdAt)}</dd>
                     </div>
                     {selectedPayment.activationDate && (
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Activated</dt>
-                        <dd className="text-sm text-gray-900">{formatDate(selectedPayment.activationDate)}</dd>
+                        <dt className="text-sm font-medium text-muted-foreground">Activated</dt>
+                        <dd className="text-sm text-foreground">{formatDate(selectedPayment.activationDate)}</dd>
                       </div>
                     )}
                     {selectedPayment.expiryDate && (
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Expires</dt>
-                        <dd className="text-sm text-gray-900">{formatDate(selectedPayment.expiryDate)}</dd>
+                        <dt className="text-sm font-medium text-muted-foreground">Expires</dt>
+                        <dd className="text-sm text-foreground">{formatDate(selectedPayment.expiryDate)}</dd>
                       </div>
                     )}
                     {selectedPayment.status === 'approved' && selectedPayment.expiryDate && (
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">Days Remaining</dt>
-                        <dd className="text-sm text-gray-900">
+                        <dt className="text-sm font-medium text-muted-foreground">Days Remaining</dt>
+                        <dd className="text-sm text-foreground">
                           {Math.max(0, Math.ceil((new Date(selectedPayment.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))} days
                         </dd>
                       </div>
@@ -399,7 +399,7 @@ export default function PaymentHistoryPage() {
 
               {selectedPayment.screenshot && (
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Payment Screenshot</h3>
+                  <h3 className="text-lg font-medium text-foreground mb-4">Payment Screenshot</h3>
                   <div className="border rounded-lg p-4">
                     <Image
                       src={selectedPayment.screenshot}
@@ -409,7 +409,7 @@ export default function PaymentHistoryPage() {
                       className="max-w-full h-64 object-contain mx-auto cursor-pointer"
                       onClick={() => handleViewImage(selectedPayment.screenshot!)}
                     />
-                    <p className="text-sm text-gray-500 text-center mt-2">
+                    <p className="text-sm text-muted-foreground text-center mt-2">
                       Click to view full size
                     </p>
                   </div>

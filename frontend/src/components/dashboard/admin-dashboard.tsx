@@ -120,11 +120,11 @@ export default function AdminDashboard() {
         {/* Recent Activity */}
         <Card className="bg-gradient-to-br from-slate-50 to-slate-100 border-0 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-slate-900 font-poppins flex items-center">
-              <ChartBarIcon className="h-5 w-5 mr-2 text-slate-600" />
+            <CardTitle className="text-foreground font-poppins flex items-center">
+              <ChartBarIcon className="h-5 w-5 mr-2 text-muted-foreground" />
               Recent Activity
             </CardTitle>
-            <CardDescription className="text-slate-600">Latest user registrations and payment activities</CardDescription>
+            <CardDescription className="text-muted-foreground">Latest user registrations and payment activities</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -136,7 +136,7 @@ export default function AdminDashboard() {
             ) : (
               <div className="space-y-4">
                 {users.recentUsers?.slice(0, 3).map((user: any, index: number) => (
-                  <div key={user.id} className="flex items-center space-x-3 p-3 bg-white/70 rounded-lg">
+                  <div key={user.id} className="flex items-center space-x-3 p-3 bg-card rounded-lg">
                     <div className="flex-shrink-0">
                       <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
                         <span className="text-sm font-medium text-blue-600">
@@ -145,12 +145,12 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-900">{user.firstName} {user.lastName}</p>
-                      <p className="text-xs text-slate-500">Joined recently</p>
+                      <p className="text-sm font-medium text-foreground">{user.firstName} {user.lastName}</p>
+                      <p className="text-xs text-muted-foreground">Joined recently</p>
                     </div>
                   </div>
                 )) || (
-                    <p className="text-slate-500 text-center py-4">No recent activity to display.</p>
+                    <p className="text-muted-foreground text-center py-4">No recent activity to display.</p>
                   )}
               </div>
             )}
@@ -167,15 +167,15 @@ export default function AdminDashboard() {
             <CardDescription className="text-indigo-600">Manage your WiFi network efficiently</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button className="w-full bg-white/70 hover:bg-white/90 text-indigo-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
+            <Button className="w-full bg-card hover:bg-accent text-indigo-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
               <UsersIcon className="h-4 w-4 mr-2" />
               View All Users
             </Button>
-            <Button className="w-full bg-white/70 hover:bg-white/90 text-indigo-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
+            <Button className="w-full bg-card hover:bg-accent text-indigo-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
               <CreditCardIcon className="h-4 w-4 mr-2" />
               Review Payments
             </Button>
-            <Button className="w-full bg-white/70 hover:bg-white/90 text-indigo-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
+            <Button className="w-full bg-card hover:bg-accent text-indigo-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
               <BellIcon className="h-4 w-4 mr-2" />
               Send Notifications
             </Button>

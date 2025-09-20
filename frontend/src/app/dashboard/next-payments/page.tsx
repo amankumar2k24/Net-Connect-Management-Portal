@@ -175,10 +175,10 @@ export default function NextPaymentsPage() {
       <div className="space-y-6">
         <div className="md:flex md:items-center md:justify-between">
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            <h1 className="text-2xl font-bold leading-7 text-foreground sm:text-3xl sm:truncate">
               Next Payment Dates
             </h1>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               Manage your current plan and upcoming payments
             </p>
           </div>
@@ -198,9 +198,9 @@ export default function NextPaymentsPage() {
           {paymentSchedule.length === 0 ? (
             <Card>
               <CardContent className="p-8 text-center">
-                <CalendarDaysIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Plan</h3>
-                <p className="text-sm text-gray-500 mb-4">
+                <CalendarDaysIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">No Active Plan</h3>
+                <p className="text-sm text-muted-foreground mb-4">
                   You don't have any active WiFi plan. Make your first payment to get started.
                 </p>
                 <Button onClick={() => setIsPaymentModalOpen(true)}>
@@ -254,10 +254,10 @@ export default function NextPaymentsPage() {
                     <div className="text-right">
                       {payment.type === 'current' && (
                         <>
-                          <p className="text-sm font-medium text-gray-900">
+                          <p className="text-sm font-medium text-foreground">
                             {payment.daysRemaining !== null ? payment.daysRemaining : 0} days remaining
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-muted-foreground">
                             Expires: {payment.endDate ? formatDate(payment.endDate) : 'N/A'}
                           </p>
                         </>
@@ -272,7 +272,7 @@ export default function NextPaymentsPage() {
                           <p className="text-sm font-medium text-red-900">
                             {payment.daysRemaining !== null && payment.daysRemaining > 0 ? `Due in ${payment.daysRemaining} days` : 'Overdue'}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-muted-foreground">
                             Due: {formatDate(payment.startDate)}
                           </p>
                         </>
@@ -283,15 +283,15 @@ export default function NextPaymentsPage() {
                   {payment.type === 'current' && (
                     <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
                       <div>
-                        <p className="text-gray-500">Plan Started</p>
+                        <p className="text-muted-foreground">Plan Started</p>
                         <p className="font-medium">{formatDate(payment.startDate)}</p>
                       </div>
                       <div>
-                        <p className="text-gray-500">Plan Duration</p>
+                        <p className="text-muted-foreground">Plan Duration</p>
                         <p className="font-medium">{payment.duration} months</p>
                       </div>
                       <div>
-                        <p className="text-gray-500">Amount Paid</p>
+                        <p className="text-muted-foreground">Amount Paid</p>
                         <p className="font-medium">{formatCurrency(payment.amount)}</p>
                       </div>
                     </div>
@@ -334,8 +334,8 @@ export default function NextPaymentsPage() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">Available Payment Methods</h4>
-                <ul className="space-y-2 text-sm text-gray-600">
+                <h4 className="font-medium text-foreground mb-2">Available Payment Methods</h4>
+                <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-center">
                     <QrCodeIcon className="h-4 w-4 mr-2" />
                     QR Code Payment
@@ -347,8 +347,8 @@ export default function NextPaymentsPage() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">Payment Process</h4>
-                <ol className="list-decimal list-inside space-y-1 text-sm text-gray-600">
+                <h4 className="font-medium text-foreground mb-2">Payment Process</h4>
+                <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
                   <li>Choose your payment duration</li>
                   <li>Select payment method (QR/UPI)</li>
                   <li>Make payment and take screenshot</li>
@@ -370,7 +370,7 @@ export default function NextPaymentsPage() {
           <form onSubmit={formik.handleSubmit} className="space-y-6">
             {/* Duration Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-sm font-medium text-foreground mb-3">
                 Select Duration
               </label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -391,7 +391,7 @@ export default function NextPaymentsPage() {
                       }`}
                   >
                     <div className="font-medium">{months} Month{months > 1 ? 's' : ''}</div>
-                    <div className="text-sm text-gray-500">{formatCurrency(price)}</div>
+                    <div className="text-sm text-muted-foreground">{formatCurrency(price)}</div>
                   </button>
                 ))}
               </div>
@@ -399,15 +399,15 @@ export default function NextPaymentsPage() {
 
             {/* Amount Display */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Total Amount</label>
-              <div className="mt-1 text-2xl font-bold text-gray-900">
+              <label className="block text-sm font-medium text-foreground">Total Amount</label>
+              <div className="mt-1 text-2xl font-bold text-foreground">
                 {formatCurrency(formik.values.amount)}
               </div>
             </div>
 
             {/* Payment Method */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-sm font-medium text-foreground mb-3">
                 Payment Method
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -439,19 +439,19 @@ export default function NextPaymentsPage() {
             {/* Payment Details */}
             {formik.values.method === 'qr' && settings.qrCode && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Scan QR Code
                 </label>
-                <div className="border rounded-lg p-4 text-center bg-gray-50">
-                  <QrCodeIcon className="h-16 w-16 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600">QR Code for Payment</p>
+                <div className="border rounded-lg p-4 text-center bg-muted/20">
+                  <QrCodeIcon className="h-16 w-16 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">QR Code for Payment</p>
                 </div>
               </div>
             )}
 
             {formik.values.method === 'upi' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   UPI ID: {settings.upiNumber || 'Contact admin for UPI details'}
                 </label>
                 <Input
@@ -463,24 +463,24 @@ export default function NextPaymentsPage() {
                   className={formik.touched.upiNumber && formik.errors.upiNumber ? 'border-red-500' : ''}
                 />
                 {formik.touched.upiNumber && formik.errors.upiNumber && (
-                  <p className="mt-1 text-sm text-red-500">{formik.errors.upiNumber}</p>
+                  <p className="mt-1 text-sm text-red-700">{formik.errors.upiNumber}</p>
                 )}
               </div>
             )}
 
             {/* Screenshot Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Payment Screenshot
               </label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleScreenshotChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />
               {formik.touched.screenshot && formik.errors.screenshot && (
-                <p className="mt-1 text-sm text-red-500">{formik.errors.screenshot}</p>
+                <p className="mt-1 text-sm text-red-700">{formik.errors.screenshot}</p>
               )}
               {selectedScreenshot && (
                 <div className="mt-2">

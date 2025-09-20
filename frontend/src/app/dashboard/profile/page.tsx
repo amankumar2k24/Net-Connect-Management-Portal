@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, ChangeEvent } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
@@ -18,7 +18,8 @@ import {
   QrCodeIcon,
   DevicePhoneMobileIcon,
   CheckIcon,
-  PencilIcon
+  PencilIcon,
+  ArrowUpTrayIcon
 } from '@heroicons/react/24/outline'
 
 const profileSchema = Yup.object({
@@ -28,7 +29,7 @@ const profileSchema = Yup.object({
 })
 
 const adminSettingsSchema = Yup.object({
-  qrCode: Yup.string().required('QR Code is required'),
+  // qrCode is now a file, so we don't validate it as a string
   upiNumber: Yup.string().matches(/^[0-9]{10}@[a-zA-Z]+$/, 'Invalid UPI format (e.g., 9876543210@paytm)').required('UPI Number is required'),
 })
 
@@ -36,6 +37,9 @@ export default function ProfilePage() {
   const { user } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
   const [isEditingSettings, setIsEditingSettings] = useState(false)
+  const [qrCodePreview, setQrCodePreview] = useState<string | null>(null)
+  const [qrCodeFile, setQrCodeFile] = useState<File | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const queryClient = useQueryClient()
 
@@ -63,11 +67,13 @@ export default function ProfilePage() {
     },
   })
 
-  const updateQrCodeMutation = useMutation({
-    mutationFn: (qrCode: string) => adminApi.updateQrCode(qrCode),
+  const updateQrCodeImageMutation = useMutation({
+    mutationFn: (qrCodeImage: File) => adminApi.updateQrCodeImage(qrCodeImage),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-settings'] })
       toast.success('QR Code updated successfully!')
+      setQrCodeFile(null)
+      setQrCodePreview(null)
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to update QR Code')
@@ -103,47 +109,69 @@ export default function ProfilePage() {
 
   const settingsFormik = useFormik({
     initialValues: {
-      qrCode: settings?.qrCode || '',
+      // qrCode is now handled as a file
       upiNumber: settings?.upiNumber || '',
     },
     validationSchema: adminSettingsSchema,
     enableReinitialize: true,
     onSubmit: async (values) => {
-      // Update both settings
-      await updateQrCodeMutation.mutateAsync(values.qrCode)
+      // Update UPI number
       await updateUpiNumberMutation.mutateAsync(values.upiNumber)
+
+      // Update QR code image if a file was selected
+      if (qrCodeFile) {
+        await updateQrCodeImageMutation.mutateAsync(qrCodeFile)
+      }
+
       setIsEditingSettings(false)
     },
   })
+
+  const handleQrCodeFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setQrCodeFile(file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setQrCodePreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click()
+  }
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div className="md:flex md:items-center md:justify-between">
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            <h1 className="text-2xl font-bold leading-7 text-foreground sm:text-3xl sm:truncate">
               Profile
             </h1>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               Manage your personal information and settings
             </p>
           </div>
         </div>
 
         {/* Profile Information */}
-        <Card>
+        <Card className="bg-card border border-border">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center text-foreground">
                   <UserIcon className="h-5 w-5 mr-2" />
                   Profile Information
                 </CardTitle>
-                <CardDescription>Update your personal details</CardDescription>
+                <CardDescription className="text-muted-foreground">Update your personal details</CardDescription>
               </div>
               <Button
                 variant="outline"
                 onClick={() => setIsEditing(!isEditing)}
+                className="bg-background border-border hover:bg-accent hover:text-accent-foreground text-foreground"
               >
                 <PencilIcon className="h-4 w-4 mr-2" />
                 {isEditing ? 'Cancel' : 'Edit'}
@@ -156,16 +184,16 @@ export default function ProfilePage() {
                 {/* Profile Avatar */}
                 <div className="md:col-span-2 flex items-center space-x-6">
                   <div className="flex-shrink-0">
-                    <div className="h-20 w-20 rounded-full bg-blue-600 flex items-center justify-center">
-                      <span className="text-2xl font-bold text-white">
-                        {profile?.name?.charAt(0).toUpperCase()}
+                    <div className="h-20 w-20 rounded-full bg-primary flex items-center justify-center">
+                      <span className="text-2xl font-bold text-primary-foreground">
+                        {profile?.name === 'Aman Kumar' ? 'AK' : profile?.name?.charAt(0).toUpperCase()}
                       </span>
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900">{profile?.name}</h3>
-                    <p className="text-sm text-gray-500">{profile?.email}</p>
-                    <p className="text-xs text-gray-500 capitalize">
+                    <h3 className="text-lg font-medium text-foreground">{profile?.name}</h3>
+                    <p className="text-sm text-muted-foreground">{profile?.email}</p>
+                    <p className="text-xs text-muted-foreground capitalize">
                       {profile?.role} Account
                     </p>
                   </div>
@@ -173,7 +201,7 @@ export default function ProfilePage() {
 
                 {/* Name Field */}
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="name" className="block text-sm font-medium text-foreground">
                     Full Name
                   </label>
                   <Input
@@ -184,17 +212,17 @@ export default function ProfilePage() {
                     onChange={profileFormik.handleChange}
                     onBlur={profileFormik.handleBlur}
                     disabled={!isEditing}
-                    className={`mt-1 ${!isEditing ? 'bg-gray-50' : ''} ${profileFormik.touched.name && profileFormik.errors.name ? 'border-red-500' : ''
+                    className={`mt-1 bg-background border-border text-foreground placeholder:text-muted-foreground ${!isEditing ? 'bg-muted/50' : ''} ${profileFormik.touched.name && profileFormik.errors.name ? 'border-destructive' : ''
                       }`}
                   />
                   {profileFormik.touched.name && profileFormik.errors.name && (
-                    <p className="mt-1 text-sm text-destructive">{String(profileFormik.errors.name)}</p>
+                    <p className="mt-1 text-sm text-red-700">{String(profileFormik.errors.name)}</p>
                   )}
                 </div>
 
                 {/* Email Field (Read-only) */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="email" className="block text-sm font-medium text-foreground">
                     Email Address
                   </label>
                   <Input
@@ -203,16 +231,16 @@ export default function ProfilePage() {
                     type="email"
                     value={profile?.email || ''}
                     disabled
-                    className="mt-1 bg-gray-50"
+                    className="mt-1 bg-muted/50 border-border text-foreground"
                   />
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     Email cannot be changed. Contact support if needed.
                   </p>
                 </div>
 
                 {/* Phone Field */}
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="phone" className="block text-sm font-medium text-foreground">
                     Phone Number
                   </label>
                   <Input
@@ -223,17 +251,17 @@ export default function ProfilePage() {
                     onChange={profileFormik.handleChange}
                     onBlur={profileFormik.handleBlur}
                     disabled={!isEditing}
-                    className={`mt-1 ${!isEditing ? 'bg-gray-50' : ''} ${profileFormik.touched.phone && profileFormik.errors.phone ? 'border-red-500' : ''
+                    className={`mt-1 bg-background border-border text-foreground placeholder:text-muted-foreground ${!isEditing ? 'bg-muted/50' : ''} ${profileFormik.touched.phone && profileFormik.errors.phone ? 'border-destructive' : ''
                       }`}
                   />
                   {profileFormik.touched.phone && profileFormik.errors.phone && (
-                    <p className="mt-1 text-sm text-destructive">{String(profileFormik.errors.phone)}</p>
+                    <p className="mt-1 text-sm text-red-700">{String(profileFormik.errors.phone)}</p>
                   )}
                 </div>
 
                 {/* Role Field (Read-only) */}
                 <div>
-                  <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="role" className="block text-sm font-medium text-foreground">
                     Account Type
                   </label>
                   <Input
@@ -242,13 +270,13 @@ export default function ProfilePage() {
                     type="text"
                     value={profile?.role?.charAt(0).toUpperCase() + profile?.role?.slice(1) || ''}
                     disabled
-                    className="mt-1 bg-gray-50 capitalize"
+                    className="mt-1 bg-muted/50 border-border text-foreground capitalize"
                   />
                 </div>
 
                 {/* Address Field */}
                 <div className="md:col-span-2">
-                  <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="address" className="block text-sm font-medium text-foreground">
                     Address
                   </label>
                   <Textarea
@@ -258,11 +286,11 @@ export default function ProfilePage() {
                     onChange={profileFormik.handleChange}
                     onBlur={profileFormik.handleBlur}
                     disabled={!isEditing}
-                    className={`mt-1 ${!isEditing ? 'bg-gray-50' : ''} ${profileFormik.touched.address && profileFormik.errors.address ? 'border-red-500' : ''
+                    className={`mt-1 bg-background border-border text-foreground placeholder:text-muted-foreground ${!isEditing ? 'bg-muted/50' : ''} ${profileFormik.touched.address && profileFormik.errors.address ? 'border-destructive' : ''
                       }`}
                   />
                   {profileFormik.touched.address && profileFormik.errors.address && (
-                    <p className="mt-1 text-sm text-destructive">{profileFormik.errors.address as string}</p>
+                    <p className="mt-1 text-sm text-red-700">{profileFormik.errors.address as string}</p>
                   )}
                 </div>
               </div>
@@ -276,12 +304,14 @@ export default function ProfilePage() {
                       setIsEditing(false)
                       profileFormik.resetForm()
                     }}
+                    className="bg-background border-border hover:bg-accent hover:text-accent-foreground text-foreground"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
                     disabled={updateProfileMutation.isPending}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
                   >
                     <CheckIcon className="h-4 w-4 mr-2" />
                     {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}
@@ -294,19 +324,20 @@ export default function ProfilePage() {
 
         {/* Admin Settings */}
         {user?.role === 'admin' && (
-          <Card>
+          <Card className="bg-card border border-border">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="flex items-center">
+                  <CardTitle className="flex items-center text-foreground">
                     <CreditCardIcon className="h-5 w-5 mr-2" />
                     Payment Settings
                   </CardTitle>
-                  <CardDescription>Manage QR Code and UPI details for user payments</CardDescription>
+                  <CardDescription className="text-muted-foreground">Manage QR Code and UPI details for user payments</CardDescription>
                 </div>
                 <Button
                   variant="outline"
                   onClick={() => setIsEditingSettings(!isEditingSettings)}
+                  className="bg-background border-border hover:bg-accent hover:text-accent-foreground text-foreground"
                 >
                   <PencilIcon className="h-4 w-4 mr-2" />
                   {isEditingSettings ? 'Cancel' : 'Edit'}
@@ -316,29 +347,67 @@ export default function ProfilePage() {
             <CardContent>
               <form onSubmit={settingsFormik.handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* QR Code Field */}
+                  {/* QR Code Upload */}
                   <div>
-                    <label htmlFor="qrCode" className="block text-sm font-medium text-foreground">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       <QrCodeIcon className="h-4 w-4 inline mr-1" />
-                      QR Code Image URL
+                      QR Code Image
                     </label>
-                    <Textarea
-                      id="qrCode"
-                      name="qrCode"
-                      placeholder="Enter QR code image URL (e.g., https://example.com/qr-image.png)"
-                      value={settingsFormik.values.qrCode}
-                      onChange={settingsFormik.handleChange}
-                      onBlur={settingsFormik.handleBlur}
-                      disabled={!isEditingSettings}
-                      className={`mt-1 bg-input border-border text-foreground placeholder:text-muted-foreground ${!isEditingSettings ? 'bg-muted/50' : ''} ${settingsFormik.touched.qrCode && settingsFormik.errors.qrCode ? 'border-destructive' : ''
-                        }`}
-                    />
-                    {settingsFormik.touched.qrCode && settingsFormik.errors.qrCode && (
-                      <p className="mt-1 text-sm text-destructive">{String(settingsFormik.errors.qrCode)}</p>
-                    )}
+                    <div className="mt-1 flex items-center">
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleQrCodeFileChange}
+                        accept="image/*"
+                        className="hidden"
+                        disabled={!isEditingSettings}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={triggerFileInput}
+                        disabled={!isEditingSettings}
+                        className="bg-background border-border hover:bg-accent hover:text-accent-foreground text-foreground"
+                      >
+                        <ArrowUpTrayIcon className="h-4 w-4 mr-2" />
+                        {qrCodeFile ? 'Change Image' : 'Upload Image'}
+                      </Button>
+                      {qrCodeFile && (
+                        <span className="ml-3 text-sm text-muted-foreground truncate max-w-xs">
+                          {qrCodeFile.name}
+                        </span>
+                      )}
+                    </div>
                     <p className="mt-1 text-xs text-muted-foreground">
                       📱 Users will scan this QR code image to make payments
                     </p>
+
+                    {/* QR Code Preview */}
+                    <div className="mt-4">
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        QR Code Preview
+                      </label>
+                      <div className="border border-border rounded-lg p-4 bg-muted/20">
+                        <div className="text-center">
+                          {(qrCodePreview || settings?.qrCode) ? (
+                            <div className="inline-flex items-center justify-center w-32 h-32 bg-background border border-border rounded-lg overflow-hidden">
+                              <img
+                                src={qrCodePreview || settings.qrCode}
+                                alt="QR Code Preview"
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                          ) : (
+                            <div className="inline-flex items-center justify-center w-32 h-32 bg-background border border-border rounded-lg">
+                              <QrCodeIcon className="h-16 w-16 text-muted-foreground" />
+                            </div>
+                          )}
+                          <p className="mt-2 text-sm text-muted-foreground">
+                            {qrCodePreview || settings?.qrCode ? 'Preview' : 'No QR code configured'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   {/* UPI Number Field */}
@@ -356,7 +425,7 @@ export default function ProfilePage() {
                       onChange={settingsFormik.handleChange}
                       onBlur={settingsFormik.handleBlur}
                       disabled={!isEditingSettings}
-                      className={`mt-1 bg-input border-border text-foreground placeholder:text-muted-foreground ${!isEditingSettings ? 'bg-muted/50' : ''} ${settingsFormik.touched.upiNumber && settingsFormik.errors.upiNumber ? 'border-destructive' : ''
+                      className={`mt-1 bg-background border-border text-foreground placeholder:text-muted-foreground ${!isEditingSettings ? 'bg-muted/50' : ''} ${settingsFormik.touched.upiNumber && settingsFormik.errors.upiNumber ? 'border-destructive' : ''
                         }`}
                     />
                     {settingsFormik.touched.upiNumber && settingsFormik.errors.upiNumber && (
@@ -368,23 +437,6 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                {/* Current QR Code Preview */}
-                {settings?.qrCode && !isEditingSettings && (
-                  <div className="mt-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Current QR Code Preview
-                    </label>
-                    <div className="border rounded-lg p-4 bg-gray-50">
-                      <div className="text-center">
-                        <div className="inline-flex items-center justify-center w-32 h-32 bg-white border-2 border-dashed border-gray-300 rounded-lg">
-                          <QrCodeIcon className="h-16 w-16 text-gray-400" />
-                        </div>
-                        <p className="mt-2 text-sm text-gray-500">QR Code configured</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 {isEditingSettings && (
                   <div className="flex justify-end space-x-3">
                     <Button
@@ -393,16 +445,20 @@ export default function ProfilePage() {
                       onClick={() => {
                         setIsEditingSettings(false)
                         settingsFormik.resetForm()
+                        setQrCodeFile(null)
+                        setQrCodePreview(null)
                       }}
+                      className="bg-background border-border hover:bg-accent hover:text-accent-foreground text-foreground"
                     >
                       Cancel
                     </Button>
                     <Button
                       type="submit"
-                      disabled={updateQrCodeMutation.isPending || updateUpiNumberMutation.isPending}
+                      disabled={updateQrCodeImageMutation.isPending || updateUpiNumberMutation.isPending}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground"
                     >
                       <CheckIcon className="h-4 w-4 mr-2" />
-                      {(updateQrCodeMutation.isPending || updateUpiNumberMutation.isPending) ? 'Saving...' : 'Save Settings'}
+                      {(updateQrCodeImageMutation.isPending || updateUpiNumberMutation.isPending) ? 'Saving...' : 'Save Settings'}
                     </Button>
                   </div>
                 )}
@@ -412,16 +468,16 @@ export default function ProfilePage() {
         )}
 
         {/* Account Information */}
-        <Card>
+        <Card className="bg-card border border-border">
           <CardHeader>
-            <CardTitle>Account Information</CardTitle>
-            <CardDescription>Read-only account details</CardDescription>
+            <CardTitle className="text-foreground">Account Information</CardTitle>
+            <CardDescription className="text-muted-foreground">Read-only account details</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Member Since</label>
-                <p className="mt-1 text-sm text-gray-900">
+                <label className="block text-sm font-medium text-foreground">Member Since</label>
+                <p className="mt-1 text-sm text-muted-foreground">
                   {profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -430,8 +486,8 @@ export default function ProfilePage() {
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Last Updated</label>
-                <p className="mt-1 text-sm text-gray-900">
+                <label className="block text-sm font-medium text-foreground">Last Updated</label>
+                <p className="mt-1 text-sm text-muted-foreground">
                   {profile?.updatedAt ? new Date(profile.updatedAt).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -440,17 +496,17 @@ export default function ProfilePage() {
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Account Status</label>
+                <label className="block text-sm font-medium text-foreground">Account Status</label>
                 <p className="mt-1">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${profile?.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${profile?.status === 'active' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'
                     }`}>
                     {profile?.status || 'Unknown'}
                   </span>
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">User ID</label>
-                <p className="mt-1 text-sm text-gray-900 font-mono">{profile?.id || 'N/A'}</p>
+                <label className="block text-sm font-medium text-foreground">User ID</label>
+                <p className="mt-1 text-sm text-muted-foreground font-mono">{profile?.id || 'N/A'}</p>
               </div>
             </div>
           </CardContent>

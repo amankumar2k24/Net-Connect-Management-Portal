@@ -129,7 +129,7 @@ export default function NotificationsPage() {
         return 'text-blue-600 bg-blue-100'
       case 'system':
       default:
-        return 'text-gray-600 bg-gray-100'
+        return 'text-muted-foreground bg-muted/20'
     }
   }
 
@@ -156,6 +156,7 @@ export default function NotificationsPage() {
               <Button
                 onClick={handleMarkAllAsRead}
                 disabled={markAllAsReadMutation.isPending}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 <CheckIcon className="h-4 w-4 mr-2" />
                 Mark All Read ({unreadCount})
@@ -166,43 +167,43 @@ export default function NotificationsPage() {
 
         {/* Notification Statistics */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-0 shadow-lg">
+          <Card className="bg-card border border-border shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-700 mb-1">Total</p>
-                  <p className="text-3xl font-bold text-blue-900">{notifications.length}</p>
+                  <p className="text-sm font-medium text-foreground/80 mb-1">Total</p>
+                  <p className="text-3xl font-bold text-foreground">{notifications.length}</p>
                 </div>
-                <div className="p-3 bg-blue-200 rounded-xl">
-                  <BellIcon className="h-6 w-6 text-blue-600" />
+                <div className="p-3 bg-primary/10 rounded-xl">
+                  <BellIcon className="h-6 w-6 text-primary" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-0 shadow-lg">
+          <Card className="bg-card border border-border shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-yellow-700 mb-1">Unread</p>
-                  <p className="text-3xl font-bold text-yellow-900">{unreadCount}</p>
+                  <p className="text-sm font-medium text-foreground/80 mb-1">Unread</p>
+                  <p className="text-3xl font-bold text-foreground">{unreadCount}</p>
                 </div>
-                <div className="p-3 bg-yellow-200 rounded-xl">
-                  <ExclamationTriangleIcon className="h-6 w-6 text-yellow-600" />
+                <div className="p-3 bg-yellow-500/10 rounded-xl">
+                  <ExclamationTriangleIcon className="h-6 w-6 text-yellow-500" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-0 shadow-lg">
+          <Card className="bg-card border border-border shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-green-700 mb-1">Read</p>
-                  <p className="text-3xl font-bold text-green-900">{notifications.length - unreadCount}</p>
+                  <p className="text-sm font-medium text-foreground/80 mb-1">Read</p>
+                  <p className="text-3xl font-bold text-foreground">{notifications.length - unreadCount}</p>
                 </div>
-                <div className="p-3 bg-green-200 rounded-xl">
-                  <CheckIcon className="h-6 w-6 text-green-600" />
+                <div className="p-3 bg-green-500/10 rounded-xl">
+                  <CheckIcon className="h-6 w-6 text-green-500" />
                 </div>
               </div>
             </CardContent>
@@ -210,30 +211,30 @@ export default function NotificationsPage() {
         </div>
 
         {/* Filters */}
-        <Card className="bg-gradient-to-br from-slate-50 to-slate-100 border-0 shadow-lg">
+        <Card className="bg-card border border-border shadow-lg">
           <CardHeader>
-            <CardTitle className="text-slate-900 font-poppins">Filter Notifications</CardTitle>
+            <CardTitle className="text-foreground font-poppins">Filter Notifications</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex space-x-4">
               <Button
                 variant={filter === 'all' ? 'default' : 'outline'}
                 onClick={() => setFilter('all')}
-                className={filter === 'all' ? 'bg-primary text-primary-foreground' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'}
+                className={filter === 'all' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-background border-border text-foreground hover:bg-accent hover:text-accent-foreground'}
               >
                 All ({notifications.length})
               </Button>
               <Button
                 variant={filter === 'unread' ? 'default' : 'outline'}
                 onClick={() => setFilter('unread')}
-                className={filter === 'unread' ? 'bg-primary text-primary-foreground' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'}
+                className={filter === 'unread' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-background border-border text-foreground hover:bg-accent hover:text-accent-foreground'}
               >
                 Unread ({unreadCount})
               </Button>
               <Button
                 variant={filter === 'read' ? 'default' : 'outline'}
                 onClick={() => setFilter('read')}
-                className={filter === 'read' ? 'bg-primary text-primary-foreground' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'}
+                className={filter === 'read' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-background border-border text-foreground hover:bg-accent hover:text-accent-foreground'}
               >
                 Read ({notifications.length - unreadCount})
               </Button>
@@ -242,23 +243,23 @@ export default function NotificationsPage() {
         </Card>
 
         {/* Notifications List */}
-        <Card>
+        <Card className="bg-card border border-border">
           <CardHeader>
-            <CardTitle>
+            <CardTitle className="text-foreground">
               Notifications ({filteredNotifications.length})
             </CardTitle>
-            <CardDescription>Recent notifications and updates</CardDescription>
+            <CardDescription className="text-muted-foreground">Recent notifications and updates</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
               <div className="space-y-4">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="animate-pulse border rounded-lg p-4">
+                  <div key={i} className="animate-pulse border border-border rounded-lg p-4 bg-card">
                     <div className="flex items-center space-x-4">
-                      <div className="rounded-full bg-gray-200 h-10 w-10"></div>
+                      <div className="rounded-full bg-muted h-10 w-10"></div>
                       <div className="flex-1 space-y-2">
-                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                        <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                        <div className="h-4 bg-muted rounded w-3/4"></div>
+                        <div className="h-3 bg-muted rounded w-1/2"></div>
                       </div>
                     </div>
                   </div>
@@ -266,9 +267,9 @@ export default function NotificationsPage() {
               </div>
             ) : filteredNotifications.length === 0 ? (
               <div className="text-center py-8">
-                <BellIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500 text-lg font-medium">No notifications found</p>
-                <p className="text-gray-400 text-sm">
+                <BellIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground text-lg font-medium">No notifications found</p>
+                <p className="text-muted-foreground/80 text-sm">
                   {filter === 'unread' ? 'All caught up! No unread notifications.' :
                     filter === 'read' ? 'No read notifications yet.' :
                       'You have no notifications at this time.'}
@@ -281,7 +282,7 @@ export default function NotificationsPage() {
                   return (
                     <div
                       key={notification.id}
-                      className={`border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors ${!notification.read ? 'bg-blue-50 border-blue-200' : ''
+                      className={`border border-border rounded-lg p-4 hover:bg-accent cursor-pointer transition-colors ${!notification.read ? 'bg-accent/50' : 'bg-card'
                         }`}
                       onClick={() => handleViewNotification(notification)}
                     >
@@ -292,21 +293,21 @@ export default function NotificationsPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center space-x-2">
-                              <h3 className={`text-sm font-medium ${!notification.read ? 'text-gray-900' : 'text-gray-700'}`}>
+                              <h3 className={`text-sm font-medium ${!notification.read ? 'text-foreground' : 'text-foreground/80'}`}>
                                 {notification.title}
                               </h3>
                               {!notification.read && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary">
                                   New
                                 </span>
                               )}
                             </div>
-                            <p className={`mt-1 text-sm ${!notification.read ? 'text-gray-600' : 'text-gray-500'}`}>
+                            <p className={`mt-1 text-sm ${!notification.read ? 'text-foreground/90' : 'text-foreground/70'}`}>
                               {notification.message.length > 100
                                 ? `${notification.message.substring(0, 100)}...`
                                 : notification.message}
                             </p>
-                            <p className="mt-1 text-xs text-gray-400">
+                            <p className="mt-1 text-xs text-muted-foreground">
                               {formatDate(notification.createdAt)}
                             </p>
                           </div>
@@ -319,6 +320,7 @@ export default function NotificationsPage() {
                               e.stopPropagation()
                               handleViewNotification(notification)
                             }}
+                            className="bg-background border-border hover:bg-accent hover:text-accent-foreground text-foreground"
                           >
                             <EyeIcon className="h-4 w-4" />
                           </Button>
@@ -331,6 +333,7 @@ export default function NotificationsPage() {
                                 handleMarkAsRead(notification)
                               }}
                               disabled={markAsReadMutation.isPending}
+                              className="bg-background border-border hover:bg-accent hover:text-accent-foreground text-foreground"
                             >
                               <CheckIcon className="h-4 w-4" />
                             </Button>
@@ -343,6 +346,7 @@ export default function NotificationsPage() {
                               handleDeleteNotification(notification)
                             }}
                             disabled={deleteNotificationMutation.isPending}
+                            className="bg-destructive hover:bg-destructive/90 border-0"
                           >
                             <TrashIcon className="h-4 w-4" />
                           </Button>
@@ -373,15 +377,15 @@ export default function NotificationsPage() {
                   })()}
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-medium text-gray-900">
+                  <h3 className="text-lg font-medium text-foreground">
                     {selectedNotification.title}
                   </h3>
-                  <p className="text-sm text-gray-500 capitalize">
+                  <p className="text-sm text-muted-foreground capitalize">
                     {selectedNotification.type} notification
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     {formatDate(selectedNotification.createdAt)}
                   </p>
                   {!selectedNotification.read && (
@@ -393,8 +397,8 @@ export default function NotificationsPage() {
               </div>
 
               <div className="border-t pt-4">
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Message</h4>
-                <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                <h4 className="text-sm font-medium text-foreground mb-2">Message</h4>
+                <p className="text-sm text-foreground whitespace-pre-wrap">
                   {selectedNotification.message}
                 </p>
               </div>

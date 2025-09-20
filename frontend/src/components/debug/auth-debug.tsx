@@ -77,11 +77,11 @@ export default function AuthDebug() {
                     <div className="p-2 max-h-64 overflow-y-auto">
                         <div className="space-y-1">
                             {debugLogs.length === 0 ? (
-                                <div className="text-gray-400">No logs yet...</div>
+                                <div className="text-muted-foreground">No logs yet...</div>
                             ) : (
                                 debugLogs.map((log, index) => (
                                     <div key={index} className={`text-[10px] ${log.type === 'error' ? 'text-red-400' :
-                                            log.type === 'warning' ? 'text-yellow-400' : 'text-green-400'
+                                        log.type === 'warning' ? 'text-yellow-400' : 'text-green-400'
                                         }`}>
                                         <span className="opacity-50">{log.timestamp}</span>
                                         <div>{log.message}</div>

@@ -18,6 +18,7 @@ import {
   XMarkIcon,
   ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline'
+import { Tooltip } from 'react-tooltip'
 
 interface SidebarProps {
   className?: string
@@ -136,7 +137,7 @@ export default function Sidebar({ className }: SidebarProps) {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary text-foreground bg-white shadow-lg"
               >
-                <XMarkIcon className="h-6 w-6 text-gray-800" aria-hidden="true" />
+                <XMarkIcon className="h-6 w-6 text-foreground" aria-hidden="true" />
               </button>
             </div>
             <SidebarContent menuItems={menuItems} pathname={pathname} user={user} onLogout={handleLogout} isCollapsed={false} />
@@ -193,6 +194,9 @@ function SidebarContent({ menuItems, pathname, user, onLogout, isCollapsed = fal
                   isCollapsed ? 'justify-center px-2 py-4' : 'px-4 py-3.5',
                   'group flex items-center text-sm font-medium rounded-xl transition-all duration-300 ease-out backdrop-blur-sm'
                 )}
+                data-tooltip-id="sidebar-tooltip"
+                data-tooltip-content={item.name}
+                data-tooltip-place="right"
               >
                 <div className={cn(
                   isActive
@@ -268,6 +272,9 @@ function SidebarContent({ menuItems, pathname, user, onLogout, isCollapsed = fal
                   onClick={onLogout}
                   className="flex items-center justify-center p-2 text-slate-300 rounded-xl hover:bg-gradient-to-r hover:from-red-600 hover:to-red-500 hover:text-white transition-all duration-300 hover:shadow-lg group"
                   title="Sign out"
+                  data-tooltip-id="sidebar-tooltip"
+                  data-tooltip-content="Sign out"
+                  data-tooltip-place="right"
                 >
                   <ArrowRightOnRectangleIcon className="h-5 w-5" aria-hidden="true" />
                 </button>
@@ -276,6 +283,14 @@ function SidebarContent({ menuItems, pathname, user, onLogout, isCollapsed = fal
           </div>
         </div>
       </div>
+
+      {/* Tooltip component */}
+      <Tooltip
+        id="sidebar-tooltip"
+        className="z-50 rounded-md bg-slate-800 px-3 py-2 text-sm text-white shadow-lg border border-slate-600"
+        noArrow={false}
+        place="right"
+      />
     </>
   )
 }

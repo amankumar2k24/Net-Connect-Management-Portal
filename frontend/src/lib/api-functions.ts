@@ -136,6 +136,13 @@ export const adminApi = {
     return api.get('/payments/dashboard-stats')
   },
   updateQrCode: (qrCode: string) => api.put('/admin/qr-code', { qrCode }),
+  updateQrCodeImage: (qrCodeImage: File) => {
+    const formData = new FormData()
+    formData.append('qrCodeImage', qrCodeImage)
+    return api.put('/admin/qr-code-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
   updateUpiNumber: (upiNumber: string) => api.put('/admin/upi-number', { upiNumber }),
   getSettings: () => api.get('/admin/settings'),
 }
