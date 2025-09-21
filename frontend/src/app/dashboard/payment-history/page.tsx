@@ -7,6 +7,7 @@ import DashboardLayout from '@/components/layout/dashboard-layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import Select, { SelectOption } from '@/components/ui/select'
 import { Modal } from '@/components/ui/modal'
 import { paymentApi } from '@/lib/api-functions'
 import { formatCurrency, formatDate } from '@/lib/utils'
@@ -22,6 +23,13 @@ import {
   XCircleIcon,
   PhotoIcon
 } from '@heroicons/react/24/outline'
+
+const statusOptions: SelectOption[] = [
+  { label: 'All Status', value: '' },
+  { label: 'Approved', value: 'approved' },
+  { label: 'Pending', value: 'pending' },
+  { label: 'Rejected', value: 'rejected' }
+]
 
 export default function PaymentHistoryPage() {
   const { user } = useAuth()
@@ -173,47 +181,52 @@ export default function PaymentHistoryPage() {
         </div>
 
         {/* Search & Filters */}
-        <Card className="border-0 shadow-lg">
+        <Card className="card-enhanced">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg font-semibold">Search & Filters</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search by amount or duration..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 border-0 bg-muted/50 focus:bg-background transition-colors"
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground" htmlFor="payment-search">Search</label>
+                <div className="relative">
+                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
+                  <Input
+                    id="payment-search"
+                    placeholder="Search by amount or duration..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 border-0 bg-muted/50 transition-colors focus:bg-background"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Status</label>
+                <Select
+                  value={statusFilter}
+                  onChange={setStatusFilter}
+                  options={statusOptions}
+                  className="w-full"
                 />
               </div>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="rounded-lg border-0 bg-background text-foreground px-3 py-2.5 text-sm focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
-              >
-                <option value="" className="bg-background text-foreground">All Status</option>
-                <option value="approved" className="bg-background text-foreground">Approved</option>
-                <option value="pending" className="bg-background text-foreground">Pending</option>
-                <option value="rejected" className="bg-background text-foreground">Rejected</option>
-              </select>
-              <Button
-                onClick={() => {
-                  setSearchQuery('')
-                  setStatusFilter('')
-                }}
-                variant="outline"
-                className="border-0 bg-muted/50 hover:bg-muted"
-              >
-                Clear Filters
-              </Button>
+              <div className="flex items-end">
+                <Button
+                  onClick={() => {
+                    setSearchQuery('')
+                    setStatusFilter('')
+                  }}
+                  variant="outline"
+                  className="w-full border-0 bg-muted/50 hover:bg-muted md:w-auto"
+                >
+                  Clear Filters
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Payments List */}
-        <Card className="border-0 shadow-lg">
+        <Card className="card-enhanced">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <div>

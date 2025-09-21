@@ -21,6 +21,7 @@ import {
   PencilIcon,
   ArrowUpTrayIcon
 } from '@heroicons/react/24/outline'
+import { AdminSettings } from '@/types' // Add this import
 
 const profileSchema = Yup.object({
   name: Yup.string().min(2, 'Name must be at least 2 characters').required('Name is required'),
@@ -92,7 +93,7 @@ export default function ProfilePage() {
   })
 
   const profile = profileData?.user || user
-  const settings = adminSettings || {}
+  const settings: AdminSettings = adminSettings || { qrCodeUrl: '', upiNumber: '' }
 
   const profileFormik = useFormik({
     initialValues: {
@@ -151,47 +152,57 @@ export default function ProfilePage() {
             <h1 className="text-2xl font-bold leading-7 text-foreground sm:text-3xl sm:truncate">
               Profile
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-2 text-sm text-muted-foreground">
               Manage your personal information and settings
             </p>
           </div>
         </div>
 
         {/* Profile Information */}
-        <Card className="bg-card border border-border">
+        <Card className="card-enhanced">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
+            <div className="flex items-center justify-between flex-col sm:flex-row">
+              <div className='w-full'>
                 <CardTitle className="flex items-center text-foreground">
                   <UserIcon className="h-5 w-5 mr-2" />
                   Profile Information
                 </CardTitle>
-                <CardDescription className="text-muted-foreground">Update your personal details</CardDescription>
+                <CardDescription className="text-muted-foreground pt-2">Update your personal details</CardDescription>
               </div>
-              <Button
-                variant="outline"
-                onClick={() => setIsEditing(!isEditing)}
-                className="bg-background border-border hover:bg-accent hover:text-accent-foreground text-foreground"
-              >
-                <PencilIcon className="h-4 w-4 mr-2" />
-                {isEditing ? 'Cancel' : 'Edit'}
-              </Button>
+              <div className='pt-4 sm:pt-0 w-full flex justify-end'>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsEditing(!isEditing)}
+                  className="border-border hover:bg-accent hover:text-accent-foreground text-foreground"
+                >
+                  <PencilIcon className="h-4 w-4 mr-2" />
+                  {isEditing ? 'Cancel' : 'Edit'}
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
             <form onSubmit={profileFormik.handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Profile Avatar */}
-                <div className="md:col-span-2 flex items-center space-x-6">
+                <div className="md:col-span-2 flex items-center space-x-2 sm:space-x-6">
                   <div className="flex-shrink-0">
-                    <div className="h-20 w-20 rounded-full bg-primary flex items-center justify-center">
-                      <span className="text-2xl font-bold text-primary-foreground">
-                        {profile?.name === 'Aman Kumar' ? 'AK' : profile?.name?.charAt(0).toUpperCase()}
+                    <div className="h-10 sm:h-20 w-10 sm:w-20 rounded-full bg-primary border-2 border-white flex items-center justify-center">
+                      <span className="text-xs sm:text-2xl font-bold text-primary-foreground ">
+                        {profile?.name ? (
+                          profile.name === 'Aman Kumar' ? 'AK' : profile.name.charAt(0).toUpperCase()
+                        ) : profile?.firstName && profile?.lastName ? (
+                          `${profile.firstName.charAt(0)}${profile.lastName.charAt(0)}`.toUpperCase()
+                        ) : (
+                          'U'
+                        )}
                       </span>
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium text-foreground">{profile?.name}</h3>
+                    <h3 className="text-lg font-medium text-foreground">
+                      {profile?.name || (profile?.firstName && profile?.lastName ? `${profile.firstName} ${profile.lastName}` : 'Unknown User')}
+                    </h3>
                     <p className="text-sm text-muted-foreground">{profile?.email}</p>
                     <p className="text-xs text-muted-foreground capitalize">
                       {profile?.role} Account
@@ -268,7 +279,7 @@ export default function ProfilePage() {
                     id="role"
                     name="role"
                     type="text"
-                    value={profile?.role?.charAt(0).toUpperCase() + profile?.role?.slice(1) || ''}
+                    value={profile?.role ? profile.role.charAt(0).toUpperCase() + profile.role.slice(1) : ''}
                     disabled
                     className="mt-1 bg-muted/50 border-border text-foreground capitalize"
                   />
@@ -324,7 +335,7 @@ export default function ProfilePage() {
 
         {/* Admin Settings */}
         {user?.role === 'admin' && (
-          <Card className="bg-card border border-border">
+          <Card className="card-enhanced">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -332,7 +343,7 @@ export default function ProfilePage() {
                     <CreditCardIcon className="h-5 w-5 mr-2" />
                     Payment Settings
                   </CardTitle>
-                  <CardDescription className="text-muted-foreground">Manage QR Code and UPI details for user payments</CardDescription>
+                  <CardDescription className="text-muted-foreground pt-2">Manage QR Code and UPI details for user payments</CardDescription>
                 </div>
                 <Button
                   variant="outline"
@@ -383,16 +394,16 @@ export default function ProfilePage() {
                     </p>
 
                     {/* QR Code Preview */}
-                    <div className="mt-4">
+                    <div className="mt-6">
                       <label className="block text-sm font-medium text-foreground mb-2">
                         QR Code Preview
                       </label>
                       <div className="border border-border rounded-lg p-4 bg-muted/20">
                         <div className="text-center">
-                          {(qrCodePreview || settings?.qrCode) ? (
+                          {(qrCodePreview || settings?.qrCodeUrl) ? (
                             <div className="inline-flex items-center justify-center w-32 h-32 bg-background border border-border rounded-lg overflow-hidden">
                               <img
-                                src={qrCodePreview || settings.qrCode}
+                                src={qrCodePreview || settings.qrCodeUrl}
                                 alt="QR Code Preview"
                                 className="w-full h-full object-contain"
                               />
@@ -403,7 +414,7 @@ export default function ProfilePage() {
                             </div>
                           )}
                           <p className="mt-2 text-sm text-muted-foreground">
-                            {qrCodePreview || settings?.qrCode ? 'Preview' : 'No QR code configured'}
+                            {qrCodePreview || settings?.qrCodeUrl ? 'Preview' : 'No QR code configured'}
                           </p>
                         </div>
                       </div>
@@ -468,7 +479,7 @@ export default function ProfilePage() {
         )}
 
         {/* Account Information */}
-        <Card className="bg-card border border-border">
+        <Card className="card-enhanced">
           <CardHeader>
             <CardTitle className="text-foreground">Account Information</CardTitle>
             <CardDescription className="text-muted-foreground">Read-only account details</CardDescription>

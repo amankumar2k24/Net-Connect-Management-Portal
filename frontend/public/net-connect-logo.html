@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Net Connect Logo</title>
+    <style>
+        body {
+            background: #1e3a56;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Background dotted effect */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at top left, #3ca1c9 10%, transparent 20%) repeat,
+                radial-gradient(circle at bottom right, #3ca1c9 10%, transparent 20%) repeat;
+            background-size: 100px 100px;
+            opacity: 0.3;
+        }
+
+        .logo {
+            position: relative;
+            background: #fff;
+            padding: 40px 70px 40px 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.25);
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        /* Network Nodes Graphic */
+        .nodes {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+
+        .node {
+            position: absolute;
+            border-radius: 50%;
+            background: #0f3a56;
+        }
+
+        .node.big {
+            width: 22px;
+            height: 22px;
+            top: 50px;
+            left: 50px;
+        }
+
+        .node.small1 {
+            width: 12px;
+            height: 12px;
+            top: 25px;
+            left: 15px;
+        }
+
+        .node.small2 {
+            width: 12px;
+            height: 12px;
+            top: 10px;
+            left: 70px;
+        }
+
+        .node.small3 {
+            width: 12px;
+            height: 12px;
+            top: 80px;
+            left: 90px;
+        }
+
+        .node.small4 {
+            width: 12px;
+            height: 12px;
+            top: 85px;
+            left: 30px;
+        }
+
+        /* Connecting lines */
+        .nodes svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Text */
+        .logo-text {
+            font-size: 48px;
+            font-weight: bold;
+            color: #0f3a56;
+            line-height: 1.1;
+        }
+
+        .logo-text .net {
+            display: block;
+            margin-bottom: 8px;
+            border-bottom: 3px solid #0f3a56;
+            width: fit-content;
+            padding-bottom: 2px;
+        }
+
+        .logo-text .connect {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="logo">
+        <div class="nodes">
+            <svg>
+                <line x1="60" y1="60" x2="25" y2="30" stroke="#0f3a56" stroke-width="3" />
+                <line x1="60" y1="60" x2="80" y2="20" stroke="#0f3a56" stroke-width="3" />
+                <line x1="60" y1="60" x2="95" y2="90" stroke="#0f3a56" stroke-width="3" />
+                <line x1="60" y1="60" x2="40" y2="95" stroke="#0f3a56" stroke-width="3" />
+            </svg>
+            <div class="node big"></div>
+            <div class="node small1"></div>
+            <div class="node small2"></div>
+            <div class="node small3"></div>
+            <div class="node small4"></div>
+        </div>
+        <div class="logo-text">
+            <span class="net">Net</span>
+            <span class="connect">Connect</span>
+        </div>
+    </div>
+</body>
+
+</html>

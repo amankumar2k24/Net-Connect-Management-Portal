@@ -135,11 +135,8 @@ export default function VerifyEmailPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
-            <Card className="w-full max-w-md bg-card border-border card-glow">
+            <Card className="w-full max-w-md card-enhanced">
                 <CardHeader className="space-y-1 text-center">
-                    <div className="text-center mb-4">
-                        <Logo size="md" variant="stacked" />
-                    </div>
                     <div className="mx-auto mb-4">
                         <CheckCircleIcon className="h-12 w-12 text-green-500 mx-auto" />
                     </div>

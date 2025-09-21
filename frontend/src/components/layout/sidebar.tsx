@@ -129,7 +129,7 @@ export default function Sidebar({ className }: SidebarProps) {
         <div className="lg:hidden fixed top-4 left-4 z-50">
           <button
             onClick={() => setIsMobileMenuOpen(true)}
-            className="inline-flex items-center justify-center p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
+            className="inline-flex items-center justify-center pr-2 pl-2 pb-2 pt-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
           >
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
           </button>
@@ -141,10 +141,10 @@ export default function Sidebar({ className }: SidebarProps) {
         <div className="lg:hidden fixed inset-0 z-40 flex">
           <div className="fixed inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
           <div className="relative flex-1 flex flex-col max-w-xs w-full bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 border-r border-slate-700/50 shadow-2xl z-50">
-            <div className="absolute top-0 right-0 -mr-10 pt-2 sm:-mr-12">
+            <div className="absolute top-0 right-0 mr-10 pt-4 sm:-mr-12">
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary text-foreground bg-white shadow-lg"
+                className="ml-1 flex items-center justify-center h-8 w-8 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-100 border border-blue-400/30"
               >
                 <XMarkIcon className="h-6 w-6 text-foreground" aria-hidden="true" />
               </button>
@@ -171,9 +171,9 @@ function SidebarContent({ menuItems, pathname, user, onLogout, isCollapsed = fal
   return (
     <>
       {/* Header with Logo */}
-      <div className="flex items-center h-16 flex-shrink-0 px-6 bg-gradient-to-r from-slate-800 to-slate-700 border-b border-slate-600/50">
+      <div className="flex items-center h-16 flex-shrink-0 px-6 bg-gradient border-b border-slate-600/50">
         {!isCollapsed && (
-          <Logo size="sm" variant="horizontal" className="filter brightness-110" />
+          <Logo size="sm" variant="modern" className="filter brightness-110" />
         )}
         {isCollapsed && (
           <Logo size="sm" variant="icon" className="filter brightness-110" />
@@ -191,7 +191,7 @@ function SidebarContent({ menuItems, pathname, user, onLogout, isCollapsed = fal
                 href={item.href}
                 className={cn(
                   isActive
-                    ? 'bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-105 border border-blue-400/30'
+                    ? 'bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-100 border border-blue-400/30'
                     : 'text-slate-300 hover:bg-gradient-to-r hover:from-slate-700 hover:to-slate-600 hover:text-white hover:shadow-md hover:transform hover:scale-102',
                   isCollapsed ? 'justify-center px-2 py-4' : 'px-4 py-3.5',
                   'group flex items-center text-sm font-medium rounded-xl transition-all duration-300 ease-out backdrop-blur-sm'

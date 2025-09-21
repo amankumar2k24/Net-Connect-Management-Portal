@@ -5,8 +5,10 @@ export interface User {
   id: string
   firstName: string
   lastName: string
+  name?: string
   email: string
   phone?: string
+  address?: string
   role: UserRole
   status: UserStatus
   isEmailVerified: boolean
@@ -24,6 +26,12 @@ export interface Pagination {
   limit: number
   total: number
   totalPages: number
+}
+
+
+export interface AdminSettings {
+  qrCodeUrl: string
+  upiNumber: string
 }
 
 export interface PaginatedUsers {
@@ -73,6 +81,7 @@ export interface Notification {
   metadata?: Record<string, unknown>
   readAt?: string
   createdAt: string
+  read?: boolean // Add this for compatibility with frontend usage
 }
 
 export interface NotificationList {

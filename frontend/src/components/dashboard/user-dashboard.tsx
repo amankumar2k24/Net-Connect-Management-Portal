@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { LoadingSpinner, LoadingCard } from '@/components/ui/loading'
 import { paymentApi } from '@/lib/api-functions'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import Link from 'next/link'
 import {
   CreditCardIcon,
   DocumentTextIcon,
@@ -56,9 +57,9 @@ export default function UserDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-green-700 mb-1">Active Subscriptions</p>
-                <p className="text-3xl font-bold text-green-900">
+                <div className="text-3xl font-bold text-green-900">
                   {isLoading ? <LoadingSpinner size="sm" /> : activeSubscription}
-                </p>
+                </div>
                 <p className="text-xs text-green-600 mt-1">Currently active</p>
               </div>
               <div className="p-3 bg-green-200 rounded-xl">
@@ -74,9 +75,9 @@ export default function UserDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-yellow-700 mb-1">Pending Payments</p>
-                <p className="text-3xl font-bold text-yellow-900">
+                <div className="text-3xl font-bold text-yellow-900">
                   {isLoading ? <LoadingSpinner size="sm" /> : pendingPayments}
-                </p>
+                </div>
                 <p className="text-xs text-yellow-600 mt-1">Awaiting approval</p>
               </div>
               <div className="p-3 bg-yellow-200 rounded-xl">
@@ -109,11 +110,11 @@ export default function UserDashboard() {
         {/* Recent Payments */}
         <Card className="bg-gradient-to-br from-slate-50 to-slate-100 border-0 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-foreground font-poppins flex items-center">
-              <CreditCardIcon className="h-5 w-5 mr-2 text-muted-foreground" />
+            <CardTitle className="text-blue-900 font-poppins flex items-center">
+              <CreditCardIcon className="h-5 w-5 mr-2 text-blue-600" />
               Recent Payments
             </CardTitle>
-            <CardDescription className="text-muted-foreground">Your latest payment history</CardDescription>
+            <CardDescription className="text-blue-600">Your latest payment history</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -151,7 +152,7 @@ export default function UserDashboard() {
                 ))}
               </div>
             ) : (
-              <p className="text-muted-foreground text-center py-4">No recent payments to display.</p>
+              <p className="text-blue-600 text-center py-4">No recent payments to display.</p>
             )}
           </CardContent>
         </Card>
@@ -166,18 +167,24 @@ export default function UserDashboard() {
             <CardDescription className="text-purple-600">Manage your subscription</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button className="w-full bg-card hover:bg-accent text-purple-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
-              <CreditCardIcon className="h-4 w-4 mr-2" />
-              Make Payment
-            </Button>
-            <Button className="w-full bg-card hover:bg-accent text-purple-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
-              <DocumentTextIcon className="h-4 w-4 mr-2" />
-              View Payment History
-            </Button>
-            <Button className="w-full bg-card hover:bg-accent text-purple-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
-              <ClockIcon className="h-4 w-4 mr-2" />
-              Check Next Payment
-            </Button>
+            <Link href="/dashboard/next-payments?openModal=true" className="block w-full">
+              <Button className="w-full bg-card hover:bg-accent text-purple-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
+                <CreditCardIcon className="h-4 w-4 mr-2" />
+                Make Payment
+              </Button>
+            </Link>
+            <Link href="/dashboard/payment-history" className="block w-full">
+              <Button className="w-full bg-card hover:bg-accent text-purple-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
+                <DocumentTextIcon className="h-4 w-4 mr-2" />
+                View Payment History
+              </Button>
+            </Link>
+            <Link href="/dashboard/next-payments" className="block w-full">
+              <Button className="w-full bg-card hover:bg-accent text-purple-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
+                <ClockIcon className="h-4 w-4 mr-2" />
+                Check Next Payment
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>

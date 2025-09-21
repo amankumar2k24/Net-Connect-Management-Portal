@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import Logo from '@/components/ui/logo'
 import { useAuth } from '@/contexts/auth-context'
 import { toast } from 'react-hot-toast'
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 
 const loginSchema = Yup.object({
   email: Yup.string().email('Invalid email address').required('Email is required'),
@@ -21,6 +22,7 @@ export default function LoginPage() {
   const router = useRouter()
   const { login } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const formik = useFormik({
     initialValues: {
@@ -44,12 +46,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md bg-card border-border card-glow">
+      <Card className="w-full max-w-md card-enhanced">
         <CardHeader className="space-y-1">
-          <div className="text-center mb-4">
-            <Logo size="md" variant="stacked" />
-          </div>
-          <CardTitle className="text-2xl font-bold text-center text-foreground">Log in</CardTitle>
+          <CardTitle className="text-2xl sm:text-3xl font-bold text-center text-foreground">Login</CardTitle>
           <CardDescription className="text-center text-muted-foreground">
             Enter your credentials to access your dashboard
           </CardDescription>
@@ -68,46 +67,59 @@ export default function LoginPage() {
                 value={formik.values.email}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                className={`bg-input border-border text-foreground placeholder:text-muted-foreground ${formik.touched.email && formik.errors.email ? 'border-destructive' : ''}`}
+                className={`card-enhanced2 text-foreground placeholder:text-muted-foreground ${formik.touched.email && formik.errors.email ? 'border-destructive' : ''}`}
               />
               {formik.touched.email && formik.errors.email && (
-                <p className="text-sm text-destructive">{formik.errors.email}</p>
+                <p className="text-sm text-red-500">{formik.errors.email}</p>
               )}
             </div>
             <div className="space-y-2">
               <label htmlFor="password" className="text-sm font-medium text-foreground">
                 Password
               </label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="Enter your password"
-                value={formik.values.password}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className={`bg-input border-border text-foreground placeholder:text-muted-foreground ${formik.touched.password && formik.errors.password ? 'border-destructive' : ''}`}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={`card-enhanced2 text-foreground placeholder:text-muted-foreground pr-10 ${formik.touched.password && formik.errors.password ? 'border-destructive' : ''}`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground"
+                >
+                  {showPassword ? (
+                    <EyeSlashIcon className="h-5 w-5" />
+                  ) : (
+                    <EyeIcon className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
               {formik.touched.password && formik.errors.password && (
-                <p className="text-sm text-destructive">{formik.errors.password}</p>
+                <p className="text-sm text-red-500">{formik.errors.password}</p>
               )}
             </div>
             <div className="flex items-center justify-between">
               <Link
                 href="/auth/forgot-password"
-                className="text-sm text-primary hover:text-primary/80"
+                className="text-sm text-primary hover:text-primary/80 text-blue-500 text-white transition-all duration-300 ease-in-out underline"
               >
                 Forgot your password?
               </Link>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-100 border border-blue-400/30" disabled={isLoading}>
               {isLoading ? 'Signing in...' : 'Sign in'}
             </Button>
             <p className="text-center text-sm text-muted-foreground">
               Don't have an account?{' '}
-              <Link href="/auth/register" className="text-primary hover:text-primary/80">
+              <Link href="/auth/register" className="text-primary hover:text-primary/80 text-blue-500 hover:text-white transition-all duration-300 ease-in-out underline">
                 Sign up
               </Link>
             </p>

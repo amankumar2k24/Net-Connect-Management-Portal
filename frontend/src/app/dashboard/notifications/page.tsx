@@ -6,10 +6,14 @@ import DashboardLayout from '@/components/layout/dashboard-layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/ui/modal'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import Select, { SelectOption } from '@/components/ui/select'
 import { notificationApi } from '@/lib/api-functions'
 import { Notification } from '@/types'
 import { formatDate } from '@/lib/utils'
 import { toast } from 'react-hot-toast'
+import { useAuth } from '@/contexts/auth-context'
 import {
   BellIcon,
   CheckIcon,
@@ -18,13 +22,31 @@ import {
   ExclamationTriangleIcon,
   InformationCircleIcon,
   CreditCardIcon,
-  UserPlusIcon
+  UserPlusIcon,
+  PlusIcon
 } from '@heroicons/react/24/outline'
 
+const notificationTypes: SelectOption[] = [
+  { label: 'System', value: 'system' },
+  { label: 'Payment Reminder', value: 'payment_reminder' },
+  { label: 'Payment Approved', value: 'payment_approved' },
+  { label: 'Payment Rejected', value: 'payment_rejected' },
+  { label: 'Account Status', value: 'account_status' },
+]
+
 export default function NotificationsPage() {
+  const { user } = useAuth()
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null)
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false)
+  const [isCreateNotificationModalOpen, setIsCreateNotificationModalOpen] = useState(false)
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all')
+
+  const [createNotificationForm, setCreateNotificationForm] = useState({
+    userId: '',
+    title: '',
+    message: '',
+    type: 'system',
+  })
 
   const queryClient = useQueryClient()
 
@@ -46,7 +68,7 @@ export default function NotificationsPage() {
 
   const rawNotifications = notificationsData?.notifications ?? []
   const notifications = rawNotifications.map(transformNotification)
-  const unreadCount = notifications.filter((notification) => notification.status === 'unread').length
+  const unreadCount = notifications.filter((notification) => !notification.read).length
   const markAsReadMutation = useMutation({
     mutationFn: (notificationId: string) => notificationApi.markAsRead(notificationId),
     onSuccess: () => {
@@ -77,6 +99,25 @@ export default function NotificationsPage() {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to delete notification')
+    },
+  })
+
+  const createNotificationMutation = useMutation({
+    mutationFn: (data: { userId: string; title: string; message: string; type: string }) =>
+      notificationApi.createNotification(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      toast.success('Notification created successfully!')
+      setIsCreateNotificationModalOpen(false)
+      setCreateNotificationForm({
+        userId: '',
+        title: '',
+        message: '',
+        type: 'system',
+      })
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to create notification')
     },
   })
 
@@ -146,11 +187,20 @@ export default function NotificationsPage() {
             <h1 className="text-3xl font-bold leading-7 text-foreground sm:text-4xl sm:truncate font-poppins">
               Notifications
             </h1>
-            <p className="mt-1 text-base text-muted-foreground">
+            <p className="mt-2 text-base text-muted-foreground">
               Stay updated with payment requests, user activities, and system updates
             </p>
           </div>
-          <div className="mt-4 flex md:mt-0 md:ml-4">
+          <div className="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+            {user?.role === 'admin' && (
+              <Button
+                onClick={() => setIsCreateNotificationModalOpen(true)}
+                className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-100 border border-blue-400/30"
+              >
+                <PlusIcon className="h-4 w-4 mr-2" />
+                Add Notification
+              </Button>
+            )}
             {unreadCount > 0 && (
               <Button
                 onClick={handleMarkAllAsRead}
@@ -166,7 +216,7 @@ export default function NotificationsPage() {
 
         {/* Notification Statistics */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-          <Card className="bg-card border border-border shadow-lg">
+          <Card className="card-enhanced">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -180,7 +230,7 @@ export default function NotificationsPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border border-border shadow-lg">
+          <Card className="card-enhanced">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -194,7 +244,7 @@ export default function NotificationsPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border border-border shadow-lg">
+          <Card className="card-enhanced">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -210,39 +260,52 @@ export default function NotificationsPage() {
         </div>
 
         {/* Filters */}
-        <Card className="bg-card border border-border shadow-lg">
+        <Card className="card-enhanced">
           <CardHeader>
             <CardTitle className="text-foreground font-poppins">Filter Notifications</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex space-x-4">
+            <div className="hidden sm:flex space-x-4">
               <Button
                 variant={filter === 'all' ? 'default' : 'outline'}
                 onClick={() => setFilter('all')}
-                className={filter === 'all' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-background border-border text-foreground hover:bg-accent hover:text-accent-foreground'}
+                className={filter === 'all' ? 'card-enhanced2 !border-gray-400 !border-2 text-primary-foreground hover:bg-primary/90' : 'card-enhanced2 text-foreground hover:bg-accent hover:text-accent-foreground'}
               >
                 All ({notifications.length})
               </Button>
               <Button
                 variant={filter === 'unread' ? 'default' : 'outline'}
                 onClick={() => setFilter('unread')}
-                className={filter === 'unread' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-background border-border text-foreground hover:bg-accent hover:text-accent-foreground'}
+                className={filter === 'unread' ? 'card-enhanced2 !border-gray-400 !border-2 text-primary-foreground hover:bg-primary/90' : 'card-enhanced2 text-foreground hover:bg-accent hover:text-accent-foreground'}
               >
                 Unread ({unreadCount})
               </Button>
               <Button
                 variant={filter === 'read' ? 'default' : 'outline'}
                 onClick={() => setFilter('read')}
-                className={filter === 'read' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-background border-border text-foreground hover:bg-accent hover:text-accent-foreground'}
+                className={filter === 'read' ? 'card-enhanced2 !border-gray-400 !border-2 text-primary-foreground hover:bg-primary/90' : 'card-enhanced2 text-foreground hover:bg-accent hover:text-accent-foreground'}
               >
                 Read ({notifications.length - unreadCount})
               </Button>
+            </div>
+
+            {/* Dropdown for smaller screens */}
+            <div className="sm:hidden">
+              <Select
+                value={filter}
+                onChange={(value) => setFilter(value as 'all' | 'unread' | 'read')}
+                options={[
+                  { label: `All (${notifications.length})`, value: 'all' },
+                  { label: `Unread (${unreadCount})`, value: 'unread' },
+                  { label: `Read (${notifications.length - unreadCount})`, value: 'read' }
+                ]}
+              />
             </div>
           </CardContent>
         </Card>
 
         {/* Notifications List */}
-        <Card className="bg-card border border-border">
+        <Card className="card-enhanced">
           <CardHeader>
             <CardTitle className="text-foreground">
               Notifications ({filteredNotifications.length})
@@ -319,7 +382,7 @@ export default function NotificationsPage() {
                               e.stopPropagation()
                               handleViewNotification(notification)
                             }}
-                            className="bg-background border-border hover:bg-accent hover:text-accent-foreground text-foreground"
+                            className="card-enhanced2 hover:bg-accent hover:text-accent-foreground text-foreground"
                           >
                             <EyeIcon className="h-4 w-4" />
                           </Button>
@@ -332,7 +395,7 @@ export default function NotificationsPage() {
                                 handleMarkAsRead(notification)
                               }}
                               disabled={markAsReadMutation.isPending}
-                              className="bg-background border-border hover:bg-accent hover:text-accent-foreground text-foreground"
+                              className="card-enhanced2 hover:bg-accent hover:text-accent-foreground text-foreground"
                             >
                               <CheckIcon className="h-4 w-4" />
                             </Button>
@@ -428,9 +491,72 @@ export default function NotificationsPage() {
             </div>
           )}
         </Modal>
+
+        {/* Create Notification Modal */}
+        <Modal
+          isOpen={isCreateNotificationModalOpen}
+          onClose={() => setIsCreateNotificationModalOpen(false)}
+          title="Create Notification"
+          size="lg"
+        >
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">User ID</label>
+                <Input
+                  value={createNotificationForm.userId}
+                  onChange={(e) => setCreateNotificationForm({ ...createNotificationForm, userId: e.target.value })}
+                  placeholder="Enter user ID"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Notification Type</label>
+                <Select
+                  value={createNotificationForm.type}
+                  onChange={(value) => setCreateNotificationForm({ ...createNotificationForm, type: value })}
+                  options={notificationTypes}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-muted-foreground">Title</label>
+              <Input
+                value={createNotificationForm.title}
+                onChange={(e) => setCreateNotificationForm({ ...createNotificationForm, title: e.target.value })}
+                placeholder="Enter notification title"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-muted-foreground">Message</label>
+              <Textarea
+                value={createNotificationForm.message}
+                onChange={(e) => setCreateNotificationForm({ ...createNotificationForm, message: e.target.value })}
+                placeholder="Enter notification message"
+                rows={4}
+              />
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button
+                variant="outline"
+                className="card-enhanced2"
+                onClick={() => setIsCreateNotificationModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => createNotificationMutation.mutate(createNotificationForm)}
+                disabled={createNotificationMutation.isPending || !createNotificationForm.userId || !createNotificationForm.title || !createNotificationForm.message}
+                className='bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-100 border border-blue-400/30'
+              >
+                {createNotificationMutation.isPending ? 'Creating...' : 'Create Notification'}
+              </Button>
+            </div>
+          </div>
+        </Modal>
       </div>
     </DashboardLayout>
   )
 }
-
-

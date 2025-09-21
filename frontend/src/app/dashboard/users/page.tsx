@@ -155,7 +155,7 @@ export default function AllUsersPage() {
             <h1 className="text-3xl font-semibold text-foreground">All Users</h1>
             <p className="text-sm text-muted-foreground">Manage all registered users and their WiFi access.</p>
           </div>
-          <Button className="btn-primary px-6 py-3 text-sm">+ New User</Button>
+          <Button className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-100 border border-blue-400/30">+ Add User</Button>
         </header>
 
         <Card className="card-enhanced">
@@ -191,7 +191,7 @@ export default function AllUsersPage() {
           <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <CardTitle>Users ({totalUsers})</CardTitle>
-              <CardDescription>Manage user accounts and WiFi access</CardDescription>
+              <CardDescription className="pt-2">Manage user accounts and WiFi access</CardDescription>
             </div>
           </CardHeader>
           <CardContent className="overflow-hidden">
@@ -292,13 +292,12 @@ export default function AllUsersPage() {
                         <p className="text-sm font-semibold text-foreground">{formatCurrency(payment.amount)}</p>
                         <p className="text-xs text-muted-foreground">{formatDate(payment.createdAt)}</p>
                       </div>
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
-                        payment.status === "approved"
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${payment.status === "approved"
                           ? "bg-green-500/15 text-green-400"
                           : payment.status === "pending"
-                          ? "bg-yellow-500/15 text-yellow-400"
-                          : "bg-red-500/15 text-red-400"
-                      }`}>
+                            ? "bg-yellow-500/15 text-yellow-400"
+                            : "bg-red-500/15 text-red-400"
+                        }`}>
                         {payment.status}
                       </span>
                     </div>

@@ -5,14 +5,14 @@ import { cn } from '@/lib/utils'
 interface LogoProps {
     className?: string
     size?: 'sm' | 'md' | 'lg'
-    variant?: 'horizontal' | 'icon' | 'stacked'
+    variant?: 'horizontal' | 'icon' | 'stacked' | 'modern'
     showText?: boolean
 }
 
 export function Logo({
     className,
     size = 'md',
-    variant = 'horizontal',
+    variant = 'modern',
     showText = true
 }: LogoProps) {
     const sizeClasses = {

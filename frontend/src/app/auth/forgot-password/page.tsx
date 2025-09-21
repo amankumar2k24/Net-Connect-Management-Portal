@@ -12,6 +12,7 @@ import Logo from '@/components/ui/logo'
 import { authApi } from '@/lib/api-functions'
 import { toast } from 'react-hot-toast'
 import { CheckCircleIcon, EnvelopeIcon } from '@heroicons/react/24/outline'
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 
 const forgotPasswordSchema = Yup.object({
   email: Yup.string().email('Invalid email address').required('Email is required'),
@@ -44,11 +45,8 @@ export default function ForgotPasswordPage() {
   if (emailSent) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
-        <Card className="w-full max-w-md bg-card border-border card-glow">
+        <Card className="w-full max-w-md card-enhanced">
           <CardHeader className="space-y-1 text-center">
-            <div className="text-center mb-4">
-              <Logo size="md" variant="stacked" />
-            </div>
             <div className="mx-auto mb-4">
               <CheckCircleIcon className="h-12 w-12 text-green-500 mx-auto" />
             </div>
@@ -58,13 +56,13 @@ export default function ForgotPasswordPage() {
               <span className="font-medium text-foreground">{formik.values.email}</span>
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
-              <div className="flex items-center space-x-3">
+          <CardContent className="space-y-4 ">
+            <div className="card-enhanced2 rounded-lg p-4">
+              <div className="flex items-center space-x-3 ">
                 <EnvelopeIcon className="h-5 w-5 text-primary flex-shrink-0" />
                 <div className="text-sm">
                   <p className="font-medium text-foreground">Check your email</p>
-                  <p className="text-muted-foreground">Click the reset link in your email to create a new password.</p>
+                  <p className="text-muted-foreground">Create new password via email link.</p>
                 </div>
               </div>
             </div>
@@ -80,7 +78,7 @@ export default function ForgotPasswordPage() {
             >
               Send another email
             </Button>
-            <Link href="/auth/login" className="text-center text-sm text-primary hover:text-primary/80">
+            <Link href="/auth/login" className="text-center text-sm text-primary hover:text-primary/80 text-blue-500 hover:text-white transition-all duration-300 ease-in-out underline">
               Back to login
             </Link>
           </CardFooter>
@@ -91,12 +89,9 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md bg-card border-border card-glow">
+      <Card className="w-full max-w-md card-enhanced">
         <CardHeader className="space-y-1">
-          <div className="text-center mb-4">
-            <Logo size="md" variant="stacked" />
-          </div>
-          <CardTitle className="text-2xl font-bold text-center text-foreground">Forgot Password</CardTitle>
+          <CardTitle className="text-2xl sm:text-3xl font-bold text-center text-foreground">Forgot Password</CardTitle>
           <CardDescription className="text-center text-muted-foreground">
             Enter your email address and we'll send you a link to reset your password
           </CardDescription>
@@ -115,18 +110,18 @@ export default function ForgotPasswordPage() {
                 value={formik.values.email}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                className={`bg-input border-border text-foreground placeholder:text-muted-foreground ${formik.touched.email && formik.errors.email ? 'border-destructive' : ''}`}
+                className={`card-enhanced2 text-foreground placeholder:text-muted-foreground ${formik.touched.email && formik.errors.email ? 'border-destructive' : ''}`}
               />
               {formik.touched.email && formik.errors.email && (
-                <p className="text-sm text-destructive">{formik.errors.email}</p>
+                <p className="text-sm text-red-500">{formik.errors.email}</p>
               )}
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-100 border border-blue-400/30" disabled={isLoading}>
               {isLoading ? 'Sending...' : 'Send reset link'}
             </Button>
-            <Link href="/auth/login" className="text-center text-sm text-primary hover:text-primary/80">
+            <Link href="/auth/login" className="text-center text-sm text-primary hover:text-primary/80 text-blue-500 hover:text-white transition-all duration-300 ease-in-out underline">
               Back to login
             </Link>
           </CardFooter>

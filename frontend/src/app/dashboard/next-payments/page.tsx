@@ -1,8 +1,9 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import Image from "next/image"
+import { useRouter, useSearchParams } from "next/navigation"
 import DashboardLayout from "@/components/layout/dashboard-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -23,6 +24,8 @@ const durationOptions: SelectOption[] = [
 ]
 
 export default function NextPaymentsPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const queryClient = useQueryClient()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [screenshotFile, setScreenshotFile] = useState<File | null>(null)
@@ -81,6 +84,14 @@ export default function NextPaymentsPage() {
 
   const nextPaymentDate = activePayment ? new Date(activePayment.endDate ?? activePayment.createdAt) : null
 
+  useEffect(() => {
+    const openModal = searchParams.get('openModal')
+    if (openModal === 'true') {
+      setIsModalOpen(true)
+      router.replace('/dashboard/next-payments')
+    }
+  }, [searchParams, router])
+
   return (
     <DashboardLayout>
       <section className="space-y-8">
@@ -92,7 +103,7 @@ export default function NextPaymentsPage() {
               Track your upcoming renewals and submit payment proofs for review.
             </p>
           </div>
-          <Button className="btn-primary px-6 py-3 shadow-glow" onClick={() => setIsModalOpen(true)}>
+          <Button className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-100 border border-blue-400/30 px-6 py-3" onClick={() => setIsModalOpen(true)}>
             <CreditCardIcon className="mr-2 h-4 w-4" /> Submit Payment
           </Button>
         </header>
@@ -111,14 +122,13 @@ export default function NextPaymentsPage() {
               ) : (
                 <div className="space-y-4">
                   {upcoming.map((payment) => (
-                    <div key={payment.id} className="flex items-center justify-between rounded-xl border border-border/70 bg-card px-4 py-3">
+                    <div key={payment.id} className="flex items-center justify-between rounded-xl card-enhanced2 px-4 py-3">
                       <div>
                         <p className="text-sm font-semibold text-foreground">{formatCurrency(payment.amount)}</p>
                         <p className="text-xs text-muted-foreground">Due {formatDate(payment.endDate)}</p>
                       </div>
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
-                        payment.status === 'approved' ? 'bg-green-500/15 text-green-400' : 'bg-yellow-500/15 text-yellow-400'
-                      }`}>
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${payment.status === 'approved' ? 'bg-green-500/15 text-green-400' : 'bg-yellow-500/15 text-yellow-400'
+                        }`}>
                         {payment.status}
                       </span>
                     </div>
@@ -134,7 +144,7 @@ export default function NextPaymentsPage() {
               <CardDescription>Overview of your active subscription</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex items-center justify-between rounded-xl border border-border/70 bg-card px-4 py-3">
+              <div className="flex items-center justify-between rounded-xl card-enhanced2 px-4 py-3">
                 <div>
                   <p className="text-xs text-muted-foreground">Status</p>
                   <p className="text-sm font-semibold text-foreground">
@@ -143,13 +153,13 @@ export default function NextPaymentsPage() {
                 </div>
                 <CheckCircleIcon className="h-6 w-6 text-primary" />
               </div>
-              <div className="rounded-xl border border-border/70 bg-card px-4 py-3">
+              <div className="rounded-xl card-enhanced2 px-4 py-3">
                 <p className="text-xs text-muted-foreground">Next Payment Date</p>
                 <p className="text-sm font-semibold text-foreground">
                   {nextPaymentDate ? formatDate(nextPaymentDate) : 'No payment scheduled'}
                 </p>
               </div>
-              <div className="rounded-xl border border-border/70 bg-card px-4 py-3">
+              <div className="rounded-xl card-enhanced2 px-4 py-3">
                 <p className="text-xs text-muted-foreground">Recent Amount</p>
                 <p className="text-sm font-semibold text-foreground">
                   {activePayment ? formatCurrency(activePayment.amount) : 'N/A'}
@@ -187,13 +197,12 @@ export default function NextPaymentsPage() {
                     </div>
                     <div className="flex justify-end">
                       <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
-                          payment.status === 'approved'
+                        className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${payment.status === 'approved'
                             ? 'bg-green-500/15 text-green-400'
                             : payment.status === 'pending'
-                            ? 'bg-yellow-500/15 text-yellow-400'
-                            : 'bg-red-500/15 text-red-400'
-                        }`}
+                              ? 'bg-yellow-500/15 text-yellow-400'
+                              : 'bg-red-500/15 text-red-400'
+                          }`}
                       >
                         {payment.status}
                       </span>
@@ -232,7 +241,7 @@ export default function NextPaymentsPage() {
                 <Button
                   type="button"
                   variant={formState.method === 'qr_code' ? 'default' : 'outline'}
-                  className={formState.method === 'qr_code' ? 'btn-primary' : ''}
+                  className={formState.method === 'qr_code' ? 'btn-primary ' : ''}
                   onClick={() => setFormState((prev) => ({ ...prev, method: 'qr_code' }))}
                 >
                   QR Code
@@ -289,13 +298,13 @@ export default function NextPaymentsPage() {
           </div>
 
           <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+            <Button className="card-enhanced2" variant="outline" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>
             <Button
               onClick={() => createPaymentMutation.mutate()}
               disabled={createPaymentMutation.isPending || (!screenshotFile && formState.method === 'qr_code')}
-              className="gap-2"
+              className=" bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-100 border border-blue-400/30 gap-2"
             >
               <CreditCardIcon className="h-4 w-4" />
               {createPaymentMutation.isPending ? 'Submitting...' : 'Submit Payment'}

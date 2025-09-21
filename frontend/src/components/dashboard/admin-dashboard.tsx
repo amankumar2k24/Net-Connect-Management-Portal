@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { LoadingSpinner, LoadingCard } from '@/components/ui/loading'
 import { adminApi } from '@/lib/api-functions'
 import { formatCurrency } from '@/lib/utils'
+import Link from 'next/link'
 import {
   UsersIcon,
   CreditCardIcon,
@@ -67,9 +68,9 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-green-700 mb-1">Active Users</p>
-                <p className="text-3xl font-bold text-green-900">
+                <div className="text-3xl font-bold text-green-900">
                   {isLoading ? <LoadingSpinner size="sm" /> : users.activeUsers || 0}
-                </p>
+                </div>
                 <p className="text-xs text-green-600 mt-1">Currently connected</p>
               </div>
               <div className="p-3 bg-green-200 rounded-xl">
@@ -85,9 +86,9 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-purple-700 mb-1">Total Revenue</p>
-                <p className="text-3xl font-bold text-purple-900">
+                <div className="text-3xl font-bold text-purple-900">
                   {isLoading ? <LoadingSpinner size="sm" /> : formatCurrency(payments.totalRevenue || 0)}
-                </p>
+                </div>
                 <p className="text-xs text-purple-600 mt-1">Approved payments</p>
               </div>
               <div className="p-3 bg-purple-200 rounded-xl">
@@ -103,9 +104,9 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-yellow-700 mb-1">Pending Payments</p>
-                <p className="text-3xl font-bold text-yellow-900">
+                <div className="text-3xl font-bold text-yellow-900">
                   {isLoading ? <LoadingSpinner size="sm" /> : payments.pendingPayments || 0}
-                </p>
+                </div>
                 <p className="text-xs text-yellow-600 mt-1">Awaiting approval</p>
               </div>
               <div className="p-3 bg-yellow-200 rounded-xl">
@@ -121,10 +122,10 @@ export default function AdminDashboard() {
         <Card className="bg-gradient-to-br from-slate-50 to-slate-100 border-0 shadow-lg">
           <CardHeader>
             <CardTitle className="text-indigo-900 font-poppins flex items-center">
-              <ChartBarIcon className="h-5 w-5 mr-2 text-indigo-600" />
+              <ChartBarIcon className="h-5 w-5 mr-2 text-[#1881d0]" />
               Recent Activity
             </CardTitle>
-            <CardDescription className="text-indigo-600">Latest user registrations and payment activities</CardDescription>
+            <CardDescription className="text-[#1881d0]">Latest user registrations and payment activities</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -167,18 +168,24 @@ export default function AdminDashboard() {
             <CardDescription className="text-indigo-600">Manage your WiFi network efficiently</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button className="w-full bg-card hover:bg-accent text-indigo-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
-              <UsersIcon className="h-4 w-4 mr-2" />
-              View All Users
-            </Button>
-            <Button className="w-full bg-card hover:bg-accent text-indigo-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
-              <CreditCardIcon className="h-4 w-4 mr-2" />
-              Review Payments
-            </Button>
-            <Button className="w-full bg-card hover:bg-accent text-indigo-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
-              <BellIcon className="h-4 w-4 mr-2" />
-              Send Notifications
-            </Button>
+            <Link href="/dashboard/users" className="block w-full">
+              <Button className="w-full bg-card hover:bg-accent text-indigo-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
+                <UsersIcon className="h-4 w-4 mr-2" />
+                View All Users
+              </Button>
+            </Link>
+            <Link href="/dashboard/payments" className="block w-full">
+              <Button className="w-full bg-card hover:bg-accent text-indigo-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
+                <CreditCardIcon className="h-4 w-4 mr-2" />
+                Review Payments
+              </Button>
+            </Link>
+            <Link href="/dashboard/notifications" className="block w-full">
+              <Button className="w-full bg-card hover:bg-accent text-indigo-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
+                <BellIcon className="h-4 w-4 mr-2" />
+                Send Notifications
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>

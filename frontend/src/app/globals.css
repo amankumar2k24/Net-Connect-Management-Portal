@@ -131,6 +131,14 @@ body {
   box-shadow: 0 16px 40px hsl(var(--color-primary) / 0.14);
 }
 
+.card-enhanced2 {
+  background: hsl(var(--color-card));
+  border: 1px solid hsl(var(--color-border));
+  border-radius: 10px;
+  box-shadow: 0 8px 32px hsl(var(--color-primary) / 0.08);
+  transition: all 0.3s ease;
+}
+
 .animate-spin-slow {
   animation: spin 3s linear infinite;
 }

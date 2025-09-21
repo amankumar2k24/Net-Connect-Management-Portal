@@ -141,7 +141,7 @@ export default function PaymentsPage() {
           <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <CardTitle>Transactions ({totalPayments})</CardTitle>
-              <CardDescription>Track every payment submitted by your customers.</CardDescription>
+              <CardDescription className="pt-2">Track every payment submitted by your customers.</CardDescription>
             </div>
           </CardHeader>
           <CardContent>

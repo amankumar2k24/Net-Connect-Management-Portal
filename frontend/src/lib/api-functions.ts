@@ -169,6 +169,9 @@ export const notificationApi = {
   markAllAsRead: () => resolve<{ message: string }>(api.post("/notifications/mark-all-read", {})),
 
   deleteNotification: (id: string) => resolve<{ message: string }>(api.delete(`/notifications/${id}`)),
+
+  createNotification: (data: { userId: string; title: string; message: string; type: string }) =>
+    resolve<{ notification: Notification }>(api.post("/notifications", data)),
 }
 
 // Admin helpers

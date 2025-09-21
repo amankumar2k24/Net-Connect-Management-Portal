@@ -45,14 +45,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="h-screen flex overflow-hidden bg-background">
-      <Sidebar />
+      <Sidebar/>
       <div className="flex flex-col w-0 flex-1 overflow-hidden">
         {/* Top header bar */}
-        <header className="bg-card border-b border-border px-6 py-4 lg:px-8">
+        <header className="bg-card border-b border-slate-600/50 px-6 py-3.5 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <SidebarToggle className="hidden lg:block" />
-              <h1 className="text-xl font-semibold text-foreground lg:text-2xl">
+              <SidebarToggle className="hidden md:block" />
+              <h1 className="text-xl font-semibold text-foreground lg:text-2xl pl-10 md:pl-0">
                 {user?.role === 'admin' ? 'Admin Dashboard' : 'User Dashboard'}
               </h1>
             </div>
@@ -65,7 +65,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </header>
 
         <main className="flex-1 relative overflow-y-auto focus:outline-none">
-          <div className="py-6 px-6 lg:px-8">
+          <div className="py-6 px-4 lg:px-8">
             <div className="max-w-7xl mx-auto">
               {children}
             </div>
