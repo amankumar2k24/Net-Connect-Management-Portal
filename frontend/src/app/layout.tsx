@@ -18,10 +18,10 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: "NetConnect - Network Management Portal",
-  description: "Professional network management and monitoring solution",
-  keywords: "network, management, monitoring, connectivity, portal",
-  authors: [{ name: "NetConnect" }],
+  title: "WaveNet - WiFi Dashboard",
+  description: "Modern WiFi network management and user portal",
+  keywords: "wifi, network, dashboard, management, connectivity, portal",
+  authors: [{ name: "WaveNet" }],
 }
 
 export const viewport: Viewport = {

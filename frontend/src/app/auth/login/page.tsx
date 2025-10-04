@@ -70,7 +70,7 @@ export default function LoginPage() {
                 className={`card-enhanced2 text-foreground placeholder:text-muted-foreground ${formik.touched.email && formik.errors.email ? 'border-destructive' : ''}`}
               />
               {formik.touched.email && formik.errors.email && (
-                <p className="text-sm text-red-500">{formik.errors.email}</p>
+                <p className="text-sm text-red-600">{formik.errors.email}</p>
               )}
             </div>
             <div className="space-y-2">
@@ -101,7 +101,7 @@ export default function LoginPage() {
                 </button>
               </div>
               {formik.touched.password && formik.errors.password && (
-                <p className="text-sm text-red-500">{formik.errors.password}</p>
+                <p className="text-sm text-red-600">{formik.errors.password}</p>
               )}
             </div>
             <div className="flex items-center justify-between">

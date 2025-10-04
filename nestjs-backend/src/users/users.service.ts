@@ -10,7 +10,7 @@ export class UsersService {
   constructor(
     @InjectModel(User)
     private userModel: typeof User,
-  ) {}
+  ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     return this.userModel.create(createUserDto);
@@ -23,7 +23,10 @@ export class UsersService {
     role?: UserRole,
     status?: UserStatus,
   ) {
-    const offset = (page - 1) * limit;
+    // Ensure page and limit are valid numbers
+    const validPage = Math.max(1, Number(page) || 1);
+    const validLimit = Math.max(1, Math.min(100, Number(limit) || 10));
+    const offset = (validPage - 1) * validLimit;
     const where: any = {};
 
     if (search) {
@@ -44,16 +47,19 @@ export class UsersService {
 
     const { rows: users, count: total } = await this.userModel.findAndCountAll({
       where,
-      limit,
+      limit: validLimit,
       offset,
       order: [['createdAt', 'DESC']],
     });
 
     return {
       users,
-      total,
-      page,
-      totalPages: Math.ceil(total / limit),
+      pagination: {
+        page: validPage,
+        limit: validLimit,
+        total,
+        totalPages: Math.ceil(total / validLimit),
+      },
     };
   }
 

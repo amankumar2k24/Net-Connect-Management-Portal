@@ -24,7 +24,7 @@ import { User, UserRole, UserStatus } from './entities/user.entity';
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Post()
   @UseGuards(RolesGuard)
@@ -51,7 +51,12 @@ export class UsersController {
     @Query('role') role?: UserRole,
     @Query('status') status?: UserStatus,
   ) {
-    return this.usersService.findAll(page, limit, search, role, status);
+    try {
+      return this.usersService.findAll(page, limit, search, role, status);
+    } catch (error) {
+      console.error('Controller error:', error);
+      return { error: error.message, users: [], total: 0, page: 1, totalPages: 0 };
+    }
   }
 
   @Get('dashboard-stats')

@@ -129,9 +129,9 @@ export default function Sidebar({ className }: SidebarProps) {
         <div className="lg:hidden fixed top-4 left-4 z-50">
           <button
             onClick={() => setIsMobileMenuOpen(true)}
-            className="inline-flex items-center justify-center pr-2 pl-2 pb-2 pt-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
+            className="inline-flex items-center justify-center p-2 rounded-md text-white bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary shadow-lg cursor-pointer"
           >
-            <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+            <Bars3Icon className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
       )}
@@ -139,12 +139,12 @@ export default function Sidebar({ className }: SidebarProps) {
       {/* Mobile menu overlay */}
       {isMobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-40 flex">
-          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm cursor-pointer" onClick={() => setIsMobileMenuOpen(false)} />
           <div className="relative flex-1 flex flex-col max-w-xs w-full bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 border-r border-slate-700/50 shadow-2xl z-50">
             <div className="absolute top-0 right-0 mr-10 pt-4 sm:-mr-12">
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="ml-1 flex items-center justify-center h-8 w-8 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-100 border border-blue-400/30"
+                className="ml-1 flex items-center justify-center h-8 w-8 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-100 border border-blue-400/30 cursor-pointer"
               >
                 <XMarkIcon className="h-6 w-6 text-foreground" aria-hidden="true" />
               </button>
@@ -246,13 +246,13 @@ function SidebarContent({ menuItems, pathname, user, onLogout, isCollapsed = fal
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-white truncate">{displayName}</p>
-                    <p className="text-xs text-slate-300 capitalize font-medium">{user?.role} Account</p>
+                    <p className="text-sm font-semibold !text-white truncate">{displayName}</p>
+                    <p className="text-xs !text-white capitalize font-medium">{user?.role} Account</p>
                   </div>
                 </div>
                 <button
                   onClick={onLogout}
-                  className="mt-4 w-full flex items-center px-4 py-3 text-sm font-medium text-slate-300 rounded-xl hover:bg-gradient-to-r hover:from-red-600 hover:to-red-500 hover:text-white transition-all duration-300 hover:shadow-lg group"
+                  className="mt-4 w-full flex items-center px-4 py-3 text-sm font-medium text-slate-300 rounded-xl hover:bg-gradient-to-r hover:from-red-600 hover:to-red-500 hover:text-white transition-all duration-300 hover:shadow-lg group cursor-pointer"
                 >
                   <div className="p-1.5 rounded-lg bg-slate-600/30 group-hover:bg-white/20 transition-all duration-300 mr-3">
                     <ArrowRightOnRectangleIcon className="h-4 w-4" aria-hidden="true" />
@@ -272,7 +272,7 @@ function SidebarContent({ menuItems, pathname, user, onLogout, isCollapsed = fal
                 </div>
                 <button
                   onClick={onLogout}
-                  className="flex items-center justify-center p-2 text-slate-300 rounded-xl hover:bg-gradient-to-r hover:from-red-600 hover:to-red-500 hover:text-white transition-all duration-300 hover:shadow-lg group"
+                  className="flex items-center justify-center p-2 text-slate-300 rounded-xl hover:bg-gradient-to-r hover:from-red-600 hover:to-red-500 hover:text-white transition-all duration-300 hover:shadow-lg group cursor-pointer"
                   title="Sign out"
                   data-tooltip-id="sidebar-tooltip"
                   data-tooltip-content="Sign out"

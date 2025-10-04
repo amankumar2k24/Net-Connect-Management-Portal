@@ -1,6 +1,6 @@
 ﻿"use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import DashboardLayout from "@/components/layout/dashboard-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,7 +10,7 @@ import { Modal } from "@/components/ui/modal"
 import Select, { SelectOption } from "@/components/ui/select"
 import { userApi, paymentApi } from "@/lib/api-functions"
 import { formatCurrency, formatDate, getUserStatusColor } from "@/lib/utils"
-import { Payment, User } from "@/types"
+import { User } from "@/types"
 import { toast } from "react-hot-toast"
 import {
   MagnifyingGlassIcon,
@@ -19,7 +19,9 @@ import {
   UserPlusIcon,
   ExclamationTriangleIcon,
   CreditCardIcon,
+  EllipsisVerticalIcon,
 } from "@heroicons/react/24/outline"
+import { MorphingShapesLoader } from "@/components/ui/unique-loader"
 
 const statusOptions: SelectOption[] = [
   { label: "All Status", value: "" },
@@ -49,20 +51,34 @@ export default function AllUsersPage() {
   const [isActivationModalOpen, setIsActivationModalOpen] = useState(false)
   const [userToActivate, setUserToActivate] = useState<User | null>(null)
   const [activationDuration, setActivationDuration] = useState(3)
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false)
+  const [newUserData, setNewUserData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    phone: '',
+    role: 'user' as 'user' | 'admin'
+  })
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize] = useState(10)
 
   const queryClient = useQueryClient()
 
   const { data: usersData, isLoading } = useQuery({
-    queryKey: ["users", searchQuery, statusFilter],
+    queryKey: ["users", searchQuery, statusFilter, currentPage, pageSize],
     queryFn: () =>
       userApi.getAllUsers({
+        page: currentPage,
+        limit: pageSize,
         search: searchQuery || undefined,
         status: statusFilter || undefined,
       }),
   })
 
   const users = usersData?.users ?? []
-  const totalUsers = usersData?.pagination.total ?? users.length
+  const totalUsers = usersData?.pagination?.total ?? users.length
 
   const { data: userPayments } = useQuery({
     queryKey: ["user-payments", selectedUser?.id],
@@ -98,7 +114,7 @@ export default function AllUsersPage() {
   })
 
   const activateUserMutation = useMutation({
-    mutationFn: ({ userId, duration }: { userId: string; duration: number }) =>
+    mutationFn: ({ duration }: { userId: string; duration: number }) =>
       paymentApi.createPayment({
         amount: duration * 500,
         durationMonths: duration,
@@ -112,6 +128,27 @@ export default function AllUsersPage() {
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || "Failed to activate user")
+    },
+  })
+
+  const createUserMutation = useMutation({
+    mutationFn: (userData: typeof newUserData) =>
+      userApi.createUser(userData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] })
+      toast.success("User created successfully")
+      setIsAddUserModalOpen(false)
+      setNewUserData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+        phone: '',
+        role: 'user'
+      })
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || "Failed to create user")
     },
   })
 
@@ -146,221 +183,495 @@ export default function AllUsersPage() {
     setIsUserModalOpen(true)
   }
 
+  const handleAddUser = () => {
+    setIsAddUserModalOpen(true)
+  }
+
+  const handleCreateUser = () => {
+    if (!newUserData.firstName || !newUserData.lastName || !newUserData.email || !newUserData.password) {
+      toast.error("Please fill in all required fields")
+      return
+    }
+    createUserMutation.mutate(newUserData)
+  }
+
+  const toggleDropdown = (userId: string) => {
+    setOpenDropdownId(openDropdownId === userId ? null : userId)
+  }
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setOpenDropdownId(null)
+    }
+
+    if (openDropdownId) {
+      document.addEventListener('click', handleClickOutside)
+      return () => document.removeEventListener('click', handleClickOutside)
+    }
+  }, [openDropdownId])
+
+  // Reset to first page when search/filter changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery, statusFilter])
+
+  const handlePreviousPage = () => {
+    setCurrentPage(prev => Math.max(1, prev - 1))
+  }
+
+  const handleNextPage = () => {
+    if (usersData?.pagination && currentPage < usersData.pagination.totalPages) {
+      setCurrentPage(prev => prev + 1)
+    }
+  }
+
   return (
-    <DashboardLayout>
-      <section className="space-y-8">
-        <header className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-2">
-            <p className="text-sm uppercase tracking-wide text-primary/80">Admin Control</p>
-            <h1 className="text-3xl font-semibold text-foreground">All Users</h1>
-            <p className="text-sm text-muted-foreground">Manage all registered users and their WiFi access.</p>
-          </div>
-          <Button className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-100 border border-blue-400/30">+ Add User</Button>
-        </header>
+    <>
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+      <DashboardLayout>
+        <section className="space-y-8">
+          <header className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-2">
+              <p className="text-sm uppercase tracking-wide text-primary/80">Admin Control</p>
+              <h1 className="text-3xl font-semibold text-foreground">All Users</h1>
+              <p className="text-sm text-muted-foreground">Manage all registered users and their WiFi access.</p>
+            </div>
+            <Button
+              onClick={handleAddUser}
+              className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 border border-blue-400/30 gap-2"
+            >
+              <UserPlusIcon className="h-4 w-4" />
+              Add User
+            </Button>
+          </header>
 
-        <Card className="card-enhanced">
-          <CardHeader>
-            <CardTitle>Search & Filters</CardTitle>
-            <CardDescription>Combine search with status filters to refine results.</CardDescription>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-muted-foreground">Search</label>
-              <div className="relative">
-                <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by name or email"
-                  className="pl-9"
-                />
+          <Card className="card-enhanced">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MagnifyingGlassIcon className="h-5 w-5 text-primary" />
+                Search & Filters
+              </CardTitle>
+              <CardDescription>Find users by name, email, or filter by status and role.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-muted-foreground">Search</label>
+                <div className="relative">
+                  <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by name or email"
+                    className="pl-9"
+                  />
+                </div>
               </div>
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-muted-foreground">Status</label>
-              <Select value={statusFilter} onChange={setStatusFilter} options={statusOptions} />
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-muted-foreground">Payment Status</label>
-              <Select value={paymentStatusFilter} onChange={setPaymentStatusFilter} options={paymentStatusOptions} />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="card-enhanced">
-          <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <CardTitle>Users ({totalUsers})</CardTitle>
-              <CardDescription className="pt-2">Manage user accounts and WiFi access</CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent className="overflow-hidden">
-            <div className="min-w-full overflow-x-auto">
-              <div className="hidden min-w-full grid-cols-[0.5fr_1.5fr_1.2fr_1fr_1fr_0.8fr] gap-4 rounded-2xl bg-secondary/70 px-6 py-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground md:grid">
-                <span>ID</span>
-                <span>Name</span>
-                <span>Email</span>
-                <span>Phone</span>
-                <span>Status</span>
-                <span className="text-right">Actions</span>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-muted-foreground">Status</label>
+                <Select value={statusFilter} onChange={setStatusFilter} options={statusOptions} />
               </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-muted-foreground">Payment Status</label>
+                <Select value={paymentStatusFilter} onChange={setPaymentStatusFilter} options={paymentStatusOptions} />
+              </div>
+            </CardContent>
+            {(searchQuery || statusFilter || paymentStatusFilter) && (
+              <CardContent className="pt-0">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSearchQuery("")
+                    setStatusFilter("")
+                    setPaymentStatusFilter("")
+                  }}
+                  className="text-xs"
+                >
+                  Clear Filters
+                </Button>
+              </CardContent>
+            )}
+          </Card>
 
-              <div className="divide-y divide-border/70 overflow-hidden rounded-2xl bg-card shadow-sm">
-                {isLoading && <div className="p-6 text-sm text-muted-foreground">Loading users...</div>}
+          <Card className="card-enhanced">
+            <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  Users
+                  <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                    {totalUsers}
+                  </span>
+                </CardTitle>
+                <CardDescription className="pt-2">Manage user accounts and WiFi access</CardDescription>
+              </div>
+              {!isLoading && users.length > 0 && (
+                <div className="text-xs text-muted-foreground">
+                  Showing {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, totalUsers)} of {totalUsers} users
+                </div>
+              )}
+            </CardHeader>
+            <CardContent className="overflow-hidden">
+              <div className="min-w-full overflow-x-auto">
+                <div className="hidden min-w-full grid-cols-[0.4fr_0.8fr_1.5fr_1.5fr_1fr_0.8fr_0.8fr_0.6fr] gap-4 rounded-2xl bg-secondary/70 px-6 py-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground md:grid">
+                  <span>S No</span>
+                  <span>User ID</span>
+                  <span>Name</span>
+                  <span>Email</span>
+                  <span>Phone</span>
+                  <span>Role</span>
+                  <span>Status</span>
+                  <span className="text-right">Actions</span>
+                </div>
 
-                {!isLoading && users.length === 0 && (
-                  <div className="p-12 text-center text-sm text-muted-foreground">No users found.</div>
-                )}
+                <div className="divide-y divide-border/70 overflow-hidden rounded-2xl bg-card shadow-sm">
+                  {isLoading && <MorphingShapesLoader message="Loading users data..." />}
 
-                {users.map((u) => (
-                  <div
-                    key={u.id}
-                    className="grid grid-cols-1 gap-4 px-6 py-5 text-sm text-foreground transition hover:bg-primary/5 md:grid-cols-[0.5fr_1.5fr_1.2fr_1fr_1fr_0.8fr]"
-                  >
-                    <span className="font-medium text-muted-foreground">{u.id.slice(0, 6)}</span>
-                    <span className="font-medium">{fullName(u)}</span>
-                    <span className="truncate text-muted-foreground">{u.email}</span>
-                    <span>{u.phone || "—"}</span>
-                    <span>
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${getUserStatusColor(u.status)}`}>
-                        {u.status}
-                      </span>
-                    </span>
-                    <div className="flex items-center justify-end gap-2 text-sm">
-                      <Button variant="outline" size="sm" onClick={() => openUserModal(u)} className="gap-1">
-                        <EyeIcon className="h-4 w-4" /> View
-                      </Button>
-                      {u.status === "inactive" ? (
-                        <Button size="sm" onClick={() => handleUserStatusChange(u, "active")} className="gap-1">
-                          <UserPlusIcon className="h-4 w-4" /> Activate
-                        </Button>
-                      ) : (
-                        <Button variant="secondary" size="sm" onClick={() => handleUserStatusChange(u, "inactive")} className="gap-1">
-                          <UserMinusIcon className="h-4 w-4" /> Disable
-                        </Button>
-                      )}
-                      <Button variant="ghost" size="sm" onClick={() => handleDeleteUser(u)} className="text-destructive">
-                        Remove
-                      </Button>
+                  {!isLoading && users.length === 0 && (
+                    <div className="p-12 text-center">
+                      <div className="text-muted-foreground text-sm mb-2">No users found</div>
+                      <div className="text-xs text-muted-foreground/60">Try adjusting your search filters</div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
-
-      <Modal isOpen={isUserModalOpen} onClose={() => setIsUserModalOpen(false)} title="User Details" size="lg">
-        {selectedUser && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-muted-foreground">Profile</h3>
-                <dl className="space-y-2 rounded-xl border border-border/70 bg-card p-4">
-                  <div>
-                    <dt className="text-xs text-muted-foreground">Name</dt>
-                    <dd className="text-sm font-medium text-foreground">{fullName(selectedUser)}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-muted-foreground">Email</dt>
-                    <dd className="text-sm text-foreground">{selectedUser.email}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-muted-foreground">Phone</dt>
-                    <dd className="text-sm text-foreground">{selectedUser.phone || "—"}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-muted-foreground">Status</dt>
-                    <dd>
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${getUserStatusColor(selectedUser.status)}`}>
-                        {selectedUser.status}
-                      </span>
-                    </dd>
-                  </div>
-                </dl>
-              </div>
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-muted-foreground">Recent Payments</h3>
-                <div className="space-y-2 max-h-64 overflow-y-auto rounded-xl border border-border/70 bg-card p-4">
-                  {paymentsForSelectedUser.length === 0 && (
-                    <p className="text-sm text-muted-foreground">No payment history available.</p>
                   )}
-                  {paymentsForSelectedUser.map((payment) => (
-                    <div key={payment.id} className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2">
-                      <div>
-                        <p className="text-sm font-semibold text-foreground">{formatCurrency(payment.amount)}</p>
-                        <p className="text-xs text-muted-foreground">{formatDate(payment.createdAt)}</p>
+
+                  {users.map((u, index) => (
+                    <div
+                      key={u.id}
+                      className="grid grid-cols-1 gap-4 px-6 py-5 text-sm text-foreground transition hover:bg-primary/5 md:grid-cols-[0.4fr_0.8fr_1.5fr_1.5fr_1fr_0.8fr_0.8fr_0.6fr]"
+                    >
+                      {/* S No Column */}
+                      <div className="flex items-center">
+                        <span className="text-sm font-medium text-muted-foreground">
+                          {((currentPage - 1) * pageSize) + index + 1}
+                        </span>
                       </div>
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${payment.status === "approved"
-                          ? "bg-green-500/15 text-green-400"
-                          : payment.status === "pending"
-                            ? "bg-yellow-500/15 text-yellow-400"
-                            : "bg-red-500/15 text-red-400"
-                        }`}>
-                        {payment.status}
+
+                      <div className="flex flex-col">
+                        <span className="font-mono text-xs text-muted-foreground">#{u.id.slice(0, 8)}</span>
+                        <span className="text-xs text-muted-foreground/60">{u.id.slice(-4)}</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{fullName(u)}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {u.isEmailVerified ? "✓ Verified" : "⚠ Unverified"}
+                        </span>
+                      </div>
+                      <span className="truncate text-muted-foreground">{u.email}</span>
+                      <span className="text-muted-foreground">{u.phone || "—"}</span>
+                      <span>
+                        <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${u.role === 'admin'
+                          ? 'bg-purple-500/15 text-purple-400 border border-purple-500/20'
+                          : 'bg-blue-500/15 text-blue-400 border border-blue-500/20'
+                          }`}>
+                          {u.role}
+                        </span>
                       </span>
+                      <span>
+                        <span className={`inline-flex capitalize items-center rounded-full px-2.5 py-1 text-xs font-semibold ${getUserStatusColor(u.status)}`}>
+                          {u.status}
+                        </span>
+                      </span>
+                      <div className="flex items-center justify-end">
+                        <div className="relative">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleDropdown(u.id)}
+                            className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors opacity-50 hover:opacity-100 cursor-pointer"
+                          >
+                            <EllipsisVerticalIcon className="h-5 w-5" />
+                          </Button>
+
+                          {openDropdownId === u.id && (
+                            <div
+                              className="absolute right-0 top-8 z-50 w-36 rounded-lg bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 py-1 animate-in fade-in-0 zoom-in-95 duration-100"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <button
+                                onClick={() => {
+                                  openUserModal(u)
+                                  setOpenDropdownId(null)
+                                }}
+                                className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                              >
+                                <EyeIcon className="h-3 w-3 text-blue-500" />
+                                <span>View</span>
+                              </button>
+
+                              {u.status === "inactive" ? (
+                                <button
+                                  onClick={() => {
+                                    handleUserStatusChange(u, "active")
+                                    setOpenDropdownId(null)
+                                  }}
+                                  className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                                >
+                                  <UserPlusIcon className="h-3 w-3 text-green-500" />
+                                  <span>Enable</span>
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => {
+                                    handleUserStatusChange(u, "inactive")
+                                    setOpenDropdownId(null)
+                                  }}
+                                  className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                                >
+                                  <UserMinusIcon className="h-3 w-3 text-orange-500" />
+                                  <span>Disable</span>
+                                </button>
+                              )}
+
+                              <div className="mx-2 my-0.5 h-px bg-gray-200 dark:bg-gray-600"></div>
+
+                              <button
+                                onClick={() => {
+                                  handleDeleteUser(u)
+                                  setOpenDropdownId(null)
+                                }}
+                                className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"
+                              >
+                                <ExclamationTriangleIcon className="h-3 w-3" />
+                                <span>Remove</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
+            </CardContent>
+            {!isLoading && users.length > 0 && usersData?.pagination && usersData.pagination.totalPages > 1 && (
+              <CardContent className="pt-0">
+                <div className="flex items-center justify-between border-t border-border/50 pt-4">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span>Page {currentPage} of {usersData.pagination.totalPages}</span>
+                    <span className="text-muted-foreground/60">•</span>
+                    <span>{totalUsers} total users</span>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handlePreviousPage}
+                      disabled={currentPage <= 1}
+                      className="text-xs px-3 py-1.5 h-auto"
+                    >
+                      ← Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleNextPage}
+                      disabled={!usersData?.pagination || currentPage >= usersData.pagination.totalPages}
+                      className="text-xs px-3 py-1.5 h-auto"
+                    >
+                      Next →
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            )}
+          </Card>
+        </section>
+
+        <Modal isOpen={isUserModalOpen} onClose={() => setIsUserModalOpen(false)} title="User Details" size="lg">
+          {selectedUser && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-muted-foreground">Profile</h3>
+                  <dl className="space-y-2 rounded-xl border border-border/70 bg-card p-4">
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Name</dt>
+                      <dd className="text-sm font-medium text-foreground">{fullName(selectedUser)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Email</dt>
+                      <dd className="text-sm text-foreground">{selectedUser.email}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Phone</dt>
+                      <dd className="text-sm text-foreground">{selectedUser.phone || "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Status</dt>
+                      <dd>
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${getUserStatusColor(selectedUser.status)}`}>
+                          {selectedUser.status}
+                        </span>
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-muted-foreground">Recent Payments</h3>
+                  <div className="space-y-2 max-h-64 overflow-y-auto rounded-xl border border-border/70 bg-card p-4">
+                    {paymentsForSelectedUser.length === 0 && (
+                      <p className="text-sm text-muted-foreground">No payment history available.</p>
+                    )}
+                    {paymentsForSelectedUser.map((payment) => (
+                      <div key={payment.id} className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2">
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">{formatCurrency(payment.amount)}</p>
+                          <p className="text-xs text-muted-foreground">{formatDate(payment.createdAt)}</p>
+                        </div>
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${payment.status === "approved"
+                          ? "bg-green-500/15 text-green-400"
+                          : payment.status === "pending"
+                            ? "bg-yellow-500/15 text-yellow-400"
+                            : "bg-red-500/15 text-red-400"
+                          }`}>
+                          {payment.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </Modal>
+
+        <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} title="Delete User" size="sm">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <ExclamationTriangleIcon className="h-6 w-6 text-destructive" />
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">Confirm deletion</h3>
+                <p className="text-sm text-muted-foreground">
+                  This action cannot be undone. This will permanently delete {fullName(userToDelete)} and related data.
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={confirmDelete} disabled={deleteUserMutation.isPending}>
+                {deleteUserMutation.isPending ? "Deleting..." : "Delete"}
+              </Button>
             </div>
           </div>
-        )}
-      </Modal>
+        </Modal>
 
-      <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} title="Delete User" size="sm">
-        <div className="space-y-4">
-          <div className="flex items-center gap-3">
-            <ExclamationTriangleIcon className="h-6 w-6 text-destructive" />
+        <Modal isOpen={isActivationModalOpen} onClose={() => setIsActivationModalOpen(false)} title="Activate WiFi" size="sm">
+          <div className="space-y-4">
             <div>
-              <h3 className="text-lg font-semibold text-foreground">Confirm deletion</h3>
-              <p className="text-sm text-muted-foreground">
-                This action cannot be undone. This will permanently delete {fullName(userToDelete)} and related data.
-              </p>
+              <h3 className="text-lg font-semibold text-foreground">Activate WiFi for {fullName(userToActivate)}</h3>
+              <p className="text-sm text-muted-foreground">Select the duration for this activation request.</p>
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-muted-foreground">Duration (months)</label>
+              <Select
+                value={String(activationDuration)}
+                onChange={(value) => setActivationDuration(Number(value))}
+                options={[
+                  { label: "1 Month", value: "1" },
+                  { label: "3 Months", value: "3" },
+                  { label: "6 Months", value: "6" },
+                  { label: "12 Months", value: "12" },
+                ]}
+              />
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setIsActivationModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={confirmActivation} disabled={activateUserMutation.isPending} className="gap-2">
+                <CreditCardIcon className="h-4 w-4" />
+                {activateUserMutation.isPending ? "Processing..." : "Activate WiFi"}
+              </Button>
             </div>
           </div>
-          <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => setIsDeleteModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={confirmDelete} disabled={deleteUserMutation.isPending}>
-              {deleteUserMutation.isPending ? "Deleting..." : "Delete"}
-            </Button>
-          </div>
-        </div>
-      </Modal>
+        </Modal>
 
-      <Modal isOpen={isActivationModalOpen} onClose={() => setIsActivationModalOpen(false)} title="Activate WiFi" size="sm">
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">Activate WiFi for {fullName(userToActivate)}</h3>
-            <p className="text-sm text-muted-foreground">Select the duration for this activation request.</p>
+        <Modal isOpen={isAddUserModalOpen} onClose={() => setIsAddUserModalOpen(false)} title="Add New User" size="md">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-2">First Name *</label>
+                <Input
+                  value={newUserData.firstName}
+                  onChange={(e) => setNewUserData({ ...newUserData, firstName: e.target.value })}
+                  placeholder="Enter first name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-2">Last Name *</label>
+                <Input
+                  value={newUserData.lastName}
+                  onChange={(e) => setNewUserData({ ...newUserData, lastName: e.target.value })}
+                  placeholder="Enter last name"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-2">Email *</label>
+              <Input
+                type="email"
+                value={newUserData.email}
+                onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
+                placeholder="Enter email address"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-2">Password *</label>
+              <Input
+                type="password"
+                value={newUserData.password}
+                onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
+                placeholder="Enter password"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-2">Phone</label>
+              <Input
+                value={newUserData.phone}
+                onChange={(e) => setNewUserData({ ...newUserData, phone: e.target.value })}
+                placeholder="Enter phone number"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-2">Role</label>
+              <Select
+                value={newUserData.role}
+                onChange={(value) => setNewUserData({ ...newUserData, role: value as 'user' | 'admin' })}
+                options={[
+                  { label: "User", value: "user" },
+                  { label: "Admin", value: "admin" },
+                ]}
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4">
+              <Button variant="outline" onClick={() => setIsAddUserModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleCreateUser} disabled={createUserMutation.isPending}>
+                {createUserMutation.isPending ? "Creating..." : "Create User"}
+              </Button>
+            </div>
           </div>
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-muted-foreground">Duration (months)</label>
-            <Select
-              value={String(activationDuration)}
-              onChange={(value) => setActivationDuration(Number(value))}
-              options={[
-                { label: "1 Month", value: "1" },
-                { label: "3 Months", value: "3" },
-                { label: "6 Months", value: "6" },
-                { label: "12 Months", value: "12" },
-              ]}
-            />
-          </div>
-          <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => setIsActivationModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={confirmActivation} disabled={activateUserMutation.isPending} className="gap-2">
-              <CreditCardIcon className="h-4 w-4" />
-              {activateUserMutation.isPending ? "Processing..." : "Activate WiFi"}
-            </Button>
-          </div>
-        </div>
-      </Modal>
-    </DashboardLayout>
+        </Modal>
+      </DashboardLayout>
+    </>
   )
 }

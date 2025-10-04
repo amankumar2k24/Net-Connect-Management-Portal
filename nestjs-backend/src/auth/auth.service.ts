@@ -214,4 +214,26 @@ export class AuthService {
     }
     return user;
   }
+
+  async updateProfile(userId: string, updateData: any) {
+    console.log("userId==>", userId)
+    const user = await this.userModel.findByPk(userId);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // Only allow updating certain fields
+    const allowedFields = ['name', 'phone', 'address'];
+    const filteredData = {};
+
+    for (const field of allowedFields) {
+      if (updateData[field] !== undefined) {
+        filteredData[field] = updateData[field];
+      }
+    }
+
+    await user.update(filteredData);
+
+    return { user };
+  }
 }

@@ -227,7 +227,7 @@ export default function ProfilePage() {
                       }`}
                   />
                   {profileFormik.touched.name && profileFormik.errors.name && (
-                    <p className="mt-1 text-sm text-red-700">{String(profileFormik.errors.name)}</p>
+                    <p className="mt-1 text-sm text-red-600">{String(profileFormik.errors.name)}</p>
                   )}
                 </div>
 
@@ -266,7 +266,7 @@ export default function ProfilePage() {
                       }`}
                   />
                   {profileFormik.touched.phone && profileFormik.errors.phone && (
-                    <p className="mt-1 text-sm text-red-700">{String(profileFormik.errors.phone)}</p>
+                    <p className="mt-1 text-sm text-red-600">{String(profileFormik.errors.phone)}</p>
                   )}
                 </div>
 
@@ -301,7 +301,7 @@ export default function ProfilePage() {
                       }`}
                   />
                   {profileFormik.touched.address && profileFormik.errors.address && (
-                    <p className="mt-1 text-sm text-red-700">{profileFormik.errors.address as string}</p>
+                    <p className="mt-1 text-sm text-red-600">{profileFormik.errors.address as string}</p>
                   )}
                 </div>
               </div>
@@ -440,7 +440,7 @@ export default function ProfilePage() {
                         }`}
                     />
                     {settingsFormik.touched.upiNumber && settingsFormik.errors.upiNumber && (
-                      <p className="mt-1 text-sm text-destructive">{String(settingsFormik.errors.upiNumber)}</p>
+                      <p className="mt-1 text-sm text-red-600">{String(settingsFormik.errors.upiNumber)}</p>
                     )}
                     <p className="mt-1 text-xs text-muted-foreground">
                       💳 Alternative payment method for users (UPI ID or Phone Number)

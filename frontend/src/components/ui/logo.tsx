@@ -29,41 +29,55 @@ export function Logo({
 
     const LogoIcon = () => (
         <div className={cn(
-            'rounded-xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 flex items-center justify-center shadow-lg border border-primary/20',
+            'rounded-xl bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 flex items-center justify-center shadow-lg border border-blue-400/30',
             sizeClasses[size]
         )}>
             <svg
                 viewBox="0 0 24 24"
                 fill="none"
-                className="w-3/5 h-3/5 text-primary-foreground"
+                className="w-3/5 h-3/5 text-white"
                 xmlns="http://www.w3.org/2000/svg"
             >
-                {/* Modern connectivity hub design */}
-                <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.5" opacity="0.25" />
-                <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="1.5" opacity="0.5" />
-                <circle cx="12" cy="12" r="2.5" fill="currentColor" opacity="0.9" />
-
-                {/* Connection nodes at corners */}
-                <circle cx="5" cy="5" r="1.5" fill="currentColor" opacity="0.7" />
-                <circle cx="19" cy="5" r="1.5" fill="currentColor" opacity="0.7" />
-                <circle cx="5" cy="19" r="1.5" fill="currentColor" opacity="0.7" />
-                <circle cx="19" cy="19" r="1.5" fill="currentColor" opacity="0.7" />
-
-                {/* Dynamic connection lines */}
-                <path
-                    d="M6.5 6.5L9.5 9.5M17.5 6.5L14.5 9.5M6.5 17.5L9.5 14.5M17.5 17.5L14.5 14.5"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    opacity="0.6"
-                    strokeLinecap="round"
+                {/* Modern WiFi Symbol */}
+                <circle
+                    cx="12"
+                    cy="18"
+                    r="2"
+                    fill="currentColor"
                 />
 
-                {/* Central pulse effect */}
-                <circle cx="12" cy="12" r="1" fill="currentColor" opacity="1" />
+                {/* WiFi Arcs */}
+                <path
+                    d="M8 14C9.5 12.5 10.7 12 12 12C13.3 12 14.5 12.5 16 14"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    fill="none"
+                />
+                <path
+                    d="M5.5 10.5C7.8 8.2 9.8 7.5 12 7.5C14.2 7.5 16.2 8.2 18.5 10.5"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    fill="none"
+                    opacity="0.8"
+                />
+                <path
+                    d="M3 7C6.2 3.8 8.9 3 12 3C15.1 3 17.8 3.8 21 7"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    fill="none"
+                    opacity="0.6"
+                />
 
-                {/* Signal waves */}
-                <circle cx="12" cy="12" r="3.5" stroke="currentColor" strokeWidth="0.8" opacity="0.3" fill="none" />
-                <circle cx="12" cy="12" r="6.5" stroke="currentColor" strokeWidth="0.8" opacity="0.2" fill="none" />
+                {/* Data Flow Dots */}
+                <circle cx="7" cy="12" r="1" fill="currentColor" opacity="0.7">
+                    <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="17" cy="12" r="1" fill="currentColor" opacity="0.7">
+                    <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite" />
+                </circle>
             </svg>
         </div>
     )
@@ -79,12 +93,12 @@ export function Logo({
                 {showText && (
                     <div className="text-center">
                         <span className={cn(
-                            'font-bold text-primary block tracking-tight font-poppins',
+                            'font-bold text-gray-900 dark:text-white block tracking-tight font-poppins',
                             textSizeClasses[size]
                         )}>
-                            NetConnect
+                            WaveNet
                         </span>
-                        <div className="text-xs text-muted-foreground/80 mt-1 font-medium tracking-wide font-poppins">Management Portal</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-300 mt-1 font-medium tracking-wide font-poppins">WiFi Dashboard</div>
                     </div>
                 )}
             </div>
@@ -98,12 +112,12 @@ export function Logo({
             {showText && (
                 <div className="flex flex-col">
                     <span className={cn(
-                        'font-bold text-primary leading-tight tracking-tight font-poppins',
+                        'font-bold text-gray-900 !text-white leading-tight tracking-tight font-poppins',
                         textSizeClasses[size]
                     )}>
-                        NetConnect
+                        FlowLink
                     </span>
-                    <span className="text-xs text-muted-foreground/80 leading-tight font-medium tracking-wide font-poppins">Management Portal</span>
+                    <span className="text-xs !text-white leading-tight font-medium tracking-wide font-poppins">WiFi Dashboard</span>
                 </div>
             )}
         </div>

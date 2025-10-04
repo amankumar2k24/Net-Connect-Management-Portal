@@ -42,7 +42,7 @@ const Modal: React.FC<ModalProps> = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/25" />
+          <div className="fixed inset-0 bg-black/25 cursor-pointer" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto ">
@@ -58,7 +58,7 @@ const Modal: React.FC<ModalProps> = ({
             >
               <Dialog.Panel
                 className={cn(
-                  "w-full transform overflow-hidden rounded-2xl bg-gray-900 p-6 text-left align-middle shadow-xl transition-all",
+                  "w-full transform overflow-hidden rounded-2xl bg-gray-900 text-white p-6 text-left align-middle shadow-xl transition-all",
                   sizeClasses[size]
                 )}
               >
@@ -67,17 +67,17 @@ const Modal: React.FC<ModalProps> = ({
                     {title && (
                       <Dialog.Title
                         as="h3"
-                        className="text-lg font-medium leading-6 text-white"
+                        className="text-lg font-medium leading-6 text-white font-semibold"
                       >
                         {title}
                       </Dialog.Title>
                     )}
                     {showCloseButton && (
-                      
+
                       <button
                         type="button"
                         // className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        className="ml-1 flex items-center justify-center h-8 w-8 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-100 border border-blue-400/30"
+                        className="ml-1 flex items-center justify-center h-8 w-8 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-100 border border-blue-400/30 cursor-pointer"
                         onClick={onClose}
                       >
                         <span className="sr-only">Close</span>

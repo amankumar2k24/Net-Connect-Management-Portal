@@ -24,7 +24,7 @@ import { Notification } from './notifications/entities/notification.entity';
       port: parseInt(process.env.DB_PORT) || 5432,
       username: process.env.DB_USERNAME || 'postgres',
       password: process.env.DB_PASSWORD || 'password',
-      database: process.env.DB_NAME || 'wifi_dashboard',
+      database: process.env.DB_NAME || 'wifiProject',
       models: [User, Payment, Notification],
       autoLoadModels: true,
       synchronize: true,
@@ -41,4 +41,4 @@ import { Notification } from './notifications/entities/notification.entity';
     CronJobsModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }

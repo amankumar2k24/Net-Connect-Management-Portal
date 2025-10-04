@@ -23,6 +23,7 @@ import {
   XCircleIcon,
   PhotoIcon
 } from '@heroicons/react/24/outline'
+import { DNAHelixLoader } from '@/components/ui/unique-loader'
 
 const statusOptions: SelectOption[] = [
   { label: 'All Status', value: '' },
@@ -237,19 +238,7 @@ export default function PaymentHistoryPage() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="space-y-4">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="animate-pulse bg-muted/30 rounded-xl p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="rounded-full bg-muted h-12 w-12"></div>
-                      <div className="flex-1 space-y-2">
-                        <div className="h-4 bg-muted rounded w-3/4"></div>
-                        <div className="h-3 bg-muted rounded w-1/2"></div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <DNAHelixLoader message="Loading your payment history..." />
             ) : filteredPayments.length === 0 ? (
               <div className="text-center py-12">
                 <div className="p-4 bg-muted/20 rounded-full w-fit mx-auto mb-4">

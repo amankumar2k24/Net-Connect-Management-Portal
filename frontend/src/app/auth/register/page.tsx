@@ -133,7 +133,7 @@ export default function RegisterPage() {
                   className={`card-enhanced2 text-foreground placeholder:text-muted-foreground ${formik.touched.firstName && formik.errors.firstName ? 'border-destructive' : ''}`}
                 />
                 {formik.touched.firstName && formik.errors.firstName && (
-                  <p className="text-sm text-red-500">{formik.errors.firstName}</p>
+                  <p className="text-sm text-red-600">{formik.errors.firstName}</p>
                 )}
               </div>
 
@@ -152,7 +152,7 @@ export default function RegisterPage() {
                   className={`card-enhanced2 text-foreground placeholder:text-muted-foreground ${formik.touched.lastName && formik.errors.lastName ? 'border-destructive' : ''}`}
                 />
                 {formik.touched.lastName && formik.errors.lastName && (
-                  <p className="text-sm text-red-500">{formik.errors.lastName}</p>
+                  <p className="text-sm text-red-600">{formik.errors.lastName}</p>
                 )}
               </div>
             </div>
@@ -172,7 +172,7 @@ export default function RegisterPage() {
                 className={`card-enhanced2 text-foreground placeholder:text-muted-foreground ${formik.touched.email && formik.errors.email ? 'border-destructive' : ''}`}
               />
               {formik.touched.email && formik.errors.email && (
-                <p className="text-sm text-red-500">{formik.errors.email}</p>
+                <p className="text-sm text-red-600">{formik.errors.email}</p>
               )}
             </div>
 
@@ -191,7 +191,7 @@ export default function RegisterPage() {
                 className={`card-enhanced2 text-foreground placeholder:text-muted-foreground ${formik.touched.phone && formik.errors.phone ? 'border-destructive' : ''}`}
               />
               {formik.touched.phone && formik.errors.phone && (
-                <p className="text-sm text-red-500">{formik.errors.phone}</p>
+                <p className="text-sm text-red-600">{formik.errors.phone}</p>
               )}
             </div>
 
@@ -209,7 +209,7 @@ export default function RegisterPage() {
                 className={`card-enhanced2 text-foreground placeholder:text-muted-foreground ${formik.touched.address && formik.errors.address ? 'border-destructive' : ''}`}
               />
               {formik.touched.address && formik.errors.address && (
-                <p className="text-sm text-red-500">{formik.errors.address}</p>
+                <p className="text-sm text-red-600">{formik.errors.address}</p>
               )}
             </div>
 
@@ -241,7 +241,7 @@ export default function RegisterPage() {
                 </button>
               </div>
               {formik.touched.password && formik.errors.password && (
-                <p className="text-sm text-red-500">{formik.errors.password}</p>
+                <p className="text-sm text-red-600">{formik.errors.password}</p>
               )}
             </div>
 
@@ -273,7 +273,7 @@ export default function RegisterPage() {
                 </button>
               </div>
               {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-                <p className="text-sm text-red-500">{formik.errors.confirmPassword}</p>
+                <p className="text-sm text-red-600">{formik.errors.confirmPassword}</p>
               )}
             </div>
           </CardContent>

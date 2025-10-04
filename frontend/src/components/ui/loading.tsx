@@ -87,7 +87,7 @@ export function LoadingButton({ loading = false, children, className, size = 'md
         <button
             disabled={loading}
             className={cn(
-                'inline-flex items-center justify-center rounded-md font-medium transition-colors',
+                'inline-flex items-center justify-center rounded-md font-medium transition-colors cursor-pointer disabled:cursor-not-allowed',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                 'disabled:pointer-events-none disabled:opacity-50',
                 'bg-primary text-primary-foreground hover:bg-primary/90',

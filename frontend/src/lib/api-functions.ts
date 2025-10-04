@@ -61,6 +61,15 @@ export const userApi = {
     status?: string
   }) => resolve<PaginatedUsers>(api.get("/users", { params })),
 
+  createUser: (userData: {
+    firstName: string
+    lastName: string
+    email: string
+    password: string
+    phone?: string
+    role?: string
+  }) => resolve<{ user: User }>(api.post("/users", userData)),
+
   getUserById: (id: string) => resolve<{ user: User }>(api.get(`/users/${id}`)),
 
   updateUserStatus: (id: string, status: User["status"]) =>

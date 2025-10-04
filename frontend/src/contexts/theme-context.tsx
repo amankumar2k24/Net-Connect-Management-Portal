@@ -11,14 +11,22 @@ interface ThemeContextValue {
 }
 
 const STORAGE_KEY = "wifi-dashboard-theme"
-const DEFAULT_THEME: Theme = "dark"
+const DEFAULT_THEME: Theme = "light"
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 
 const applyTheme = (theme: Theme) => {
   const root = document.documentElement
+
+  // Remove existing theme classes
+  root.classList.remove("dark", "light")
+
+  // Set data attribute and class
   root.dataset.theme = theme
-  root.classList.toggle("dark", theme === "dark")
+  root.classList.add(theme)
+
+  // Force a style recalculation
+  root.style.colorScheme = theme
 }
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

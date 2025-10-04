@@ -20,6 +20,7 @@ import {
   XMarkIcon,
   CreditCardIcon,
 } from "@heroicons/react/24/outline"
+import { DNAHelixLoader } from "@/components/ui/unique-loader"
 
 const statusOptions: SelectOption[] = [
   { label: "All Status", value: "" },
@@ -154,7 +155,7 @@ export default function PaymentsPage() {
             </div>
 
             <div className="divide-y divide-border/70 rounded-2xl bg-card shadow-sm">
-              {isLoading && <div className="p-6 text-sm text-muted-foreground">Loading payments...</div>}
+              {isLoading && <DNAHelixLoader message="Loading payment transactions..." />}
 
               {!isLoading && payments.length === 0 && (
                 <div className="flex flex-col items-center justify-center gap-2 p-12 text-center">

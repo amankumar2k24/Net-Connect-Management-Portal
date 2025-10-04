@@ -6,6 +6,8 @@ import { useEffect } from 'react'
 import Sidebar from './sidebar'
 import SidebarToggle from '@/components/ui/sidebar-toggle'
 import AuthDebug from '@/components/debug/auth-debug'
+import { WiFiSignalLoader } from '@/components/ui/unique-loader'
+import ThemeToggle from '@/components/ui/theme-toggle'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -31,10 +33,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading...</p>
-        </div>
+        <WiFiSignalLoader message="Authenticating..." />
       </div>
     )
   }
@@ -45,21 +44,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="h-screen flex overflow-hidden bg-background">
-      <Sidebar/>
+      <Sidebar />
       <div className="flex flex-col w-0 flex-1 overflow-hidden">
         {/* Top header bar */}
         <header className="bg-card border-b border-slate-600/50 px-6 py-3.5 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <SidebarToggle className="hidden md:block" />
-              <h1 className="text-xl font-semibold text-foreground lg:text-2xl pl-10 md:pl-0">
+              <SidebarToggle className="hidden lg:block" />
+              <h1 className="text-xl font-semibold text-foreground lg:text-2xl pl-10 lg:pl-0 theme-transition">
                 {user?.role === 'admin' ? 'Admin Dashboard' : 'User Dashboard'}
               </h1>
             </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-muted-foreground hidden sm:inline">
+            <div className="flex items-center space-x-4 group">
+              <span className="text-sm text-muted-foreground hidden sm:inline theme-transition">
                 Welcome back, {user?.fullName || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email}
               </span>
+              <div className="group">
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         </header>

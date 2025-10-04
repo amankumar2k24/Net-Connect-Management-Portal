@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/contexts/auth-context'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { LoadingSpinner, LoadingCard } from '@/components/ui/loading'
+import { WiFiSignalLoader, FloatingParticlesLoader } from '@/components/ui/unique-loader'
 import { paymentApi } from '@/lib/api-functions'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import Link from 'next/link'
@@ -43,107 +43,101 @@ export default function UserDashboard() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col space-y-3">
-        <h1 className="text-4xl font-bold text-foreground font-poppins">Dashboard</h1>
-        <p className="text-muted-foreground text-lg">
-          Welcome back, {user?.firstName} {user?.lastName}! Manage your WiFi subscription here.
-        </p>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Active Subscription Card */}
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-green-700 mb-1">Active Subscriptions</p>
-                <div className="text-3xl font-bold text-green-900">
-                  {isLoading ? <LoadingSpinner size="sm" /> : activeSubscription}
+      {isLoading ? (
+        <WiFiSignalLoader message="Loading your dashboard..." />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Active Subscription Card */}
+          <Card className="bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-900/20 dark:to-teal-800/20 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1">Active Subscriptions</p>
+                  <div className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">
+                    {activeSubscription}
+                  </div>
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">Currently active</p>
                 </div>
-                <p className="text-xs text-green-600 mt-1">Currently active</p>
+                <div className="p-3 bg-emerald-200 dark:bg-emerald-800/50 rounded-xl">
+                  <CheckCircleIcon className="h-6 w-6 text-emerald-600 dark:text-emerald-300" />
+                </div>
               </div>
-              <div className="p-3 bg-green-200 rounded-xl">
-                <CheckCircleIcon className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Pending Payments Card */}
-        <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-yellow-700 mb-1">Pending Payments</p>
-                <div className="text-3xl font-bold text-yellow-900">
-                  {isLoading ? <LoadingSpinner size="sm" /> : pendingPayments}
+          {/* Pending Payments Card */}
+          <Card className="bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-800/20 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-amber-700 dark:text-amber-300 mb-1">Pending Payments</p>
+                  <div className="text-3xl font-bold text-amber-900 dark:text-amber-100">
+                    {pendingPayments}
+                  </div>
+                  <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">Awaiting approval</p>
                 </div>
-                <p className="text-xs text-yellow-600 mt-1">Awaiting approval</p>
+                <div className="p-3 bg-amber-200 dark:bg-amber-800/50 rounded-xl">
+                  <ExclamationTriangleIcon className="h-6 w-6 text-amber-600 dark:text-amber-300" />
+                </div>
               </div>
-              <div className="p-3 bg-yellow-200 rounded-xl">
-                <ExclamationTriangleIcon className="h-6 w-6 text-yellow-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Total Payments Card */}
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-700 mb-1">Total Payments</p>
-                <div className="text-3xl font-bold text-blue-900">
-                  {isLoading ? <LoadingSpinner size="sm" /> : totalPayments}
+          {/* Total Payments Card */}
+          <Card className="bg-gradient-to-br from-violet-50 to-purple-100 dark:from-violet-900/20 dark:to-purple-800/20 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-violet-700 dark:text-violet-300 mb-1">Total Payments</p>
+                  <div className="text-3xl font-bold text-violet-900 dark:text-violet-100">
+                    {totalPayments}
+                  </div>
+                  <p className="text-xs text-violet-600 dark:text-violet-400 mt-1">All time</p>
                 </div>
-                <p className="text-xs text-blue-600 mt-1">All time</p>
+                <div className="p-3 bg-violet-200 dark:bg-violet-800/50 rounded-xl">
+                  <DocumentTextIcon className="h-6 w-6 text-violet-600 dark:text-violet-300" />
+                </div>
               </div>
-              <div className="p-3 bg-blue-200 rounded-xl">
-                <DocumentTextIcon className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Payments */}
-        <Card className="bg-gradient-to-br from-slate-50 to-slate-100 border-0 shadow-lg">
+        <Card className="bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-800/20 dark:to-slate-700/20 border-0 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-blue-900 font-poppins flex items-center">
-              <CreditCardIcon className="h-5 w-5 mr-2 text-blue-600" />
+            <CardTitle className="text-slate-800 dark:text-slate-100 font-poppins flex items-center">
+              <CreditCardIcon className="h-5 w-5 mr-2 text-slate-600 dark:text-slate-400" />
               Recent Payments
             </CardTitle>
-            <CardDescription className="text-blue-600">Your latest payment history</CardDescription>
+            <CardDescription className="text-slate-600 dark:text-slate-300">Your latest payment history</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="space-y-4">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <LoadingCard key={i} className="h-16" />
-                ))}
-              </div>
+              <FloatingParticlesLoader message="Loading payment history..." />
             ) : recentPayments.length > 0 ? (
               <div className="space-y-4">
                 {recentPayments.slice(0, 3).map((payment: any) => (
-                  <div key={payment.id} className="flex items-center justify-between p-3 bg-card rounded-lg">
+                  <div key={payment.id} className="flex items-center justify-between p-3 bg-white dark:bg-slate-800/50 rounded-lg border border-gray-100 dark:border-slate-700">
                     <div className="flex items-center space-x-3">
-                      <div className={`p-2 rounded-lg ${payment.status === 'approved' ? 'bg-green-100' :
-                        payment.status === 'pending' ? 'bg-yellow-100' : 'bg-red-100'
+                      <div className={`p-2 rounded-lg ${payment.status === 'approved' ? 'bg-green-100 dark:bg-green-800/50' :
+                        payment.status === 'pending' ? 'bg-yellow-100 dark:bg-yellow-800/50' : 'bg-red-100 dark:bg-red-800/50'
                         }`}>
-                        <CreditCardIcon className={`h-4 w-4 ${payment.status === 'approved' ? 'text-green-600' :
-                          payment.status === 'pending' ? 'text-yellow-600' : 'text-red-600'
+                        <CreditCardIcon className={`h-4 w-4 ${payment.status === 'approved' ? 'text-green-600 dark:text-green-300' :
+                          payment.status === 'pending' ? 'text-yellow-600 dark:text-yellow-300' : 'text-red-600 dark:text-red-300'
                           }`} />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-foreground">{formatCurrency(payment.amount)}</p>
-                        <p className="text-xs text-muted-foreground">{payment.durationMonths} months</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatCurrency(payment.amount)}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{payment.durationMonths} months</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${payment.status === 'approved' ? 'bg-green-100 text-green-800' :
-                        payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${payment.status === 'approved' ? 'bg-green-800 text-green-100 dark:bg-green-700 dark:text-green-100' :
+                        payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
+                          'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
                         }`}>
                         {payment.status}
                       </span>
@@ -152,35 +146,37 @@ export default function UserDashboard() {
                 ))}
               </div>
             ) : (
-              <p className="text-blue-600 text-center py-4">No recent payments to display.</p>
+              <div className="text-center py-8">
+                <p className="text-gray-500 dark:text-gray-400 text-sm">No recent payments to display</p>
+              </div>
             )}
           </CardContent>
         </Card>
 
         {/* Quick Actions */}
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-0 shadow-lg">
+        <Card className="bg-gradient-to-br from-indigo-50 to-purple-100 dark:from-indigo-900/20 dark:to-blue-800/20 border-0 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-purple-900 font-poppins flex items-center">
-              <CalendarDaysIcon className="h-5 w-5 mr-2 text-purple-600" />
+            <CardTitle className="text-indigo-900 dark:text-indigo-100 font-poppins flex items-center">
+              <CalendarDaysIcon className="h-5 w-5 mr-2 text-indigo-600 dark:text-indigo-400" />
               Quick Actions
             </CardTitle>
-            <CardDescription className="text-purple-600">Manage your subscription</CardDescription>
+            <CardDescription className="text-indigo-600 dark:text-indigo-300">Manage your subscription</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <Link href="/dashboard/next-payments?openModal=true" className="block w-full">
-              <Button className="w-full bg-card hover:bg-accent text-purple-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
+          <CardContent className="flex flex-col items-center justify-center space-y-4 py-8">
+            <Link href="/dashboard/next-payments?openModal=true" className="block w-full max-w-sm">
+              <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 dark:from-blue-600/20 dark:to-blue-700/20 dark:hover:from-blue-600/30 dark:hover:to-blue-700/30 text-white border-0 dark:border dark:border-blue-500/20 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-200">
                 <CreditCardIcon className="h-4 w-4 mr-2" />
                 Make Payment
               </Button>
             </Link>
-            <Link href="/dashboard/payment-history" className="block w-full">
-              <Button className="w-full bg-card hover:bg-accent text-purple-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
+            <Link href="/dashboard/payment-history" className="block w-full max-w-sm">
+              <Button className="w-full bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 dark:from-teal-600/20 dark:to-teal-700/20 dark:hover:from-teal-600/30 dark:hover:to-teal-700/30 text-white border-0 dark:border dark:border-teal-500/20 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-200">
                 <DocumentTextIcon className="h-4 w-4 mr-2" />
                 View Payment History
               </Button>
             </Link>
-            <Link href="/dashboard/next-payments" className="block w-full">
-              <Button className="w-full bg-card hover:bg-accent text-purple-700 border-0 shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
+            <Link href="/dashboard/next-payments" className="block w-full max-w-sm">
+              <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 dark:from-purple-600/20 dark:to-purple-700/20 dark:hover:from-purple-600/30 dark:hover:to-purple-700/30 text-white border-0 dark:border dark:border-purple-500/20 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-200">
                 <ClockIcon className="h-4 w-4 mr-2" />
                 Check Next Payment
               </Button>

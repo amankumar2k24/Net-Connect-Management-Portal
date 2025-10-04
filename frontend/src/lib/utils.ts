@@ -24,11 +24,11 @@ export function formatDate(date: Date | string | undefined): string {
 export function getPaymentStatusColor(status: string): string {
   switch (status.toLowerCase()) {
     case 'paid':
-      return 'bg-green-100 text-green-800'
+      return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
     case 'pending':
-      return 'bg-yellow-100 text-yellow-800'
+      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
     case 'rejected':
-      return 'bg-red-100 text-red-800'
+      return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
     default:
       return 'bg-muted/20 text-muted-foreground'
   }
@@ -37,11 +37,11 @@ export function getPaymentStatusColor(status: string): string {
 export function getUserStatusColor(status: string): string {
   switch (status.toLowerCase()) {
     case 'active':
-      return 'bg-green-100 text-green-800'
+      return 'bg-green-600 text-white dark:bg-green-700 dark:text-green-100'
     case 'inactive':
-      return 'bg-red-100 text-red-800'
+      return 'bg-red-500 text-white dark:bg-red-600 dark:text-red-100'
     case 'suspended':
-      return 'bg-yellow-100 text-yellow-800'
+      return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
     default:
       return 'bg-muted/20 text-muted-foreground'
   }

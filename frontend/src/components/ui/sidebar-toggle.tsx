@@ -31,7 +31,7 @@ export default function SidebarToggle({ className }: SidebarToggleProps) {
     return (
         <button
             onClick={toggleSidebar}
-            className={`items-center justify-center p-2 rounded-md text-white bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary shadow-lg ${className}`}
+            className={`items-center justify-center p-2 rounded-md text-white bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary shadow-lg cursor-pointer ${className}`}
             aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
             {isSidebarCollapsed ? (

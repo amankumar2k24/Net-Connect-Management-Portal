@@ -14,6 +14,7 @@ import { Notification } from '@/types'
 import { formatDate } from '@/lib/utils'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '@/contexts/auth-context'
+import { FloatingParticlesLoader } from '@/components/ui/unique-loader'
 import {
   BellIcon,
   CheckIcon,
@@ -314,19 +315,7 @@ export default function NotificationsPage() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="space-y-4">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="animate-pulse border border-border rounded-lg p-4 bg-card">
-                    <div className="flex items-center space-x-4">
-                      <div className="rounded-full bg-muted h-10 w-10"></div>
-                      <div className="flex-1 space-y-2">
-                        <div className="h-4 bg-muted rounded w-3/4"></div>
-                        <div className="h-3 bg-muted rounded w-1/2"></div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <FloatingParticlesLoader message="Loading notifications..." />
             ) : filteredNotifications.length === 0 ? (
               <div className="text-center py-8">
                 <BellIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />

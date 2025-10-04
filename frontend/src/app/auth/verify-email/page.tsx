@@ -153,7 +153,7 @@ export default function VerifyEmailPage() {
                         Continue to Sign In
                     </Button>
                     <p className="text-center text-sm text-muted-foreground">
-                        Welcome to NetConnect! 🎉
+                        Welcome to WaveNet! 🎉
                     </p>
                 </CardFooter>
             </Card>

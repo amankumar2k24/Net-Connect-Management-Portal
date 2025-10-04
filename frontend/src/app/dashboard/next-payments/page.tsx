@@ -15,6 +15,7 @@ import { formatCurrency, formatDate } from "@/lib/utils"
 import { Payment } from "@/types"
 import { toast } from "react-hot-toast"
 import { CreditCardIcon, ClockIcon, ArrowUpTrayIcon, CheckCircleIcon } from "@heroicons/react/24/outline"
+import { FloatingParticlesLoader, MorphingShapesLoader } from "@/components/ui/unique-loader"
 
 const durationOptions: SelectOption[] = [
   { label: "1 Month", value: "1" },
@@ -116,7 +117,7 @@ export default function NextPaymentsPage() {
             </CardHeader>
             <CardContent>
               {isLoadingUpcoming ? (
-                <p className="text-sm text-muted-foreground">Loading upcoming payments...</p>
+                <FloatingParticlesLoader message="Loading upcoming payments..." />
               ) : upcoming.length === 0 ? (
                 <p className="text-sm text-muted-foreground">You have no upcoming payments.</p>
               ) : (
@@ -176,7 +177,7 @@ export default function NextPaymentsPage() {
           </CardHeader>
           <CardContent>
             {isLoadingHistory ? (
-              <p className="text-sm text-muted-foreground">Loading payment history...</p>
+              <MorphingShapesLoader message="Loading payment history..." />
             ) : history.length === 0 ? (
               <p className="text-sm text-muted-foreground">No payment history available yet.</p>
             ) : (
@@ -198,10 +199,10 @@ export default function NextPaymentsPage() {
                     <div className="flex justify-end">
                       <span
                         className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${payment.status === 'approved'
-                            ? 'bg-green-500/15 text-green-400'
-                            : payment.status === 'pending'
-                              ? 'bg-yellow-500/15 text-yellow-400'
-                              : 'bg-red-500/15 text-red-400'
+                          ? 'bg-green-500/15 text-green-400'
+                          : payment.status === 'pending'
+                            ? 'bg-yellow-500/15 text-yellow-400'
+                            : 'bg-red-500/15 text-red-400'
                           }`}
                       >
                         {payment.status}
