@@ -7,6 +7,7 @@ import { RegisterDto } from './dto/register.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { EmailService } from '../common/services/email.service';
 import * as crypto from 'crypto';
 
@@ -20,7 +21,7 @@ export class AuthService {
   ) { }
 
   async register(registerDto: RegisterDto) {
-    const { email, password, firstName, lastName, phone } = registerDto;
+    const { email, password, firstName, lastName, phone, address } = registerDto;
 
     // Check if user already exists
     const existingUser = await this.userModel.findOne({ where: { email } });
@@ -38,6 +39,7 @@ export class AuthService {
       firstName,
       lastName,
       phone,
+      address,
       emailVerificationToken,
       role: UserRole.USER,
     });
@@ -215,7 +217,7 @@ export class AuthService {
     return user;
   }
 
-  async updateProfile(userId: string, updateData: any) {
+  async updateProfile(userId: string, updateData: UpdateProfileDto) {
     console.log("userId==>", userId)
     const user = await this.userModel.findByPk(userId);
     if (!user) {
@@ -223,13 +225,20 @@ export class AuthService {
     }
 
     // Only allow updating certain fields
-    const allowedFields = ['name', 'phone', 'address'];
+    const allowedFields = ['firstName', 'lastName', 'phone', 'address'];
     const filteredData = {};
 
     for (const field of allowedFields) {
       if (updateData[field] !== undefined) {
         filteredData[field] = updateData[field];
       }
+    }
+
+    // Handle legacy 'name' field by splitting it into firstName and lastName
+    if (updateData.name && !updateData.firstName && !updateData.lastName) {
+      const nameParts = updateData.name.trim().split(' ');
+      filteredData['firstName'] = nameParts[0] || '';
+      filteredData['lastName'] = nameParts.slice(1).join(' ') || '';
     }
 
     await user.update(filteredData);

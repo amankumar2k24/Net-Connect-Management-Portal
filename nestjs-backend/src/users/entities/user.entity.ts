@@ -63,6 +63,13 @@ export class User extends Model<User> {
   })
   phone: string;
 
+  @ApiProperty()
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  address: string;
+
   @ApiProperty({ enum: UserRole })
   @Column({
     type: DataType.ENUM(...Object.values(UserRole)),

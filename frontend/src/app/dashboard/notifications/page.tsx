@@ -491,16 +491,18 @@ export default function NotificationsPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">User ID</label>
+                <label className="text-sm font-medium text-gray-300">User ID</label>
                 <Input
+                  variant="modal"
                   value={createNotificationForm.userId}
                   onChange={(e) => setCreateNotificationForm({ ...createNotificationForm, userId: e.target.value })}
                   placeholder="Enter user ID"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Notification Type</label>
+                <label className="text-sm font-medium text-gray-300">Notification Type</label>
                 <Select
+                  variant="modal"
                   value={createNotificationForm.type}
                   onChange={(value) => setCreateNotificationForm({ ...createNotificationForm, type: value })}
                   options={notificationTypes}
@@ -509,8 +511,9 @@ export default function NotificationsPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Title</label>
+              <label className="text-sm font-medium text-gray-300">Title</label>
               <Input
+                variant="modal"
                 value={createNotificationForm.title}
                 onChange={(e) => setCreateNotificationForm({ ...createNotificationForm, title: e.target.value })}
                 placeholder="Enter notification title"
@@ -518,8 +521,9 @@ export default function NotificationsPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Message</label>
+              <label className="text-sm font-medium text-gray-300">Message</label>
               <Textarea
+                variant="modal"
                 value={createNotificationForm.message}
                 onChange={(e) => setCreateNotificationForm({ ...createNotificationForm, message: e.target.value })}
                 placeholder="Enter notification message"

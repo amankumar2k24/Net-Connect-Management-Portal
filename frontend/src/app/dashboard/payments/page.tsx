@@ -19,8 +19,12 @@ import {
   CheckIcon,
   XMarkIcon,
   CreditCardIcon,
+  ExclamationTriangleIcon,
+  ClockIcon,
+  BanknotesIcon,
+  ChartBarIcon,
 } from "@heroicons/react/24/outline"
-import { DNAHelixLoader } from "@/components/ui/unique-loader"
+import { WiFiSignalLoader, FloatingParticlesLoader } from "@/components/ui/unique-loader"
 
 const statusOptions: SelectOption[] = [
   { label: "All Status", value: "" },
@@ -67,8 +71,14 @@ export default function PaymentsPage() {
       }),
   })
 
+  const { data: paymentStats, isLoading: isLoadingStats } = useQuery({
+    queryKey: ['payment-dashboard-stats'],
+    queryFn: () => paymentApi.getDashboardStats(),
+  })
+
   const payments = paymentsData?.payments ?? []
   const totalPayments = paymentsData?.pagination.total ?? payments.length
+  const stats = paymentStats || { totalPayments: 0, pendingPayments: 0, approvedPayments: 0, rejectedPayments: 0, totalRevenue: 0 }
 
   const updatePaymentStatusMutation = useMutation({
     mutationFn: ({ paymentId, status }: { paymentId: string; status: Payment["status"] }) =>
@@ -98,145 +108,271 @@ export default function PaymentsPage() {
 
   return (
     <DashboardLayout>
-      <section className="space-y-8">
-        <header className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-2">
-            <p className="text-sm uppercase tracking-wide text-primary/80">Finance Desk</p>
-            <h1 className="text-3xl font-semibold text-foreground">Payments</h1>
-            <p className="text-sm text-muted-foreground">
-              Review incoming payments, approve activations, and track outstanding dues.
+      <div className="space-y-6 sm:space-y-8">
+        <div className="md:flex md:items-center md:justify-between">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl font-bold leading-7 text-foreground sm:text-3xl sm:truncate">
+              Payment History
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Track all your WiFi service payments and transactions
             </p>
           </div>
-        </header>
+        </div>
 
+        {/* Stats Cards */}
+        {isLoadingStats ? (
+          <WiFiSignalLoader message="Loading payment stats..." />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {/* Total Payments Card */}
+            <Card className="bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-600 dark:to-blue-700 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs sm:text-sm font-medium text-blue-100 mb-1 truncate">Total Payments</p>
+                    <div className="text-2xl sm:text-3xl font-bold text-white">
+                      {stats.totalPayments || 0}
+                    </div>
+                    <p className="text-xs text-blue-200 mt-1 truncate">All transactions</p>
+                  </div>
+                  <div className="p-2 sm:p-3 bg-blue-500/30 rounded-xl flex-shrink-0">
+                    <CreditCardIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Approved Payments Card */}
+            <Card className="bg-gradient-to-br from-emerald-600 to-emerald-700 dark:from-emerald-600 dark:to-emerald-700 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs sm:text-sm font-medium text-emerald-100 mb-1 truncate">Approved</p>
+                    <div className="text-2xl sm:text-3xl font-bold text-white">
+                      {stats.approvedPayments || 0}
+                    </div>
+                    <p className="text-xs text-emerald-200 mt-1 truncate">Successful payments</p>
+                  </div>
+                  <div className="p-2 sm:p-3 bg-emerald-500/30 rounded-xl flex-shrink-0">
+                    <CheckIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Pending Payments Card */}
+            <Card className="bg-gradient-to-br from-amber-600 to-orange-600 dark:from-amber-600 dark:to-orange-600 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs sm:text-sm font-medium text-amber-100 mb-1 truncate">Pending</p>
+                    <div className="text-2xl sm:text-3xl font-bold text-white">
+                      {stats.pendingPayments || 0}
+                    </div>
+                    <p className="text-xs text-amber-200 mt-1 truncate">Awaiting approval</p>
+                  </div>
+                  <div className="p-2 sm:p-3 bg-amber-500/30 rounded-xl flex-shrink-0">
+                    <ClockIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Total Revenue Card */}
+            <Card className="bg-gradient-to-br from-violet-600 to-purple-600 dark:from-violet-600 dark:to-purple-600 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs sm:text-sm font-medium text-violet-100 mb-1 truncate">Total Revenue</p>
+                    <div className="text-2xl sm:text-3xl font-bold text-white">
+                      {formatCurrency(stats.totalRevenue || 0)}
+                    </div>
+                    <p className="text-xs text-violet-200 mt-1 truncate">Approved payments</p>
+                  </div>
+                  <div className="p-2 sm:p-3 bg-violet-500/30 rounded-xl flex-shrink-0">
+                    <BanknotesIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Search & Filters */}
         <Card className="card-enhanced">
           <CardHeader>
-            <CardTitle>Search & Filters</CardTitle>
-            <CardDescription>Quickly locate payments using filters and smart search.</CardDescription>
+            <CardTitle className="text-white dark:text-white font-poppins flex items-center">
+              <MagnifyingGlassIcon className="h-5 w-5 mr-2 text-blue-400" />
+              Search & Filters
+            </CardTitle>
+            <CardDescription className="text-slate-300">Quickly locate payments using filters and smart search</CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-muted-foreground">Search by User ID</label>
-              <div className="relative">
-                <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="Enter user id"
-                  className="pl-9"
+          <CardContent>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground" htmlFor="payment-search">Search</label>
+                <div className="relative">
+                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
+                  <Input
+                    id="payment-search"
+                    placeholder="Search by amount or duration..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 border-0 bg-muted/50 transition-colors focus:bg-background h-11"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Status</label>
+                <Select
+                  value={statusFilter}
+                  onChange={setStatusFilter}
+                  options={statusOptions}
+                  className="w-full"
                 />
               </div>
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-muted-foreground">Status</label>
-              <Select value={statusFilter} onChange={setStatusFilter} options={statusOptions} />
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-muted-foreground">Method</label>
-              <Select value={methodFilter} onChange={setMethodFilter} options={methodOptions} />
+              <div className="flex items-end">
+                <Button
+                  onClick={() => {
+                    setSearchQuery('')
+                    setStatusFilter('')
+                  }}
+                  variant="outline"
+                  className="w-full border-2 bg-muted/50 hover:bg-muted md:w-auto"
+                >
+                  Clear Filters
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
 
+        {/* Payment History */}
         <Card className="card-enhanced">
-          <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <CardTitle>Transactions ({totalPayments})</CardTitle>
-              <CardDescription className="pt-2">Track every payment submitted by your customers.</CardDescription>
-            </div>
+          <CardHeader>
+            <CardTitle className="text-white dark:text-indigo-100 font-poppins flex items-center">
+              <ChartBarIcon className="h-5 w-5 mr-2 text-indigo-600 dark:text-indigo-400" />
+              Your Payments ({totalPayments})
+            </CardTitle>
+            <CardDescription className="text-indigo-600 dark:text-indigo-300">Complete history of your WiFi service payments</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="hidden text-xs font-semibold uppercase tracking-wide text-muted-foreground lg:grid lg:grid-cols-[1fr_1.5fr_1fr_1fr_0.8fr] lg:gap-4 lg:rounded-2xl lg:bg-secondary/70 lg:px-6 lg:py-4">
-              <span>Reference</span>
-              <span>User</span>
-              <span>Amount</span>
-              <span>Date</span>
-              <span className="text-right">Status</span>
-            </div>
-
-            <div className="divide-y divide-border/70 rounded-2xl bg-card shadow-sm">
-              {isLoading && <DNAHelixLoader message="Loading payment transactions..." />}
-
-              {!isLoading && payments.length === 0 && (
-                <div className="flex flex-col items-center justify-center gap-2 p-12 text-center">
-                  <CreditCardIcon className="h-10 w-10 text-muted-foreground" />
-                  <p className="text-base font-medium text-foreground">No payments found</p>
-                  <p className="text-sm text-muted-foreground">Adjust your filters or check back later.</p>
-                </div>
-              )}
-
-              {payments.map((payment) => (
-                <div
-                  key={payment.id}
-                  className="grid grid-cols-1 gap-3 px-6 py-5 text-sm text-foreground transition hover:bg-primary/5 lg:grid-cols-[1fr_1.5fr_1fr_1fr_0.8fr] lg:items-center"
-                >
-                  <span className="font-medium text-muted-foreground">{payment.id.slice(0, 8)}</span>
-                  <div className="flex flex-col">
-                    <span className="font-medium">
-                      {payment.user
-                        ? `${payment.user.firstName} ${payment.user.lastName}`.trim()
-                        : 'N/A'}
-                    </span>
-                    <span className="text-xs text-muted-foreground">{payment.user?.email || 'N/A'}</span>
-                  </div>
-                  <span className="font-semibold">{formatCurrency(payment.amount)}</span>
-                  <span className="text-sm text-muted-foreground">{formatDate(payment.createdAt)}</span>
-                  <div className="flex flex-col items-end gap-2 text-sm">
-                    <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${getStatusBadge(payment.status)}`}>
-                      {payment.status}
-                    </span>
-                    <div className="flex items-center gap-2">
+            {isLoading ? (
+              <FloatingParticlesLoader message="Loading payment transactions..." />
+            ) : payments.length === 0 ? (
+              <div className="text-center py-8">
+                <CreditCardIcon className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400 text-sm">No payments to display</p>
+                <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">Your payment history will appear here</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {payments.slice(0, 5).map((payment) => (
+                  <div key={payment.id} className="flex items-center space-x-3 p-3 bg-white dark:bg-slate-800/50 rounded-lg border border-gray-100 dark:border-slate-700">
+                    <div className="flex-shrink-0">
+                      <div className={`h-10 w-10 rounded-full flex items-center justify-center shadow-sm ${payment.status === 'approved'
+                        ? 'bg-gradient-to-br from-green-500 to-green-600'
+                        : payment.status === 'pending'
+                          ? 'bg-gradient-to-br from-yellow-500 to-yellow-600'
+                          : 'bg-gradient-to-br from-red-500 to-red-600'
+                        }`}>
+                        {payment.status === 'approved' ? (
+                          <CheckIcon className="h-5 w-5 text-white" />
+                        ) : payment.status === 'pending' ? (
+                          <ClockIcon className="h-5 w-5 text-white" />
+                        ) : (
+                          <XMarkIcon className="h-5 w-5 text-white" />
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                        {formatCurrency(payment.amount)} - {payment.durationMonths} month{payment.durationMonths > 1 ? 's' : ''}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {formatDate(payment.createdAt)} • {payment.method.replace('_', ' ').toUpperCase()}
+                      </p>
+                    </div>
+                    <div className="flex-shrink-0 flex items-center space-x-2">
+                      <span className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${payment.status === 'approved'
+                        ? 'bg-green-800 text-green-100 dark:bg-green-700 dark:text-green-100'
+                        : payment.status === 'pending'
+                          ? 'bg-yellow-800 text-yellow-100 dark:bg-yellow-700 dark:text-yellow-100'
+                          : 'bg-red-600 text-red-100 dark:bg-red-600 dark:text-red-100'
+                        }`}>
+                        {payment.status}
+                      </span>
                       <Button size="sm" variant="outline" onClick={() => handleViewPayment(payment)} className="gap-1">
-                        <EyeIcon className="h-4 w-4" /> View
+                        <EyeIcon className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+
+                {payments.length > 5 && (
+                  <div className="text-center pt-4">
+                    <p className="text-sm text-muted-foreground">
+                      Showing 5 of {totalPayments} payments
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
-      </section>
+      </div>
 
       <Modal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} title="Payment Details" size="lg">
         {selectedPayment && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-muted-foreground">Payment Information</h3>
-                <dl className="space-y-2 rounded-xl border border-border/70 bg-card p-4">
+                <h3 className="text-sm font-semibold text-indigo-900 dark:text-indigo-100 flex items-center">
+                  <CreditCardIcon className="h-4 w-4 mr-2" />
+                  Payment Information
+                </h3>
+                <dl className="space-y-2 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 p-4">
                   <div>
-                    <dt className="text-xs text-muted-foreground">Amount</dt>
-                    <dd className="text-sm font-semibold text-foreground">{formatCurrency(selectedPayment.amount)}</dd>
+                    <dt className="text-xs text-indigo-600 dark:text-indigo-400">Amount</dt>
+                    <dd className="text-sm font-semibold text-indigo-900 dark:text-indigo-100">{formatCurrency(selectedPayment.amount)}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-muted-foreground">Duration</dt>
-                    <dd className="text-sm text-foreground">{selectedPayment.durationMonths} months</dd>
+                    <dt className="text-xs text-indigo-600 dark:text-indigo-400">Duration</dt>
+                    <dd className="text-sm text-indigo-800 dark:text-indigo-200">{selectedPayment.durationMonths} months</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-muted-foreground">Method</dt>
-                    <dd className="text-sm text-foreground capitalize">{selectedPayment.method.replace('_', ' ')}</dd>
+                    <dt className="text-xs text-indigo-600 dark:text-indigo-400">Method</dt>
+                    <dd className="text-sm text-indigo-800 dark:text-indigo-200 capitalize">{selectedPayment.method.replace('_', ' ')}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-muted-foreground">Submitted</dt>
-                    <dd className="text-sm text-foreground">{formatDate(selectedPayment.createdAt)}</dd>
+                    <dt className="text-xs text-indigo-600 dark:text-indigo-400">Submitted</dt>
+                    <dd className="text-sm text-indigo-800 dark:text-indigo-200">{formatDate(selectedPayment.createdAt)}</dd>
                   </div>
                 </dl>
               </div>
               <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-muted-foreground">User</h3>
-                <dl className="space-y-2 rounded-xl border border-border/70 bg-card p-4">
+                <h3 className="text-sm font-semibold text-indigo-900 dark:text-indigo-100 flex items-center">
+                  <CheckIcon className="h-4 w-4 mr-2" />
+                  Status & Details
+                </h3>
+                <dl className="space-y-2 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 p-4">
                   <div>
-                    <dt className="text-xs text-muted-foreground">Name</dt>
-                    <dd className="text-sm text-foreground">
-                      {selectedPayment.user
-                        ? `${selectedPayment.user.firstName} ${selectedPayment.user.lastName}`.trim()
-                        : 'N/A'}
+                    <dt className="text-xs text-indigo-600 dark:text-indigo-400">Status</dt>
+                    <dd className="text-sm">
+                      <span className={`inline-flex items-center capitalize px-2 py-1 rounded-full text-xs font-medium ${selectedPayment.status === 'approved'
+                        ? 'bg-green-800 text-green-100'
+                        : selectedPayment.status === 'pending'
+                          ? 'bg-yellow-800 text-yellow-100'
+                          : 'bg-red-600 text-red-100'
+                        }`}>
+                        {selectedPayment.status}
+                      </span>
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-muted-foreground">Email</dt>
-                    <dd className="text-sm text-foreground">{selectedPayment.user?.email || 'N/A'}</dd>
+                    <dt className="text-xs text-indigo-600 dark:text-indigo-400">Reference ID</dt>
+                    <dd className="text-sm text-indigo-800 dark:text-indigo-200 font-mono">{selectedPayment.id.slice(0, 12)}...</dd>
                   </div>
                 </dl>
               </div>
@@ -244,21 +380,24 @@ export default function PaymentsPage() {
 
             {selectedPayment.screenshotUrl && (
               <div>
-                <h3 className="text-sm font-semibold text-muted-foreground mb-3">Payment Proof</h3>
-                <div className="overflow-hidden rounded-xl border border-border/70 bg-card">
+                <h3 className="text-sm font-semibold text-indigo-900 dark:text-indigo-100 mb-3 flex items-center">
+                  <EyeIcon className="h-4 w-4 mr-2" />
+                  Payment Proof
+                </h3>
+                <div className="overflow-hidden rounded-xl border border-indigo-200 dark:border-indigo-800 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20">
                   <Image
                     src={selectedPayment.screenshotUrl}
                     alt="Payment screenshot"
                     width={900}
                     height={600}
-                    className="max-h-96 w-full object-contain bg-background"
+                    className="max-h-96 w-full object-contain bg-white dark:bg-slate-800"
                   />
                 </div>
               </div>
             )}
 
             {selectedPayment.status === "pending" && (
-              <div className="flex justify-end gap-3 border-t border-border/70 pt-4">
+              <div className="flex justify-end gap-3 border-t border-indigo-200 dark:border-indigo-800 pt-4">
                 <Button
                   variant="destructive"
                   onClick={() => handleReject(selectedPayment)}
@@ -271,7 +410,7 @@ export default function PaymentsPage() {
                 <Button
                   onClick={() => handleApprove(selectedPayment)}
                   disabled={updatePaymentStatusMutation.isPending}
-                  className="gap-2"
+                  className="gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
                 >
                   <CheckIcon className="h-4 w-4" />
                   Approve

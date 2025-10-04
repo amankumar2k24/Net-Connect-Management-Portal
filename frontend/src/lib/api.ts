@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5500'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5501'
 
 // Utility function to check if token is likely valid
 const isTokenValid = (token: string | null): boolean => {

@@ -46,7 +46,9 @@ export class UsersService {
     }
 
     const { rows: users, count: total } = await this.userModel.findAndCountAll({
-      where,
+      where: {
+        role: { [Op.ne]: UserRole.ADMIN },
+      },
       limit: validLimit,
       offset,
       order: [['createdAt', 'DESC']],
@@ -93,6 +95,11 @@ export class UsersService {
       delete updateUserDto.status;
     }
 
+    // Ensure the email is in lowercase before updating
+    if (updateUserDto.email) {
+      updateUserDto.email = updateUserDto.email.toLowerCase();
+    }
+
     await user.update(updateUserDto);
     return user;
   }
@@ -109,18 +116,34 @@ export class UsersService {
   }
 
   async getDashboardStats() {
-    const totalUsers = await this.userModel.count();
+    const totalUsers = await this.userModel.count({
+      where: {
+        role: { [Op.ne]: UserRole.ADMIN },
+      },
+    });
     const activeUsers = await this.userModel.count({
-      where: { status: UserStatus.ACTIVE },
+      where: {
+        status: UserStatus.ACTIVE,
+        role: { [Op.ne]: UserRole.ADMIN },
+      },
     });
     const inactiveUsers = await this.userModel.count({
-      where: { status: UserStatus.INACTIVE },
+      where: {
+        status: UserStatus.INACTIVE,
+        role: { [Op.ne]: UserRole.ADMIN },
+      },
     });
     const suspendedUsers = await this.userModel.count({
-      where: { status: UserStatus.SUSPENDED },
+      where: {
+        status: UserStatus.SUSPENDED,
+        role: { [Op.ne]: UserRole.ADMIN },
+      },
     });
 
     const recentUsers = await this.userModel.findAll({
+      where: {
+        role: { [Op.ne]: UserRole.ADMIN },
+      },
       order: [['createdAt', 'DESC']],
       limit: 5,
     });

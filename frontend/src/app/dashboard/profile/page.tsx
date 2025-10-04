@@ -24,7 +24,8 @@ import {
 import { AdminSettings } from '@/types' // Add this import
 
 const profileSchema = Yup.object({
-  name: Yup.string().min(2, 'Name must be at least 2 characters').required('Name is required'),
+  firstName: Yup.string().min(2, 'First name must be at least 2 characters').required('First name is required'),
+  lastName: Yup.string().min(2, 'Last name must be at least 2 characters').required('Last name is required'),
   phone: Yup.string().matches(/^[0-9]{10}$/, 'Phone number must be 10 digits').required('Phone is required'),
   address: Yup.string().min(10, 'Address must be at least 10 characters').required('Address is required'),
 })
@@ -44,19 +45,19 @@ export default function ProfilePage() {
 
   const queryClient = useQueryClient()
 
-  const { data: profileData } = useQuery({
+  const { data: profileData, isLoading: isLoadingProfile } = useQuery({
     queryKey: ['profile'],
     queryFn: () => userApi.getProfile(),
   })
 
-  const { data: adminSettings } = useQuery({
+  const { data: adminSettings, isLoading: isLoadingSettings } = useQuery({
     queryKey: ['admin-settings'],
     queryFn: () => adminApi.getSettings(),
     enabled: user?.role === 'admin',
   })
 
   const updateProfileMutation = useMutation({
-    mutationFn: (data: { name?: string; phone?: string; address?: string }) =>
+    mutationFn: (data: { firstName?: string; lastName?: string; phone?: string; address?: string }) =>
       userApi.updateProfile(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile'] })
@@ -70,9 +71,9 @@ export default function ProfilePage() {
 
   const updateQrCodeImageMutation = useMutation({
     mutationFn: (qrCodeImage: File) => adminApi.updateQrCodeImage(qrCodeImage),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['admin-settings'] })
-      toast.success('QR Code updated successfully!')
+      toast.success(data.message || 'QR Code updated successfully!')
       setQrCodeFile(null)
       setQrCodePreview(null)
     },
@@ -83,9 +84,9 @@ export default function ProfilePage() {
 
   const updateUpiNumberMutation = useMutation({
     mutationFn: (upiNumber: string) => adminApi.updateUpiNumber(upiNumber),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['admin-settings'] })
-      toast.success('UPI Number updated successfully!')
+      toast.success(data.message || 'UPI Number updated successfully!')
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to update UPI Number')
@@ -93,13 +94,14 @@ export default function ProfilePage() {
   })
 
   const profile = profileData?.user || user
-  const settings: AdminSettings = adminSettings || { qrCodeUrl: '', upiNumber: '' }
+  const settings: AdminSettings = adminSettings?.settings || { qrCodeUrl: '', upiNumber: '' }
 
   const profileFormik = useFormik({
     initialValues: {
-      name: profile?.name || '',
-      phone: profile?.phone || '',
-      address: profile?.address || '',
+      firstName: profile?.firstName ?? '',
+      lastName: profile?.lastName ?? '',
+      phone: profile?.phone ?? '',
+      address: profile?.address ?? '',
     },
     validationSchema: profileSchema,
     enableReinitialize: true,
@@ -111,7 +113,7 @@ export default function ProfilePage() {
   const settingsFormik = useFormik({
     initialValues: {
       // qrCode is now handled as a file
-      upiNumber: settings?.upiNumber || '',
+      upiNumber: settings?.upiNumber ?? '',
     },
     validationSchema: adminSettingsSchema,
     enableReinitialize: true,
@@ -142,6 +144,20 @@ export default function ProfilePage() {
 
   const triggerFileInput = () => {
     fileInputRef.current?.click()
+  }
+
+  // Show loading state while data is being fetched
+  if (isLoadingProfile || (user?.role === 'admin' && isLoadingSettings)) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-2 text-sm text-muted-foreground">Loading profile...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    )
   }
 
   return (
@@ -210,24 +226,45 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                {/* Name Field */}
+                {/* First Name Field */}
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-foreground">
-                    Full Name
+                  <label htmlFor="firstName" className="block text-sm font-medium text-foreground">
+                    First Name
                   </label>
                   <Input
-                    id="name"
-                    name="name"
+                    id="firstName"
+                    name="firstName"
                     type="text"
-                    value={profileFormik.values.name}
+                    value={profileFormik.values.firstName ?? ''}
                     onChange={profileFormik.handleChange}
                     onBlur={profileFormik.handleBlur}
                     disabled={!isEditing}
-                    className={`mt-1 bg-background border-border text-foreground placeholder:text-muted-foreground ${!isEditing ? 'bg-muted/50' : ''} ${profileFormik.touched.name && profileFormik.errors.name ? 'border-destructive' : ''
+                    className={`mt-1 bg-background border-border text-foreground placeholder:text-muted-foreground ${!isEditing ? 'bg-muted/50' : ''} ${profileFormik.touched.firstName && profileFormik.errors.firstName ? 'border-destructive' : ''
                       }`}
                   />
-                  {profileFormik.touched.name && profileFormik.errors.name && (
-                    <p className="mt-1 text-sm text-red-600">{String(profileFormik.errors.name)}</p>
+                  {profileFormik.touched.firstName && profileFormik.errors.firstName && (
+                    <p className="mt-1 text-sm text-red-600">{String(profileFormik.errors.firstName)}</p>
+                  )}
+                </div>
+
+                {/* Last Name Field */}
+                <div>
+                  <label htmlFor="lastName" className="block text-sm font-medium text-foreground">
+                    Last Name
+                  </label>
+                  <Input
+                    id="lastName"
+                    name="lastName"
+                    type="text"
+                    value={profileFormik.values.lastName ?? ''}
+                    onChange={profileFormik.handleChange}
+                    onBlur={profileFormik.handleBlur}
+                    disabled={!isEditing}
+                    className={`mt-1 bg-background border-border text-foreground placeholder:text-muted-foreground ${!isEditing ? 'bg-muted/50' : ''} ${profileFormik.touched.lastName && profileFormik.errors.lastName ? 'border-destructive' : ''
+                      }`}
+                  />
+                  {profileFormik.touched.lastName && profileFormik.errors.lastName && (
+                    <p className="mt-1 text-sm text-red-600">{String(profileFormik.errors.lastName)}</p>
                   )}
                 </div>
 
@@ -258,7 +295,7 @@ export default function ProfilePage() {
                     id="phone"
                     name="phone"
                     type="tel"
-                    value={profileFormik.values.phone}
+                    value={profileFormik.values.phone ?? ''}
                     onChange={profileFormik.handleChange}
                     onBlur={profileFormik.handleBlur}
                     disabled={!isEditing}
@@ -293,7 +330,7 @@ export default function ProfilePage() {
                   <Textarea
                     id="address"
                     name="address"
-                    value={profileFormik.values.address}
+                    value={profileFormik.values.address ?? ''}
                     onChange={profileFormik.handleChange}
                     onBlur={profileFormik.handleBlur}
                     disabled={!isEditing}
@@ -432,7 +469,7 @@ export default function ProfilePage() {
                       name="upiNumber"
                       type="text"
                       placeholder="e.g., 9876543210@paytm or yourname@upi"
-                      value={settingsFormik.values.upiNumber}
+                      value={settingsFormik.values.upiNumber ?? ''}
                       onChange={settingsFormik.handleChange}
                       onBlur={settingsFormik.handleBlur}
                       disabled={!isEditingSettings}

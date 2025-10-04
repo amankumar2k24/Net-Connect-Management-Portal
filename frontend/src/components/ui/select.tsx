@@ -20,10 +20,21 @@ interface SelectProps {
   className?: string
   disabled?: boolean
   emptyMessage?: string
+  variant?: 'default' | 'modal'
 }
 
-export default function Select({ value, onChange, options, placeholder = "Select", className, disabled, emptyMessage }: SelectProps) {
+export default function Select({ value, onChange, options, placeholder = "Select", className, disabled, emptyMessage, variant = 'default' }: SelectProps) {
   const activeOption = options.find((option) => option.value === value)
+
+  const buttonClasses = {
+    default: "card-enhanced2 text-foreground shadow-lg shadow-black/5",
+    modal: "bg-gray-800 border border-gray-600 text-white shadow-lg shadow-black/20"
+  }
+
+  const optionsClasses = {
+    default: "border-border/60 bg-card/95",
+    modal: "border-gray-600 bg-gray-800/95"
+  }
 
   return (
     <Listbox value={value} onChange={onChange} disabled={disabled}>
@@ -32,7 +43,8 @@ export default function Select({ value, onChange, options, placeholder = "Select
           <Listbox.Button
             className={
               cn(
-                "group relative w-full cursor-pointer rounded-2xl card-enhanced2 px-4 py-3 text-left text-sm font-medium text-foreground shadow-lg shadow-black/5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background",
+                "group relative w-full cursor-pointer rounded-2xl px-4 py-3 text-left text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background",
+                buttonClasses[variant],
                 disabled && "cursor-not-allowed opacity-60",
               )
             }
@@ -64,7 +76,7 @@ export default function Select({ value, onChange, options, placeholder = "Select
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Listbox.Options className="absolute z-30 mt-2 w-full overflow-hidden rounded-2xl border border-border/60 bg-card/95 p-1.5 shadow-xl shadow-black/10 backdrop-blur-md focus:outline-none">
+            <Listbox.Options className={cn("absolute z-30 mt-2 w-full overflow-hidden rounded-2xl border p-1.5 shadow-xl shadow-black/10 backdrop-blur-md focus:outline-none", optionsClasses[variant])}>
               {options.length === 0 && (
                 <div className="px-3 py-2 text-sm text-muted-foreground">
                   {emptyMessage || "No options available"}

@@ -6,6 +6,7 @@ import { RegisterDto } from './dto/register.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GetUser } from './decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
@@ -83,7 +84,7 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update user profile' })
   @ApiResponse({ status: 200, description: 'Profile updated successfully' })
-  async updateProfile(@GetUser() user: User, @Body() updateData: any) {
-    return this.authService.updateProfile(user.id, updateData);
+  async updateProfile(@GetUser() user: User, @Body() updateProfileDto: UpdateProfileDto) {
+    return this.authService.updateProfile(user.id, updateProfileDto);
   }
 }

@@ -187,8 +187,19 @@ export const notificationApi = {
 export const adminApi = {
   getDashboardStats: () => userApi.getDashboardStats(),
   getPaymentStats: () => paymentApi.getDashboardStats(),
-  getSettings: () => Promise.resolve({ qrCodeUrl: "", upiNumber: "" }),
-  updateQrCodeImage: (file: File) => uploadFile("/uploads/qr-code", file),
-  updateUpiNumber: async (_upiNumber: string) => Promise.resolve({ message: "Not implemented" }),
+  getSettings: () => resolve<{ settings: { qrCodeUrl: string; upiNumber: string } }>(api.get("/admin/settings")),
+  updateQrCodeImage: async (file: File) => {
+    const formData = new FormData()
+    formData.append("file", file)
+    return resolve<{ url: string; settings: { qrCodeUrl: string; upiNumber: string }; message: string }>(
+      api.post("/admin/qr-code", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      }),
+    )
+  },
+  updateUpiNumber: (upiNumber: string) =>
+    resolve<{ settings: { qrCodeUrl: string; upiNumber: string }; message: string }>(
+      api.put("/admin/settings", { upiNumber })
+    ),
 }
 

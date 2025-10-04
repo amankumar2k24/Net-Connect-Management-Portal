@@ -27,4 +27,9 @@ export class CreatePaymentDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  upiNumber?: string;
 }

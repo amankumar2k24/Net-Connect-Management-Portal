@@ -12,6 +12,7 @@ import { userApi, paymentApi } from "@/lib/api-functions"
 import { formatCurrency, formatDate, getUserStatusColor } from "@/lib/utils"
 import { User } from "@/types"
 import { toast } from "react-hot-toast"
+import * as Yup from 'yup'
 import {
   MagnifyingGlassIcon,
   EyeIcon,
@@ -37,6 +38,18 @@ const paymentStatusOptions: SelectOption[] = [
   { label: "Rejected", value: "rejected" },
 ]
 
+const userValidationSchema = Yup.object().shape({
+  firstName: Yup.string().min(2, 'First name must be at least 2 characters').required('First name is required'),
+  lastName: Yup.string().min(2, 'Last name must be at least 2 characters').required('Last name is required'),
+  email: Yup.string().email('Invalid email format').required('Email is required'),
+  password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+  phone: Yup.string().test('phone-validation', 'Phone number must be exactly 10 digits', function (value) {
+    if (!value || value === '') return true; // Allow empty phone
+    return /^[0-9]{10}$/.test(value);
+  }),
+  role: Yup.string().oneOf(['user', 'admin'], 'Invalid role').required('Role is required'),
+})
+
 const fullName = (u: User | null | undefined) =>
   [u?.firstName, u?.lastName].filter(Boolean).join(" ") || u?.email || "Unknown user"
 
@@ -60,6 +73,8 @@ export default function AllUsersPage() {
     phone: '',
     role: 'user' as 'user' | 'admin'
   })
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({})
+  const [isValidating, setIsValidating] = useState(false)
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize] = useState(10)
@@ -184,25 +199,97 @@ export default function AllUsersPage() {
   }
 
   const handleAddUser = () => {
+    // Reset form when opening modal
+    setNewUserData({
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      phone: '',
+      role: 'user'
+    })
+    setFormErrors({})
     setIsAddUserModalOpen(true)
   }
 
-  const handleCreateUser = () => {
-    if (!newUserData.firstName || !newUserData.lastName || !newUserData.email || !newUserData.password) {
-      toast.error("Please fill in all required fields")
-      return
-    }
-    createUserMutation.mutate(newUserData)
+  const handleCloseModal = () => {
+    setIsAddUserModalOpen(false)
+    setFormErrors({})
+    setNewUserData({
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      phone: '',
+      role: 'user'
+    })
   }
 
-  const toggleDropdown = (userId: string) => {
+  const validateField = async (fieldName: string, value: any) => {
+    try {
+      await userValidationSchema.validateAt(fieldName, { ...newUserData, [fieldName]: value })
+      setFormErrors(prev => ({ ...prev, [fieldName]: '' }))
+      return true
+    } catch (error: any) {
+      setFormErrors(prev => ({ ...prev, [fieldName]: error.message }))
+      return false
+    }
+  }
+
+  const validateForm = async () => {
+    try {
+      await userValidationSchema.validate(newUserData, { abortEarly: false })
+      setFormErrors({})
+      return true
+    } catch (error: any) {
+      const errors: { [key: string]: string } = {}
+      error.inner.forEach((err: any) => {
+        if (err.path) {
+          errors[err.path] = err.message
+        }
+      })
+      setFormErrors(errors)
+      return false
+    }
+  }
+
+  const handleInputChange = (field: string, value: string) => {
+    setNewUserData({ ...newUserData, [field]: value })
+    // Clear error when user starts typing
+    if (formErrors[field]) {
+      setFormErrors(prev => ({ ...prev, [field]: '' }))
+    }
+  }
+
+  const handleInputBlur = (field: string, value: string) => {
+    validateField(field, value)
+  }
+
+  const handleCreateUser = async () => {
+    setIsValidating(true)
+    const isValid = await validateForm()
+    setIsValidating(false)
+
+    if (isValid) {
+      createUserMutation.mutate(newUserData)
+    }
+  }
+
+  const toggleDropdown = (userId: string, event?: React.MouseEvent) => {
+    if (event) {
+      event.stopPropagation()
+    }
     setOpenDropdownId(openDropdownId === userId ? null : userId)
   }
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = () => {
-      setOpenDropdownId(null)
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      // Don't close if clicking on the dropdown button or dropdown content
+      if (!target.closest('[data-dropdown]')) {
+        setOpenDropdownId(null)
+      }
     }
 
     if (openDropdownId) {
@@ -364,13 +451,13 @@ export default function AllUsersPage() {
                       <div className="flex flex-col">
                         <span className="font-medium">{fullName(u)}</span>
                         <span className="text-xs text-muted-foreground">
-                          {u.isEmailVerified ? "✓ Verified" : "⚠ Unverified"}
+                          {u.isEmailVerified ? "✅ Verified" : "⚠️ Unverified"}
                         </span>
                       </div>
                       <span className="truncate text-muted-foreground">{u.email}</span>
                       <span className="text-muted-foreground">{u.phone || "—"}</span>
                       <span>
-                        <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${u.role === 'admin'
+                        <span className={`capitalize inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${u.role === 'admin'
                           ? 'bg-purple-500/15 text-purple-400 border border-purple-500/20'
                           : 'bg-blue-500/15 text-blue-400 border border-blue-500/20'
                           }`}>
@@ -383,11 +470,11 @@ export default function AllUsersPage() {
                         </span>
                       </span>
                       <div className="flex items-center justify-end">
-                        <div className="relative">
+                        <div className="relative" data-dropdown>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => toggleDropdown(u.id)}
+                            onClick={(e) => toggleDropdown(u.id, e)}
                             className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors opacity-50 hover:opacity-100 cursor-pointer"
                           >
                             <EllipsisVerticalIcon className="h-5 w-5" />
@@ -575,8 +662,9 @@ export default function AllUsersPage() {
               <p className="text-sm text-muted-foreground">Select the duration for this activation request.</p>
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-muted-foreground">Duration (months)</label>
+              <label className="block text-sm font-medium text-gray-300">Duration (months)</label>
               <Select
+                variant="modal"
                 value={String(activationDuration)}
                 onChange={(value) => setActivationDuration(Number(value))}
                 options={[
@@ -599,54 +687,84 @@ export default function AllUsersPage() {
           </div>
         </Modal>
 
-        <Modal isOpen={isAddUserModalOpen} onClose={() => setIsAddUserModalOpen(false)} title="Add New User" size="md">
+        <Modal isOpen={isAddUserModalOpen} onClose={handleCloseModal} title="Add New User" size="md">
           <div className="space-y-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-2">First Name *</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">First Name *</label>
                 <Input
+                  variant="modal"
                   value={newUserData.firstName}
-                  onChange={(e) => setNewUserData({ ...newUserData, firstName: e.target.value })}
+                  onChange={(e) => handleInputChange('firstName', e.target.value)}
+                  onBlur={(e) => handleInputBlur('firstName', e.target.value)}
                   placeholder="Enter first name"
+                  className={formErrors.firstName ? 'border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20' : ''}
                 />
+                {formErrors.firstName && (
+                  <p className="mt-1 text-sm text-red-500 font-medium">{formErrors.firstName}</p>
+                )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-2">Last Name *</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Last Name *</label>
                 <Input
+                  variant="modal"
                   value={newUserData.lastName}
-                  onChange={(e) => setNewUserData({ ...newUserData, lastName: e.target.value })}
+                  onChange={(e) => handleInputChange('lastName', e.target.value)}
+                  onBlur={(e) => handleInputBlur('lastName', e.target.value)}
                   placeholder="Enter last name"
+                  className={formErrors.lastName ? 'border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20' : ''}
                 />
+                {formErrors.lastName && (
+                  <p className="mt-1 text-sm text-red-500 font-medium">{formErrors.lastName}</p>
+                )}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-2">Email *</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Email *</label>
               <Input
+                variant="modal"
                 type="email"
                 value={newUserData.email}
-                onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                onBlur={(e) => handleInputBlur('email', e.target.value)}
                 placeholder="Enter email address"
+                className={formErrors.email ? 'border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20' : ''}
               />
+              {formErrors.email && (
+                <p className="mt-1 text-sm text-red-500 font-medium">{formErrors.email}</p>
+              )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-2">Password *</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Password *</label>
               <Input
+                variant="modal"
                 type="password"
                 value={newUserData.password}
-                onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
+                onChange={(e) => handleInputChange('password', e.target.value)}
+                onBlur={(e) => handleInputBlur('password', e.target.value)}
                 placeholder="Enter password"
+                className={formErrors.password ? 'border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20' : ''}
               />
+              {formErrors.password && (
+                <p className="mt-1 text-sm text-red-500 font-medium">{formErrors.password}</p>
+              )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-2">Phone</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Phone</label>
               <Input
+                variant="modal"
                 value={newUserData.phone}
-                onChange={(e) => setNewUserData({ ...newUserData, phone: e.target.value })}
-                placeholder="Enter phone number"
+                onChange={(e) => handleInputChange('phone', e.target.value)}
+                onBlur={(e) => handleInputBlur('phone', e.target.value)}
+                placeholder="Enter 10-digit phone number"
+                className={formErrors.phone ? 'border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20' : ''}
               />
+              {formErrors.phone && (
+                <p className="mt-1 text-sm text-red-500 font-medium">{formErrors.phone}</p>
+              )}
             </div>
 
             <div>
@@ -662,7 +780,7 @@ export default function AllUsersPage() {
             </div>
 
             <div className="flex justify-end gap-3 pt-4">
-              <Button variant="outline" onClick={() => setIsAddUserModalOpen(false)}>
+              <Button variant="outline" onClick={handleCloseModal}>
                 Cancel
               </Button>
               <Button onClick={handleCreateUser} disabled={createUserMutation.isPending}>

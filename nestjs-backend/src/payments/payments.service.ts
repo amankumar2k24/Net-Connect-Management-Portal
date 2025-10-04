@@ -21,7 +21,7 @@ export class PaymentsService {
   ) { }
 
   async create(createPaymentDto: CreatePaymentDto, userId: string): Promise<Payment> {
-    const { durationMonths, amount, method, screenshotUrl, notes } = createPaymentDto;
+    const { durationMonths, amount, method, screenshotUrl, notes, upiNumber } = createPaymentDto;
 
     const startDate = new Date();
     const endDate = new Date();
@@ -36,6 +36,7 @@ export class PaymentsService {
       startDate,
       endDate,
       notes,
+      upiNumber,
       status: PaymentStatus.PENDING,
     });
 
@@ -63,7 +64,9 @@ export class PaymentsService {
     method?: PaymentMethod,
     userId?: string,
   ) {
-    const offset = (page - 1) * limit;
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 10;
+    const offset = (pageNum - 1) * limitNum;
     const where: any = {};
 
     if (status) {
@@ -86,7 +89,7 @@ export class PaymentsService {
           attributes: ['id', 'firstName', 'lastName', 'email'],
         },
       ],
-      limit,
+      limit: limitNum,
       offset,
       order: [['createdAt', 'DESC']],
     });
@@ -94,8 +97,8 @@ export class PaymentsService {
     return {
       payments,
       total,
-      page,
-      totalPages: Math.ceil(total / limit),
+      page: pageNum,
+      totalPages: Math.ceil(total / limitNum),
     };
   }
 
@@ -122,11 +125,13 @@ export class PaymentsService {
   }
 
   async findUserPayments(userId: string, page: number = 1, limit: number = 10) {
-    const offset = (page - 1) * limit;
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 10;
+    const offset = (pageNum - 1) * limitNum;
 
     const { rows: payments, count: total } = await this.paymentModel.findAndCountAll({
       where: { userId },
-      limit,
+      limit: limitNum,
       offset,
       order: [['createdAt', 'DESC']],
     });
@@ -134,8 +139,8 @@ export class PaymentsService {
     return {
       payments,
       total,
-      page,
-      totalPages: Math.ceil(total / limit),
+      page: pageNum,
+      totalPages: Math.ceil(total / limitNum),
     };
   }
 

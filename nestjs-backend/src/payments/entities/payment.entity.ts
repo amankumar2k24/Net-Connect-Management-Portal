@@ -102,6 +102,13 @@ export class Payment extends Model<Payment> {
     type: DataType.STRING,
     allowNull: true,
   })
+  upiNumber: string;
+
+  @ApiProperty()
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
   rejectionReason: string;
 
   @ApiProperty()

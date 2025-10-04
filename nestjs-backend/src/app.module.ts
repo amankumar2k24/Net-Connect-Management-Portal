@@ -9,9 +9,11 @@ import { PaymentsModule } from './payments/payments.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { CronJobsModule } from './cron-jobs/cron-jobs.module';
+import { AdminModule } from './admin/admin.module';
 import { User } from './users/entities/user.entity';
 import { Payment } from './payments/entities/payment.entity';
 import { Notification } from './notifications/entities/notification.entity';
+import { AdminSettings } from './admin/entities/admin-settings.entity';
 
 @Module({
   imports: [
@@ -25,9 +27,10 @@ import { Notification } from './notifications/entities/notification.entity';
       username: process.env.DB_USERNAME || 'postgres',
       password: process.env.DB_PASSWORD || 'password',
       database: process.env.DB_NAME || 'wifiProject',
-      models: [User, Payment, Notification],
+      models: [User, Payment, Notification, AdminSettings],
       autoLoadModels: true,
       synchronize: true,
+      sync: { alter: true }, // This will alter existing tables to match the model
     }),
     MulterModule.register({
       dest: './uploads',
@@ -39,6 +42,7 @@ import { Notification } from './notifications/entities/notification.entity';
     NotificationsModule,
     UploadsModule,
     CronJobsModule,
+    AdminModule,
   ],
 })
 export class AppModule { }

@@ -119,62 +119,74 @@ export default function PaymentHistoryPage() {
         </div>
 
         {/* Payment Statistics */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-0 shadow-lg">
-            <CardContent className="p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {/* Total Payments Card - Sky Blue like Admin Dashboard */}
+          <Card className="bg-gradient-to-br from-sky-50 to-blue-100 dark:from-sky-900/20 dark:to-blue-800/20 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-blue-700 mb-1">Total Payments</p>
-                  <p className="text-3xl font-bold text-blue-900">{filteredPayments.length}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-sky-700 dark:text-sky-300 mb-1 truncate">Total Payments</p>
+                  <div className="text-2xl sm:text-3xl font-bold text-sky-900 dark:text-sky-100">
+                    {filteredPayments.length}
+                  </div>
+                  <p className="text-xs text-sky-600 dark:text-sky-400 mt-1 truncate">All transactions</p>
                 </div>
-                <div className="p-3 bg-blue-200 rounded-xl">
-                  <CreditCardIcon className="h-6 w-6 text-blue-600" />
+                <div className="p-2 sm:p-3 bg-sky-200 dark:bg-sky-800/50 rounded-xl flex-shrink-0">
+                  <CreditCardIcon className="h-5 w-5 sm:h-6 sm:w-6 text-sky-600 dark:text-sky-300" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-0 shadow-lg">
-            <CardContent className="p-6">
+          {/* Approved Payments Card - Emerald Green like Admin Dashboard */}
+          <Card className="bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-900/20 dark:to-teal-800/20 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-green-700 mb-1">Approved</p>
-                  <p className="text-3xl font-bold text-green-900">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1 truncate">Approved</p>
+                  <div className="text-2xl sm:text-3xl font-bold text-emerald-900 dark:text-emerald-100">
                     {filteredPayments.filter((p: Payment) => p.status === 'approved').length}
-                  </p>
+                  </div>
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 truncate">Successful payments</p>
                 </div>
-                <div className="p-3 bg-green-200 rounded-xl">
-                  <CheckCircleIcon className="h-6 w-6 text-green-600" />
+                <div className="p-2 sm:p-3 bg-emerald-200 dark:bg-emerald-800/50 rounded-xl flex-shrink-0">
+                  <CheckCircleIcon className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600 dark:text-emerald-300" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-0 shadow-lg">
-            <CardContent className="p-6">
+          {/* Total Revenue Card - Violet Purple like Admin Dashboard */}
+          <Card className="bg-gradient-to-br from-violet-50 to-purple-100 dark:from-violet-900/20 dark:to-purple-800/20 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-yellow-700 mb-1">Pending</p>
-                  <p className="text-3xl font-bold text-yellow-900">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-violet-700 dark:text-violet-300 mb-1 truncate">Total Spent</p>
+                  <div className="text-2xl sm:text-3xl font-bold text-violet-900 dark:text-violet-100">
+                    {formatCurrency(totalAmount)}
+                  </div>
+                  <p className="text-xs text-violet-600 dark:text-violet-400 mt-1 truncate">Approved payments</p>
+                </div>
+                <div className="p-2 sm:p-3 bg-violet-200 dark:bg-violet-800/50 rounded-xl flex-shrink-0">
+                  <CreditCardIcon className="h-5 w-5 sm:h-6 sm:w-6 text-violet-600 dark:text-violet-300" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pending Payments Card - Amber Orange like Admin Dashboard */}
+          <Card className="bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-800/20 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-amber-700 dark:text-amber-300 mb-1 truncate">Pending</p>
+                  <div className="text-2xl sm:text-3xl font-bold text-amber-900 dark:text-amber-100">
                     {filteredPayments.filter((p: Payment) => p.status === 'pending').length}
-                  </p>
+                  </div>
+                  <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 truncate">Awaiting approval</p>
                 </div>
-                <div className="p-3 bg-yellow-200 rounded-xl">
-                  <ClockIcon className="h-6 w-6 text-yellow-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-0 shadow-lg">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-purple-700 mb-1">Total Spent</p>
-                  <p className="text-3xl font-bold text-purple-900">{formatCurrency(totalAmount)}</p>
-                </div>
-                <div className="p-3 bg-purple-200 rounded-xl">
-                  <CreditCardIcon className="h-6 w-6 text-purple-600" />
+                <div className="p-2 sm:p-3 bg-amber-200 dark:bg-amber-800/50 rounded-xl flex-shrink-0">
+                  <ClockIcon className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600 dark:text-amber-300" />
                 </div>
               </div>
             </CardContent>
@@ -184,7 +196,7 @@ export default function PaymentHistoryPage() {
         {/* Search & Filters */}
         <Card className="card-enhanced">
           <CardHeader className="pb-4">
-            <CardTitle className="text-lg font-semibold">Search & Filters</CardTitle>
+            <CardTitle className="text-lg font-semibold text-white dark:text-white">Search & Filters</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -197,7 +209,7 @@ export default function PaymentHistoryPage() {
                     placeholder="Search by amount or duration..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 border-0 bg-muted/50 transition-colors focus:bg-background"
+                    className="pl-10 border-0 bg-muted/50 transition-colors focus:bg-background h-11"
                   />
                 </div>
               </div>
@@ -217,7 +229,7 @@ export default function PaymentHistoryPage() {
                     setStatusFilter('')
                   }}
                   variant="outline"
-                  className="w-full border-0 bg-muted/50 hover:bg-muted md:w-auto"
+                  className="w-full border-2 bg-muted/50 hover:bg-muted md:w-auto"
                 >
                   Clear Filters
                 </Button>
@@ -231,7 +243,7 @@ export default function PaymentHistoryPage() {
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-lg font-semibold">Your Payments ({filteredPayments.length})</CardTitle>
+                <CardTitle className="text-lg font-semibold text-white dark:text-white">Your Payments ({filteredPayments.length})</CardTitle>
                 <CardDescription className="mt-1">Complete history of your WiFi service payments</CardDescription>
               </div>
             </div>

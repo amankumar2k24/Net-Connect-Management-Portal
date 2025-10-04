@@ -220,8 +220,9 @@ export default function NextPaymentsPage() {
         <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Amount (INR)</label>
+              <label className="text-sm font-medium text-gray-300">Amount (INR)</label>
               <Input
+                variant="modal"
                 type="number"
                 min={100}
                 value={formState.amount}
@@ -229,15 +230,16 @@ export default function NextPaymentsPage() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Duration</label>
+              <label className="text-sm font-medium text-gray-300">Duration</label>
               <Select
+                variant="modal"
                 value={formState.durationMonths}
                 onChange={(value) => setFormState((prev) => ({ ...prev, durationMonths: value }))}
                 options={durationOptions}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Payment Method</label>
+              <label className="text-sm font-medium text-gray-300">Payment Method</label>
               <div className="grid grid-cols-2 gap-3">
                 <Button
                   type="button"
@@ -259,8 +261,9 @@ export default function NextPaymentsPage() {
             </div>
             {formState.method === 'upi' && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">UPI ID</label>
+                <label className="text-sm font-medium text-gray-300">UPI ID</label>
                 <Input
+                  variant="modal"
                   value={formState.upiId}
                   onChange={(event) => setFormState((prev) => ({ ...prev, upiId: event.target.value }))}
                   placeholder="yourname@upi"
@@ -270,7 +273,7 @@ export default function NextPaymentsPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Payment Screenshot</label>
+            <label className="text-sm font-medium text-gray-300">Payment Screenshot</label>
             <label className="flex h-32 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border/70 bg-card text-sm text-muted-foreground hover:border-primary">
               <ArrowUpTrayIcon className="h-5 w-5" />
               <span>Click to upload screenshot</span>
@@ -290,8 +293,9 @@ export default function NextPaymentsPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Notes (optional)</label>
+            <label className="text-sm font-medium text-gray-300">Notes (optional)</label>
             <Input
+              variant="modal"
               value={formState.notes}
               onChange={(event) => setFormState((prev) => ({ ...prev, notes: event.target.value }))}
               placeholder="Any additional information"
