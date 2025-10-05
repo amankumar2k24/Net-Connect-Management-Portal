@@ -125,6 +125,27 @@ export class Payment extends Model<Payment> {
   })
   approvedBy: string;
 
+  @ApiProperty()
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  activationDate: Date;
+
+  @ApiProperty()
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: false,
+  })
+  isQueued: boolean;
+
+  @ApiProperty()
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  queuedUntil: Date;
+
   @BelongsTo(() => User)
   user: User;
 }

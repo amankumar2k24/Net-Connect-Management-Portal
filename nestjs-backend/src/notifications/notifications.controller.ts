@@ -25,7 +25,7 @@ import { NotificationStatus, NotificationType } from './entities/notification.en
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class NotificationsController {
-  constructor(private readonly notificationsService: NotificationsService) {}
+  constructor(private readonly notificationsService: NotificationsService) { }
 
   @Post()
   @UseGuards(RolesGuard)
@@ -34,6 +34,16 @@ export class NotificationsController {
   @ApiResponse({ status: 201, description: 'Notification created successfully' })
   create(@Body() createNotificationDto: CreateNotificationDto) {
     return this.notificationsService.create(createNotificationDto);
+  }
+
+  @Post('bulk')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Create bulk notifications (Admin only)' })
+  @ApiResponse({ status: 201, description: 'Bulk notifications created successfully' })
+  createBulk(@Body() data: { userIds: string[]; title: string; message: string; type: NotificationType }) {
+    const { userIds, ...notificationData } = data;
+    return this.notificationsService.createBulk(userIds, notificationData);
   }
 
   @Get()

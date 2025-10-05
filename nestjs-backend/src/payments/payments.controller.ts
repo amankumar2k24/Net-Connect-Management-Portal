@@ -65,9 +65,15 @@ export class PaymentsController {
 
   @Get('upcoming')
   @ApiOperation({ summary: 'Get upcoming payments' })
-  getUpcomingPayments(@GetUser() user: User) {
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  getUpcomingPayments(
+    @GetUser() user: User,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
     const userId = user.role === UserRole.ADMIN ? undefined : user.id;
-    return this.paymentsService.getUpcomingPayments(userId);
+    return this.paymentsService.getUpcomingPayments(userId, page, limit);
   }
 
   @Get('my-payments')

@@ -86,4 +86,18 @@ export class EmailService {
 
     await this.transporter.sendMail(mailOptions);
   }
+
+  async sendNotificationEmail(email: string, userName: string, title: string, message: string) {
+    const dashboardUrl = `${process.env.FRONTEND_URL}/dashboard/notifications`;
+    const template = EmailTemplates.getNotificationEmailTemplate(userName, title, message, dashboardUrl);
+
+    const mailOptions = {
+      from: process.env.SMTP_USER,
+      to: email,
+      subject: template.subject,
+      html: template.html,
+    };
+
+    await this.transporter.sendMail(mailOptions);
+  }
 }

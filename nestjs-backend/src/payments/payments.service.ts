@@ -24,8 +24,9 @@ export class PaymentsService {
     const { durationMonths, amount, method, screenshotUrl, notes, upiNumber } = createPaymentDto;
 
     const startDate = new Date();
-    const endDate = new Date();
-    endDate.setMonth(endDate.getMonth() + durationMonths);
+
+    // Calculate initial end date - this will be updated when payment is approved
+    const endDate = await this.calculateExtendedExpiryDate(userId, durationMonths);
 
     const payment = await this.paymentModel.create({
       userId,
@@ -55,6 +56,82 @@ export class PaymentsService {
     }
 
     return payment;
+  }
+
+  private async calculatePaymentDates(userId: string, durationMonths: number, approvalDate: Date): Promise<{
+    startDate: Date;
+    endDate: Date;
+    isQueued: boolean;
+    queuedUntil?: Date;
+  }> {
+    // Find the user's most recent approved payment to get their current expiry date
+    const lastApprovedPayment = await this.paymentModel.findOne({
+      where: {
+        userId,
+        status: PaymentStatus.APPROVED,
+      },
+      order: [['endDate', 'DESC']],
+    });
+
+    const currentDate = new Date(approvalDate);
+    let startDate = currentDate;
+    let isQueued = false;
+    let queuedUntil: Date | undefined;
+
+    if (lastApprovedPayment && lastApprovedPayment.endDate) {
+      const lastExpiryDate = new Date(lastApprovedPayment.endDate);
+
+      console.log(`📅 User ${userId} - Last expiry: ${lastExpiryDate.toISOString()}, Approval: ${currentDate.toISOString()}`);
+
+      // If the last expiry date is in the future, queue this payment
+      if (lastExpiryDate > currentDate) {
+        startDate = lastExpiryDate;
+        isQueued = true;
+        queuedUntil = lastExpiryDate;
+        console.log(`🔄 Payment queued - will start after current plan expires: ${startDate.toISOString()}`);
+      } else {
+        console.log(`✅ No active plan - starting immediately from approval date: ${startDate.toISOString()}`);
+      }
+    } else {
+      console.log(`🆕 No previous approved payment found for user ${userId}, starting from approval date`);
+    }
+
+    // Calculate end date from start date (subtract 1 day so plan ends day before next billing cycle)
+    const endDate = this.addMonthsToDate(startDate, durationMonths);
+    endDate.setDate(endDate.getDate() - 1);
+
+    console.log(`🎯 Payment dates - Start: ${startDate.toDateString()}, End: ${endDate.toDateString()}, Queued: ${isQueued}`);
+
+    return {
+      startDate,
+      endDate,
+      isQueued,
+      queuedUntil
+    };
+  }
+
+  private async calculateExtendedExpiryDate(userId: string, durationMonths: number): Promise<Date> {
+    // This method is kept for backward compatibility during payment creation
+    // The actual dates will be recalculated during approval
+    const result = await this.calculatePaymentDates(userId, durationMonths, new Date());
+    return result.endDate;
+  }
+
+  private addMonthsToDate(date: Date, months: number): Date {
+    const result = new Date(date);
+    const originalDay = result.getDate();
+
+    // Add the months
+    result.setMonth(result.getMonth() + months);
+
+    // Handle edge cases where the day doesn't exist in the target month
+    // For example: Jan 31 + 1 month should be Feb 28/29, not Mar 3
+    if (result.getDate() !== originalDay) {
+      // Set to the last day of the previous month
+      result.setDate(0);
+    }
+
+    return result;
   }
 
   async findAll(
@@ -173,11 +250,26 @@ export class PaymentsService {
       throw new ForbiddenException('Payment is not pending approval');
     }
 
+    // Calculate new expiry date based on user's current active plan
+    const approvalDate = new Date();
+
+    // Calculate payment dates with queuing logic
+    const paymentDates = await this.calculatePaymentDates(
+      payment.userId,
+      payment.durationMonths,
+      approvalDate
+    );
+
     await payment.update({
       status: PaymentStatus.APPROVED,
-      approvedAt: new Date(),
+      approvedAt: approvalDate,
       approvedBy: adminId,
       notes: approvePaymentDto.notes,
+      startDate: paymentDates.startDate,
+      endDate: paymentDates.endDate,
+      activationDate: paymentDates.isQueued ? null : approvalDate,
+      isQueued: paymentDates.isQueued,
+      queuedUntil: paymentDates.queuedUntil,
     });
 
     // Notify user about approval
@@ -258,7 +350,7 @@ export class PaymentsService {
     };
   }
 
-  async getUpcomingPayments(userId?: string) {
+  async getUpcomingPayments(userId?: string, page: number = 1, limit: number = 10) {
     const threeDaysFromNow = new Date();
     threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
 
@@ -273,16 +365,30 @@ export class PaymentsService {
       where.userId = userId;
     }
 
-    return this.paymentModel.findAll({
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await this.paymentModel.findAndCountAll({
       where,
       include: [
         {
           model: User,
-          attributes: ['id', 'firstName', 'lastName', 'email'],
+          attributes: ['id', 'firstName', 'lastName', 'email', 'phone'],
         },
       ],
       order: [['endDate', 'ASC']],
+      limit,
+      offset,
     });
+
+    return {
+      upcomingPayments: rows,
+      pagination: {
+        page,
+        limit,
+        total: count,
+        totalPages: Math.ceil(count / limit),
+      },
+    };
   }
 
   async remove(id: string): Promise<void> {

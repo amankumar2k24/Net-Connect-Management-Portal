@@ -4,6 +4,7 @@ import { Notification, NotificationType, NotificationStatus } from './entities/n
 import { User, UserRole } from '../users/entities/user.entity';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
+import { EmailService } from '../common/services/email.service';
 
 @Injectable()
 export class NotificationsService {
@@ -12,10 +13,32 @@ export class NotificationsService {
     private notificationModel: typeof Notification,
     @InjectModel(User)
     private userModel: typeof User,
-  ) {}
+    private emailService: EmailService,
+  ) { }
 
   async create(createNotificationDto: CreateNotificationDto): Promise<Notification> {
-    return this.notificationModel.create(createNotificationDto);
+    // Create the website notification
+    const notification = await this.notificationModel.create(createNotificationDto);
+
+    // Send email notification
+    try {
+      const user = await this.userModel.findByPk(createNotificationDto.userId);
+      if (user && user.email) {
+        const userName = `${user.firstName} ${user.lastName}`.trim() || user.email;
+        await this.emailService.sendNotificationEmail(
+          user.email,
+          userName,
+          createNotificationDto.title,
+          createNotificationDto.message
+        );
+        console.log(`📧 Email notification sent to ${user.email}`);
+      }
+    } catch (error) {
+      console.error('Failed to send email notification:', error);
+      // Don't throw error - website notification should still work even if email fails
+    }
+
+    return notification;
   }
 
   async createBulk(userIds: string[], notificationData: Omit<CreateNotificationDto, 'userId'>): Promise<Notification[]> {
@@ -23,8 +46,42 @@ export class NotificationsService {
       ...notificationData,
       userId,
     }));
-    
-    return this.notificationModel.bulkCreate(notifications);
+
+    // Create website notifications
+    const createdNotifications = await this.notificationModel.bulkCreate(notifications);
+
+    // Send email notifications to all users
+    try {
+      const users = await this.userModel.findAll({
+        where: { id: userIds },
+        attributes: ['id', 'email', 'firstName', 'lastName']
+      });
+
+      const emailPromises = users.map(async (user) => {
+        if (user.email) {
+          const userName = `${user.firstName} ${user.lastName}`.trim() || user.email;
+          try {
+            await this.emailService.sendNotificationEmail(
+              user.email,
+              userName,
+              notificationData.title,
+              notificationData.message
+            );
+            console.log(`📧 Bulk email notification sent to ${user.email}`);
+          } catch (error) {
+            console.error(`Failed to send email to ${user.email}:`, error);
+          }
+        }
+      });
+
+      await Promise.allSettled(emailPromises);
+      console.log(`📧 Bulk email notifications processed for ${users.length} users`);
+    } catch (error) {
+      console.error('Failed to send bulk email notifications:', error);
+      // Don't throw error - website notifications should still work even if emails fail
+    }
+
+    return createdNotifications;
   }
 
   async findAll(
@@ -81,9 +138,9 @@ export class NotificationsService {
     });
 
     const unreadCount = await this.notificationModel.count({
-      where: { 
-        userId, 
-        status: NotificationStatus.UNREAD 
+      where: {
+        userId,
+        status: NotificationStatus.UNREAD
       },
     });
 
@@ -120,9 +177,9 @@ export class NotificationsService {
 
   async update(id: string, updateNotificationDto: UpdateNotificationDto, currentUser: User): Promise<Notification> {
     const notification = await this.findOne(id, currentUser);
-    
-    // Users can only update their own notifications
-    if (notification.userId !== currentUser.id) {
+
+    // Users can only update their own notifications, but admins can update any notification
+    if (currentUser.role !== UserRole.ADMIN && notification.userId !== currentUser.id) {
       throw new ForbiddenException('You can only update your own notifications');
     }
 
@@ -132,8 +189,9 @@ export class NotificationsService {
 
   async markAsRead(id: string, currentUser: User): Promise<Notification> {
     const notification = await this.findOne(id, currentUser);
-    
-    if (notification.userId !== currentUser.id) {
+
+    // Users can only mark their own notifications as read, but admins can mark any notification as read
+    if (currentUser.role !== UserRole.ADMIN && notification.userId !== currentUser.id) {
       throw new ForbiddenException('You can only mark your own notifications as read');
     }
 
@@ -164,7 +222,7 @@ export class NotificationsService {
 
   async remove(id: string, currentUser: User): Promise<void> {
     const notification = await this.findOne(id, currentUser);
-    
+
     // Users can only delete their own notifications, admins can delete any
     if (currentUser.role !== UserRole.ADMIN && notification.userId !== currentUser.id) {
       throw new ForbiddenException('You can only delete your own notifications');

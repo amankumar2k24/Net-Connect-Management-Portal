@@ -214,6 +214,12 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
+
+    // Check if user is still active
+    if (user.status !== 'active') {
+      throw new UnauthorizedException('Account is not active');
+    }
+
     return user;
   }
 

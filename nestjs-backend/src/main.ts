@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { seedPaymentPlans } from './payment-plans/payment-plans-seed';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,6 +18,9 @@ async function bootstrap() {
     whitelist: true,
     forbidNonWhitelisted: true,
     transform: true,
+    transformOptions: {
+      enableImplicitConversion: true,
+    },
   }));
 
   // Swagger API documentation
@@ -28,6 +32,13 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+
+  // Seed payment plans
+  try {
+    await seedPaymentPlans();
+  } catch (error) {
+    console.error('Failed to seed payment plans:', error);
+  }
 
   const port = process.env.PORT || 5510;
   await app.listen(port);

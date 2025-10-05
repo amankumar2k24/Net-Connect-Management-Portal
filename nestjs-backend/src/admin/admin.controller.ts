@@ -14,16 +14,20 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../users/entities/user.entity';
-import { AdminService } from './admin.service';
 import { UpdateAdminSettingsDto } from './dto/update-admin-settings.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CronJobsService } from '../cron-jobs/cron-jobs.service';
+import { AdminService } from './admin.service';
 
 @ApiTags('admin')
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class AdminController {
-    constructor(private readonly adminService: AdminService) { }
+    constructor(
+        private readonly adminService: AdminService,
+        private readonly cronJobsService: CronJobsService,
+    ) { }
 
     @Get('settings')
     @Roles(UserRole.ADMIN)
@@ -53,5 +57,28 @@ export class AdminController {
         }
 
         return this.adminService.uploadQrCode(file);
+    }
+
+    @Post('cleanup-screenshots')
+    @Roles(UserRole.ADMIN)
+    @ApiOperation({ summary: 'Manually trigger cleanup of expired payment screenshots (Admin only)' })
+    @ApiResponse({
+        status: 200,
+        description: 'Screenshot cleanup completed',
+        schema: {
+            type: 'object',
+            properties: {
+                success: { type: 'number', description: 'Number of screenshots successfully deleted' },
+                errors: { type: 'number', description: 'Number of errors encountered' },
+                message: { type: 'string', description: 'Status message' }
+            }
+        }
+    })
+    async manualCleanupScreenshots() {
+        const result = await this.cronJobsService.manualCleanupScreenshots();
+        return {
+            ...result,
+            message: `Cleanup completed. ${result.success} screenshots deleted, ${result.errors} errors encountered.`
+        };
     }
 }

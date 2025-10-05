@@ -18,10 +18,9 @@ export class CreatePaymentDto {
   @Max(12)
   durationMonths: number;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
+  @ApiProperty()
   @IsString()
-  screenshotUrl?: string;
+  screenshotUrl: string;
 
   @ApiProperty({ required: false })
   @IsOptional()

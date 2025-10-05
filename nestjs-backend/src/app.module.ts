@@ -10,10 +10,12 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { CronJobsModule } from './cron-jobs/cron-jobs.module';
 import { AdminModule } from './admin/admin.module';
+import { PaymentPlansModule } from './payment-plans/payment-plans.module';
 import { User } from './users/entities/user.entity';
 import { Payment } from './payments/entities/payment.entity';
 import { Notification } from './notifications/entities/notification.entity';
 import { AdminSettings } from './admin/entities/admin-settings.entity';
+import { PaymentPlan } from './payment-plans/entities/payment-plan.entity';
 
 @Module({
   imports: [
@@ -27,7 +29,7 @@ import { AdminSettings } from './admin/entities/admin-settings.entity';
       username: process.env.DB_USERNAME || 'postgres',
       password: process.env.DB_PASSWORD || 'password',
       database: process.env.DB_NAME || 'wifiProject',
-      models: [User, Payment, Notification, AdminSettings],
+      models: [User, Payment, Notification, AdminSettings, PaymentPlan],
       autoLoadModels: true,
       synchronize: true,
       sync: { alter: true }, // This will alter existing tables to match the model
@@ -43,6 +45,7 @@ import { AdminSettings } from './admin/entities/admin-settings.entity';
     UploadsModule,
     CronJobsModule,
     AdminModule,
+    PaymentPlansModule,
   ],
 })
 export class AppModule { }
