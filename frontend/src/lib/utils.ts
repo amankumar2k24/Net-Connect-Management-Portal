@@ -18,7 +18,7 @@ export function formatDate(date: Date | string | undefined): string {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  }).format(new Date(date))
+  }).format(new Date(date)) 
 }
 
 export function formatDateTime(date: Date | string | undefined): string {
