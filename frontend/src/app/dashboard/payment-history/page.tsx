@@ -116,7 +116,7 @@ export default function PaymentHistoryPage() {
 
   const totalAmount = filteredPayments
     .filter((p: Payment) => p.status === 'approved')
-    .reduce((sum: number, p: Payment) => sum + p.amount, 0)
+    .reduce((sum: number, p: Payment) => sum + Number(p.amount || 0), 0)
 
   return (
     <DashboardLayout>
@@ -303,13 +303,13 @@ export default function PaymentHistoryPage() {
                               </div>
                               <div className="flex flex-wrap gap-x-4 gap-y-1">
                                 <span className="text-xs text-gray-400">
-                                  Submitted: {formatDateTime(payment.createdAt)}
+                                  Submitted: {formatDate(payment.createdAt)}
                                 </span>
                               </div>
                               <div className="flex flex-wrap gap-x-4 gap-y-1">
                                 {payment.approvedAt && (
                                   <span className="text-xs text-gray-400">
-                                    Approved: {formatDateTime(payment.approvedAt)}
+                                    Approved: {formatDate(payment.approvedAt)}
                                   </span>
                                 )}
                               </div>

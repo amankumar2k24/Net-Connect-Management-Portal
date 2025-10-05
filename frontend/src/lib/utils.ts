@@ -5,11 +5,15 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatCurrency(amount: number): string {
+export function formatCurrency(amount: number | string | undefined): string {
+  const numAmount = Number(amount || 0)
+  if (isNaN(numAmount)) {
+    return '₹0.00'
+  }
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
-  }).format(amount)
+  }).format(numAmount)
 }
 
 export function formatDate(date: Date | string | undefined): string {
@@ -18,7 +22,7 @@ export function formatDate(date: Date | string | undefined): string {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  }).format(new Date(date)) 
+  }).format(new Date(date))
 }
 
 export function formatDateTime(date: Date | string | undefined): string {
