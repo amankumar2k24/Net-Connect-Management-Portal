@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5501'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5510'
 
 // Utility function to check if token is likely valid
 const isTokenValid = (token: string | null): boolean => {
@@ -97,23 +97,26 @@ api.interceptors.response.use(
         isAuth: currentPath.includes('/auth/'),
         isAuthEndpoint,
         userRole: user?.role,
-        url: error.config?.url
+        url: error.config?.url,
+        errorMessage: error.response?.data?.message
       })
 
-      // Only redirect if:
-      // 1. We're on a dashboard page AND
-      // 2. The request had a token (meaning it was supposed to be authenticated) AND
-      // 3. It's not a login/register attempt AND
-      // 4. The error message indicates token expiry (not just missing endpoint)
+      // Check for specific account status errors
+      const isAccountInactive = error.response?.data?.message?.includes('Account is not active') ||
+        error.response?.data?.message?.includes('not active')
+
       const isTokenExpired = error.response?.data?.message?.includes('expired') ||
         error.response?.data?.message?.includes('invalid token')
 
-      if (currentPath.includes('/dashboard') && hadToken && !isAuthEndpoint && isTokenExpired) {
-        console.log('🚨 API: Token expired - redirecting to login')
+      // Force logout and redirect if:
+      // 1. Account is inactive (admin deactivated the user) OR
+      // 2. We're on a dashboard page AND had a token AND it's expired/invalid
+      if (isAccountInactive || (currentPath.includes('/dashboard') && hadToken && !isAuthEndpoint && isTokenExpired)) {
+        console.log('🚨 API: Account inactive or token expired - forcing logout')
         handleAuthFailure()
       } else {
         console.log('⚠️ API: 401 error but not redirecting:', {
-          reason: isTokenExpired ? 'endpoint issue' : 'token issue',
+          reason: isAccountInactive ? 'account inactive' : isTokenExpired ? 'token expired' : 'other auth issue',
           path: currentPath,
           isAuth: isAuthEndpoint
         })

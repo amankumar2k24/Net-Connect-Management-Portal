@@ -21,6 +21,36 @@ export function formatDate(date: Date | string | undefined): string {
   }).format(new Date(date))
 }
 
+export function formatDateTime(date: Date | string | undefined): string {
+  if (!date) return 'N/A'
+  const formatted = new Intl.DateTimeFormat('en-IN', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).format(new Date(date))
+
+  // Ensure AM/PM is uppercase
+  return formatted.replace(/am/gi, 'AM').replace(/pm/gi, 'PM')
+}
+
+export function formatDateTimeDetailed(date: Date | string | undefined): string {
+  if (!date) return 'N/A'
+  const formatted = new Intl.DateTimeFormat('en-IN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).format(new Date(date))
+
+  // Ensure AM/PM is uppercase
+  return formatted.replace(/am/gi, 'AM').replace(/pm/gi, 'PM')
+}
+
 export function getPaymentStatusColor(status: string): string {
   switch (status.toLowerCase()) {
     case 'paid':

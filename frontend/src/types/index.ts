@@ -63,7 +63,9 @@ export interface Payment {
   activationDate?: string
   expiryDate?: string
   screenshot?: string
-  user?: Pick<User, 'id' | 'firstName' | 'lastName' | 'email'>
+  isQueued?: boolean
+  queuedUntil?: string
+  user?: Pick<User, 'id' | 'firstName' | 'lastName' | 'email' | 'phone'>
 }
 
 export interface PaginatedPayments {
@@ -111,8 +113,20 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<void>
   logout: () => void
   forceLogout: () => void
+  checkUserStatus: () => Promise<void>
   isLoading: boolean
   isAuthenticated: boolean
+}
+
+export interface PaymentPlan {
+  id: string
+  durationMonths: number
+  durationLabel: string
+  amount: number
+  isActive: boolean
+  sortOrder: number
+  createdAt: string
+  updatedAt: string
 }
 
 export interface PaymentFormData {

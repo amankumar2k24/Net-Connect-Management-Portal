@@ -62,7 +62,7 @@ export default function ThemeToggle({ className, ...props }: ThemeToggleProps) {
 
       {/* Tooltip */}
       <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-        <div className="bg-black dark:bg-white text-white dark:text-black text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
+        <div className="bg-black dark:bg-white !text-black text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
           Switch to {isDark ? 'Light' : 'Dark'} mode
           <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black dark:bg-white rotate-45"></div>
         </div>

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import Select, { SelectOption } from "@/components/ui/select"
 import { userApi, paymentApi } from "@/lib/api-functions"
-import { formatCurrency, formatDate, getUserStatusColor } from "@/lib/utils"
+import { formatCurrency, formatDate, formatDateTime, getUserStatusColor } from "@/lib/utils"
 import { User } from "@/types"
 import { toast } from "react-hot-toast"
 import * as Yup from 'yup'
@@ -97,7 +97,7 @@ export default function AllUsersPage() {
 
   const { data: userPayments } = useQuery({
     queryKey: ["user-payments", selectedUser?.id],
-    queryFn: () => (selectedUser ? paymentApi.getMyPayments() : null),
+    queryFn: () => (selectedUser ? paymentApi.getUserPayments(selectedUser.id, { limit: 10 }) : null),
     enabled: Boolean(selectedUser?.id),
   })
 
@@ -345,17 +345,6 @@ export default function AllUsersPage() {
             </div>
             <div className="flex gap-2">
               <Button
-                onClick={() => {
-                  console.log('Test modal button clicked')
-                  setSelectedUser(users[0])
-                  setIsUserModalOpen(true)
-                }}
-                variant="outline"
-                className="text-xs"
-              >
-                Test Modal
-              </Button>
-              <Button
                 onClick={handleAddUser}
                 className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 border border-blue-400/30 gap-2"
               >
@@ -486,7 +475,7 @@ export default function AllUsersPage() {
                         </span>
                       </span>
                       <span>
-                        <span className={`inline-flex capitalize items-center rounded-full px-2.5 py-1 text-xs font-semibold ${getUserStatusColor(u.status)}`}>
+                        <span className={`inline-flex !text-white capitalize items-center rounded-full px-2.5 py-1 text-xs font-semibold ${getUserStatusColor(u.status)}`}>
                           {u.status}
                         </span>
                       </span>
@@ -503,7 +492,11 @@ export default function AllUsersPage() {
 
                           {openDropdownId === u.id && (
                             <div
-                              className="absolute right-0 top-8 z-50 w-36 rounded-lg bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 py-1 animate-in fade-in-0 zoom-in-95 duration-100"
+                              className="absolute right-0 z-50 w-36 rounded-lg bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 py-1 animate-in fade-in-0 zoom-in-95 duration-100"
+                              style={{
+                                top: index >= users.length - 3 ? 'auto' : '2rem',
+                                bottom: index >= users.length - 3 ? '2rem' : 'auto'
+                              }}
                               onClick={(e) => e.stopPropagation()}
                             >
                               <button
@@ -637,7 +630,7 @@ export default function AllUsersPage() {
                       <div key={payment.id} className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2">
                         <div>
                           <p className="text-sm font-semibold text-foreground">{formatCurrency(payment.amount)}</p>
-                          <p className="text-xs text-muted-foreground">{formatDate(payment.createdAt)}</p>
+                          <p className="text-xs text-muted-foreground">{formatDateTime(payment.createdAt)}</p>
                         </div>
                         <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${payment.status === "approved"
                           ? "bg-green-500/15 text-green-400"
@@ -812,7 +805,7 @@ export default function AllUsersPage() {
             </div>
           </div>
         </Modal>
-      </DashboardLayout>
+      </DashboardLayout >
     </>
   )
 }

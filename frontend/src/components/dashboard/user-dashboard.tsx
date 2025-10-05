@@ -22,12 +22,13 @@ export default function UserDashboard() {
   const { user } = useAuth()
 
   const { data: paymentsData, isLoading: isLoadingPayments } = useQuery({
-    queryKey: ['my-payments'],
+    queryKey: ['my-payments', user?.id],
     queryFn: () => paymentApi.getMyPayments({ limit: 5 }),
+    enabled: !!user?.id,
   })
 
   const { data: upcomingPayments, isLoading: isLoadingUpcoming } = useQuery({
-    queryKey: ['upcoming-payments'],
+    queryKey: ['upcoming-payments', user?.id],
     queryFn: () => paymentApi.getUpcomingPayments(),
     enabled: !!user?.id,
   })
@@ -122,8 +123,8 @@ export default function UserDashboard() {
                 {recentPayments.slice(0, 3).map((payment: any) => (
                   <div key={payment.id} className="flex items-center justify-between p-3 bg-white dark:bg-slate-800/50 rounded-lg border border-gray-100 dark:border-slate-700">
                     <div className="flex items-center space-x-3 capitalize">
-                      <div className={`p-2 rounded-lg ${payment.status === 'approved' ? 'bg-green-100 dark:bg-green-800/50' :
-                        payment.status === 'pending' ? 'bg-yellow-100 dark:bg-yellow-800/50' : 'bg-red-100 dark:bg-red-800/50'
+                      <div className={`p-2 rounded-lg ${payment.status === 'approved' ? 'bg-green-100 dark:bg-green-800' :
+                        payment.status === 'pending' ? 'bg-yellow-100 dark:bg-yellow-800' : 'bg-red-100 dark:bg-red-800'
                         }`}>
                         <CreditCardIcon className={`h-4 w-4 ${payment.status === 'approved' ? 'text-green-600 dark:text-green-300' :
                           payment.status === 'pending' ? 'text-yellow-600 dark:text-yellow-300' : 'text-red-600 dark:text-red-300'
@@ -136,8 +137,8 @@ export default function UserDashboard() {
                     </div>
                     <div className="text-right">
                       <span className={`inline-flex px-2 py-1 capitalize text-xs font-semibold rounded-full ${payment.status === 'approved' ? 'bg-green-800 text-green-100 dark:bg-green-700 dark:text-green-100' :
-                        payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
-                          'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                        payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
+                          'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
                         }`}>
                         {payment.status}
                       </span>

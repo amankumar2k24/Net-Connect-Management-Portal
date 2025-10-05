@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import DashboardLayout from '@/components/layout/dashboard-layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -9,9 +9,9 @@ import { Modal } from '@/components/ui/modal'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import Select, { SelectOption } from '@/components/ui/select'
-import { notificationApi } from '@/lib/api-functions'
+import { notificationApi, userApi } from '@/lib/api-functions'
 import { Notification } from '@/types'
-import { formatDate } from '@/lib/utils'
+import { formatDate, formatDateTime } from '@/lib/utils'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '@/contexts/auth-context'
 import { FloatingParticlesLoader } from '@/components/ui/unique-loader'
@@ -21,7 +21,7 @@ import {
   TrashIcon,
   EyeIcon,
   ExclamationTriangleIcon,
-  InformationCircleIcon,
+
   CreditCardIcon,
   UserPlusIcon,
   PlusIcon
@@ -41,6 +41,9 @@ export default function NotificationsPage() {
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false)
   const [isCreateNotificationModalOpen, setIsCreateNotificationModalOpen] = useState(false)
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize] = useState(10)
 
   const [createNotificationForm, setCreateNotificationForm] = useState({
     userId: '',
@@ -48,6 +51,9 @@ export default function NotificationsPage() {
     message: '',
     type: 'system',
   })
+
+  const [userSearchQuery, setUserSearchQuery] = useState('')
+  const [selectedUser, setSelectedUser] = useState<{ label: string; value: string } | null>(null)
 
   const queryClient = useQueryClient()
 
@@ -60,11 +66,24 @@ export default function NotificationsPage() {
   }
 
   const { data: notificationsData, isLoading } = useQuery({
-    queryKey: ['notifications', filter],
+    queryKey: ['notifications', filter, searchQuery, currentPage, pageSize],
     queryFn: () =>
       notificationApi.getNotifications({
+        page: currentPage,
+        limit: pageSize,
+        search: searchQuery || undefined,
         status: filter === 'all' ? undefined : filter === 'read' ? 'read' : 'unread',
       }),
+  })
+
+  // Fetch users for the dropdown
+  const { data: usersData } = useQuery({
+    queryKey: ['users', userSearchQuery],
+    queryFn: () => userApi.getAllUsers({
+      search: userSearchQuery || undefined,
+      limit: 50 // Limit to 50 users for performance
+    }),
+    enabled: isCreateNotificationModalOpen,
   })
 
   const rawNotifications = notificationsData?.notifications ?? []
@@ -75,6 +94,8 @@ export default function NotificationsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
       toast.success('Notification marked as read!')
+      // Close the modal if it's open
+      setIsNotificationModalOpen(false)
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to mark notification as read')
@@ -104,11 +125,29 @@ export default function NotificationsPage() {
   })
 
   const createNotificationMutation = useMutation({
-    mutationFn: (data: { userId: string; title: string; message: string; type: string }) =>
-      notificationApi.createNotification(data),
-    onSuccess: () => {
+    mutationFn: async (data: { userId: string; title: string; message: string; type: string }) => {
+      // If "all" is selected, send notifications to all users using bulk API
+      if (data.userId === 'all') {
+        const allUsers = usersData?.users || []
+        const userIds = allUsers.map(user => user.id)
+        const result = await notificationApi.createBulkNotification({
+          userIds,
+          title: data.title,
+          message: data.message,
+          type: data.type
+        })
+        return {
+          ...result,
+          message: `Notification sent to ${userIds.length} users`
+        }
+      } else {
+        return notificationApi.createNotification(data)
+      }
+    },
+    onSuccess: (result: any) => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
-      toast.success('Notification created successfully!')
+      const message = result?.message || 'Notification created successfully!'
+      toast.success(message)
       setIsCreateNotificationModalOpen(false)
       setCreateNotificationForm({
         userId: '',
@@ -116,6 +155,8 @@ export default function NotificationsPage() {
         message: '',
         type: 'system',
       })
+      setSelectedUser(null)
+      setUserSearchQuery('')
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to create notification')
@@ -130,6 +171,21 @@ export default function NotificationsPage() {
 
   const handleMarkAllAsRead = () => {
     markAllAsReadMutation.mutate()
+  }
+
+  // Reset to first page when search/filter changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery, filter])
+
+  const handlePreviousPage = () => {
+    setCurrentPage(prev => Math.max(1, prev - 1))
+  }
+
+  const handleNextPage = () => {
+    if (notificationsData?.pagination && currentPage < notificationsData.pagination.totalPages) {
+      setCurrentPage(prev => prev + 1)
+    }
   }
 
   const handleDeleteNotification = (notification: Notification) => {
@@ -161,16 +217,16 @@ export default function NotificationsPage() {
   const getNotificationColor = (type: string) => {
     switch (type) {
       case 'payment_approved':
-        return 'text-green-600 bg-green-100'
+        return '!text-green-600'
       case 'payment_reminder':
-        return 'text-yellow-600 bg-yellow-100'
+        return 'text-yellow-600'
       case 'payment_rejected':
-        return 'text-red-600 bg-red-100'
+        return 'text-red-600'
       case 'account_status':
-        return 'text-blue-600 bg-blue-100'
+        return 'text-blue-600'
       case 'system':
       default:
-        return 'text-muted-foreground bg-muted/20'
+        return '!text-yellow-600'
     }
   }
 
@@ -179,6 +235,21 @@ export default function NotificationsPage() {
     if (filter === 'unread') return !notification.read
     return true
   })
+
+  // Create user options for dropdown
+  const userOptions = [
+    { label: '📢 All Users', value: 'all' },
+    ...(usersData?.users || []).map(user => ({
+      label: `${user.firstName} ${user.lastName} (${user.email})`,
+      value: user.id
+    }))
+  ]
+
+  const handleUserSelect = (value: string) => {
+    const selectedOption = userOptions.find(option => option.value === value)
+    setSelectedUser(selectedOption || null)
+    setCreateNotificationForm({ ...createNotificationForm, userId: value })
+  }
 
   return (
     <DashboardLayout>
@@ -260,12 +331,29 @@ export default function NotificationsPage() {
           </Card>
         </div>
 
-        {/* Filters */}
+        {/* Search & Filters */}
         <Card className="card-enhanced">
           <CardHeader>
-            <CardTitle className="text-foreground font-poppins">Filter Notifications</CardTitle>
+            <CardTitle className="text-foreground font-poppins">Search & Filter Notifications</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            {/* Search */}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <Input
+                type="text"
+                placeholder="Search notifications by title or message..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+
+            {/* Filter Buttons */}
             <div className="hidden sm:flex space-x-4">
               <Button
                 variant={filter === 'all' ? 'default' : 'outline'}
@@ -339,7 +427,7 @@ export default function NotificationsPage() {
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-4">
-                          <div className={`flex-shrink-0 p-2 rounded-full ${getNotificationColor(notification.type)}`}>
+                          <div className={`flex-shrink-0 p-2 border-2 !rounded-full ${getNotificationColor(notification.type)}`}>
                             <IconComponent className="h-5 w-5" />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -348,7 +436,7 @@ export default function NotificationsPage() {
                                 {notification.title}
                               </h3>
                               {!notification.read && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/20 animate-pulse !text-red-600">
                                   New
                                 </span>
                               )}
@@ -359,7 +447,7 @@ export default function NotificationsPage() {
                                 : notification.message}
                             </p>
                             <p className="mt-1 text-xs text-muted-foreground">
-                              {formatDate(notification.createdAt)}
+                              {formatDateTime(notification.createdAt)}
                             </p>
                           </div>
                         </div>
@@ -409,6 +497,37 @@ export default function NotificationsPage() {
               </div>
             )}
           </CardContent>
+          {!isLoading && notifications.length > 0 && notificationsData?.pagination && notificationsData.pagination.totalPages > 1 && (
+            <CardContent className="pt-0">
+              <div className="flex items-center justify-between border-t border-border/50 pt-4">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span>Page {currentPage} of {notificationsData.pagination.totalPages}</span>
+                  <span className="text-muted-foreground/60">•</span>
+                  <span>{notificationsData.pagination.total} total notifications</span>
+                </div>
+                <div className="flex gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePreviousPage}
+                    disabled={currentPage <= 1}
+                    className="text-xs px-3 py-1.5 h-auto"
+                  >
+                    ← Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleNextPage}
+                    disabled={!notificationsData?.pagination || currentPage >= notificationsData.pagination.totalPages}
+                    className="text-xs px-3 py-1.5 h-auto"
+                  >
+                    Next →
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          )}
         </Card>
 
         {/* Notification Details Modal */}
@@ -437,7 +556,7 @@ export default function NotificationsPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-muted-foreground">
-                    {formatDate(selectedNotification.createdAt)}
+                    {formatDateTime(selectedNotification.createdAt)}
                   </p>
                   {!selectedNotification.read && (
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-1">
@@ -467,6 +586,7 @@ export default function NotificationsPage() {
                 )}
                 <Button
                   variant="destructive"
+                  className='bg-red-800 hover:bg-red-600'
                   onClick={() => {
                     handleDeleteNotification(selectedNotification)
                     setIsNotificationModalOpen(false)
@@ -484,20 +604,45 @@ export default function NotificationsPage() {
         {/* Create Notification Modal */}
         <Modal
           isOpen={isCreateNotificationModalOpen}
-          onClose={() => setIsCreateNotificationModalOpen(false)}
+          onClose={() => {
+            setIsCreateNotificationModalOpen(false)
+            setCreateNotificationForm({
+              userId: '',
+              title: '',
+              message: '',
+              type: 'system',
+            })
+            setSelectedUser(null)
+            setUserSearchQuery('')
+          }}
           title="Create Notification"
           size="lg"
         >
           <div className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">User ID</label>
-                <Input
-                  variant="modal"
-                  value={createNotificationForm.userId}
-                  onChange={(e) => setCreateNotificationForm({ ...createNotificationForm, userId: e.target.value })}
-                  placeholder="Enter user ID"
-                />
+                <label className="text-sm font-medium text-gray-300">Select User</label>
+                <div className="space-y-2">
+                  <Input
+                    variant="modal"
+                    value={userSearchQuery}
+                    onChange={(e) => setUserSearchQuery(e.target.value)}
+                    placeholder="Search users by name or email..."
+                    className="mb-2"
+                  />
+                  <Select
+                    variant="modal"
+                    value={createNotificationForm.userId}
+                    onChange={handleUserSelect}
+                    options={userOptions}
+                    placeholder="Choose a user or select All"
+                  />
+                  {selectedUser && (
+                    <div className="text-xs text-gray-400 mt-1">
+                      Selected: {selectedUser.label}
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300">Notification Type</label>
@@ -535,7 +680,17 @@ export default function NotificationsPage() {
               <Button
                 variant="outline"
                 className="card-enhanced2"
-                onClick={() => setIsCreateNotificationModalOpen(false)}
+                onClick={() => {
+                  setIsCreateNotificationModalOpen(false)
+                  setCreateNotificationForm({
+                    userId: '',
+                    title: '',
+                    message: '',
+                    type: 'system',
+                  })
+                  setSelectedUser(null)
+                  setUserSearchQuery('')
+                }}
               >
                 Cancel
               </Button>

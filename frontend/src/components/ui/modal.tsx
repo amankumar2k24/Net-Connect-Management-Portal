@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from "react"
+import { createPortal } from 'react-dom'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { cn } from "@/lib/utils"
 
@@ -9,7 +10,7 @@ interface ModalProps {
   onClose: () => void
   title?: string
   children: React.ReactNode
-  size?: 'sm' | 'md' | 'lg' | 'xl'
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
   showCloseButton?: boolean
 }
 
@@ -21,12 +22,20 @@ const Modal: React.FC<ModalProps> = ({
   size = 'md',
   showCloseButton = true,
 }) => {
+  const [mounted, setMounted] = React.useState(false)
+
   const sizeClasses = {
     sm: 'max-w-md',
     md: 'max-w-lg',
     lg: 'max-w-2xl',
     xl: 'max-w-4xl',
+    '2xl': 'max-w-6xl',
   }
+
+  // Handle mounting
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Handle escape key
   React.useEffect(() => {
@@ -47,10 +56,11 @@ const Modal: React.FC<ModalProps> = ({
     }
   }, [isOpen, onClose])
 
-  if (!isOpen) return null
+  if (!mounted || !isOpen) return null
 
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+  const modalContent = (
+
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 min-h-screen">
       {/* Background overlay */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
@@ -59,7 +69,7 @@ const Modal: React.FC<ModalProps> = ({
 
       {/* Modal panel */}
       <div className={cn(
-        "relative w-full transform overflow-hidden rounded-2xl bg-white dark:bg-gray-900 shadow-2xl transition-all max-h-[90vh] overflow-y-auto",
+        "relative w-full transform overflow-hidden rounded-2xl bg-white dark:bg-gray-900 shadow-2xl transition-all max-h-[90vh] overflow-y-auto mx-auto my-auto",
         sizeClasses[size]
       )}>
         {/* Header */}
@@ -90,6 +100,8 @@ const Modal: React.FC<ModalProps> = ({
       </div>
     </div>
   )
+
+  return createPortal(modalContent, document.body)
 }
 
 export { Modal }

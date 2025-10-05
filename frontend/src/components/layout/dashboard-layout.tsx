@@ -14,7 +14,7 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { isAuthenticated, isLoading, user } = useAuth()
+  const { isAuthenticated, isLoading, user, checkUserStatus } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
@@ -29,6 +29,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       router.push('/auth/login')
     }
   }, [isAuthenticated, isLoading, router, user])
+
+  // Check user status periodically to detect if admin deactivated the account
+  useEffect(() => {
+    if (!isAuthenticated || !user) return
+
+    // Check immediately
+    checkUserStatus()
+
+    // Set up periodic checking every 30 seconds
+    const interval = setInterval(() => {
+      checkUserStatus()
+    }, 30000)
+
+    return () => clearInterval(interval)
+  }, [isAuthenticated, user, checkUserStatus])
 
   if (isLoading) {
     return (
@@ -47,7 +62,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <Sidebar />
       <div className="flex flex-col w-0 flex-1 overflow-hidden">
         {/* Top header bar */}
-        <header className="bg-card border-b border-slate-600/50 px-6 py-3.5 lg:px-8">
+        <header className="bg-card border-b border-slate-600/50 px-6 py-3 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <SidebarToggle className="hidden lg:block" />

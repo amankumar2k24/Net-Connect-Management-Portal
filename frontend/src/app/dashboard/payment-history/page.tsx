@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import Select, { SelectOption } from '@/components/ui/select'
 import { Modal } from '@/components/ui/modal'
 import { paymentApi } from '@/lib/api-functions'
-import { formatCurrency, formatDate } from '@/lib/utils'
+import { formatCurrency, formatDate, formatDateTime } from '@/lib/utils'
 import { useAuth } from '@/contexts/auth-context'
 import { Payment } from '@/types'
 import {
@@ -303,13 +303,24 @@ export default function PaymentHistoryPage() {
                               </div>
                               <div className="flex flex-wrap gap-x-4 gap-y-1">
                                 <span className="text-xs text-gray-400">
-                                  Submitted: {formatDate(payment.createdAt)}
+                                  Submitted: {formatDateTime(payment.createdAt)}
                                 </span>
-                                {payment.activationDate && (
+                              </div>
+                              <div className="flex flex-wrap gap-x-4 gap-y-1">
+                                {payment.approvedAt && (
                                   <span className="text-xs text-gray-400">
-                                    Activated: {formatDate(payment.activationDate)}
+                                    Approved: {formatDateTime(payment.approvedAt)}
                                   </span>
                                 )}
+                              </div>
+                              <div className="flex flex-wrap gap-x-4 gap-y-1">
+                                {payment.activationDate && (
+                                  <span className="text-xs text-gray-400">
+                                    Activated: {formatDateTime(payment.activationDate)}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex flex-wrap gap-x-4 gap-y-1">
                                 {payment.expiryDate && (
                                   <span className="text-xs text-gray-400">
                                     Expires: {formatDate(payment.expiryDate)}
@@ -353,89 +364,201 @@ export default function PaymentHistoryPage() {
             isOpen={isPaymentModalOpen}
             onClose={() => setIsPaymentModalOpen(false)}
             title="Payment Details"
-            size="lg"
+            size="xl"
           >
             {selectedPayment && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="text-lg font-medium text-white mb-4">Payment Information</h3>
-                    <dl className="space-y-3">
-                      <div>
-                        <dt className="text-sm font-medium text-gray-300">Amount</dt>
-                        <dd className="text-sm text-white">{formatCurrency(selectedPayment.amount)}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-sm font-medium text-gray-300">Duration</dt>
-                        <dd className="text-sm text-white">{selectedPayment.durationMonths} months</dd>
-                      </div>
-                      <div>
-                        <dt className="text-sm font-medium text-gray-300">Payment Method</dt>
-                        <dd className="text-sm text-white capitalize">{selectedPayment.method}</dd>
-                      </div>
-                      {selectedPayment.upiNumber && (
-                        <div>
-                          <dt className="text-sm font-medium text-gray-300">UPI Number</dt>
-                          <dd className="text-sm text-white">{selectedPayment.upiNumber}</dd>
-                        </div>
+              <div className="space-y-8">
+                {/* Header Section with Status */}
+                <div className="flex items-center justify-between pb-6 border-b border-gray-600">
+                  <div className="flex items-center space-x-4">
+                    <div className={`p-3 rounded-full ${selectedPayment.status === 'approved'
+                      ? 'bg-green-900/30 border border-green-500/30'
+                      : selectedPayment.status === 'pending'
+                        ? 'bg-yellow-900/30 border border-yellow-500/30'
+                        : 'bg-red-900/30 border border-red-500/30'
+                      }`}>
+                      {selectedPayment.status === 'approved' ? (
+                        <CheckCircleIcon className="h-6 w-6 text-green-400" />
+                      ) : selectedPayment.status === 'pending' ? (
+                        <ClockIcon className="h-6 w-6 text-yellow-400" />
+                      ) : (
+                        <XCircleIcon className="h-6 w-6 text-red-400" />
                       )}
-                      <div>
-                        <dt className="text-sm font-medium text-gray-300">Status</dt>
-                        <dd>
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(selectedPayment.status)}`}>
-                            {selectedPayment.status}
-                          </span>
-                        </dd>
-                      </div>
-                    </dl>
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-white">
+                        {formatCurrency(selectedPayment.amount)}
+                      </h2>
+                      <p className="text-sm text-gray-400">
+                        Payment for {selectedPayment.durationMonths} month{selectedPayment.durationMonths > 1 ? 's' : ''} service
+                      </p>
+                    </div>
                   </div>
-
-                  <div>
-                    <h3 className="text-lg font-medium text-white mb-4">Timeline</h3>
-                    <dl className="space-y-3">
-                      <div>
-                        <dt className="text-sm font-medium text-gray-300">Submitted</dt>
-                        <dd className="text-sm text-white">{formatDate(selectedPayment.createdAt)}</dd>
-                      </div>
-                      {selectedPayment.activationDate && (
-                        <div>
-                          <dt className="text-sm font-medium text-gray-300">Activated</dt>
-                          <dd className="text-sm text-white">{formatDate(selectedPayment.activationDate)}</dd>
-                        </div>
-                      )}
-                      {selectedPayment.expiryDate && (
-                        <div>
-                          <dt className="text-sm font-medium text-gray-300">Expires</dt>
-                          <dd className="text-sm text-white">{formatDate(selectedPayment.expiryDate)}</dd>
-                        </div>
-                      )}
-                      {selectedPayment.status === 'approved' && selectedPayment.expiryDate && (
-                        <div>
-                          <dt className="text-sm font-medium text-gray-300">Days Remaining</dt>
-                          <dd className="text-sm text-white">
-                            {Math.max(0, Math.ceil((new Date(selectedPayment.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))} days
-                          </dd>
-                        </div>
-                      )}
-                    </dl>
+                  <div className="text-right">
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium capitalize ${getStatusBadge(selectedPayment.status)}`}>
+                      {selectedPayment.status}
+                    </span>
+                    <p className="text-xs text-gray-400 mt-1">
+                      ID: {selectedPayment.id.slice(0, 8)}...
+                    </p>
                   </div>
                 </div>
 
-                {selectedPayment.screenshot && (
-                  <div>
-                    <h3 className="text-lg font-medium text-white mb-4">Payment Screenshot</h3>
-                    <div className="border border-gray-600 rounded-lg p-4 bg-gray-800">
-                      <Image
-                        src={selectedPayment.screenshot}
-                        alt="Payment Screenshot"
-                        width={500}
-                        height={300}
-                        className="max-w-full h-64 object-contain mx-auto cursor-pointer"
-                        onClick={() => handleViewImage(selectedPayment.screenshot!)}
-                      />
-                      <p className="text-sm text-gray-300 text-center mt-2">
-                        Click to view full size
-                      </p>
+                {/* Main Content Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Payment Information */}
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                        <CreditCardIcon className="h-5 w-5 mr-2 text-blue-400" />
+                        Payment Information
+                      </h3>
+                      <div className="bg-gray-800/50 rounded-xl p-6 space-y-4 border border-gray-700">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-gray-400">Amount</span>
+                          <span className="text-lg font-bold text-white">{formatCurrency(selectedPayment.amount)}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-gray-400">Duration</span>
+                          <span className="text-sm text-white">{selectedPayment.durationMonths} month{selectedPayment.durationMonths > 1 ? 's' : ''}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-gray-400">Payment Method</span>
+                          <span className="text-sm text-white capitalize">{selectedPayment.method.replace('_', ' ')}</span>
+                        </div>
+                        {selectedPayment.upiNumber && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-gray-400">UPI Number</span>
+                            <span className="text-sm text-white font-mono">{selectedPayment.upiNumber}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Service Period */}
+                    {(selectedPayment.activationDate || selectedPayment.expiryDate) && (
+                      <div>
+                        <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                          <CalendarIcon className="h-5 w-5 mr-2 text-purple-400" />
+                          Service Period
+                        </h3>
+                        <div className="bg-gray-800/50 rounded-xl p-6 space-y-4 border border-gray-700">
+                          {selectedPayment.activationDate && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium text-gray-400">Activated</span>
+                              <span className="text-sm text-white">{formatDateTime(selectedPayment.activationDate)}</span>
+                            </div>
+                          )}
+                          {selectedPayment.expiryDate && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium text-gray-400">Expires</span>
+                              <span className="text-sm text-white">{formatDate(selectedPayment.expiryDate)}</span>
+                            </div>
+                          )}
+                          {selectedPayment.status === 'approved' && selectedPayment.expiryDate && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium text-gray-400">Days Remaining</span>
+                              <span className="text-sm text-green-400 font-semibold">
+                                {Math.max(0, Math.ceil((new Date(selectedPayment.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))} days
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Timeline & Additional Info */}
+                  <div className="space-y-6">
+                    {/* Timeline */}
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                        <ClockIcon className="h-5 w-5 mr-2 text-green-400" />
+                        Timeline
+                      </h3>
+                      <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+                        <div className="space-y-4">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <div className="flex-1">
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm font-medium text-white">Submitted</span>
+                                <span className="text-xs text-gray-400">{formatDateTime(selectedPayment.createdAt)}</span>
+                              </div>
+                            </div>
+                          </div>
+                          {selectedPayment.approvedAt && (
+                            <div className="flex items-center space-x-3">
+                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                              <div className="flex-1">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm font-medium text-white">Approved</span>
+                                  <span className="text-xs text-gray-400">{formatDateTime(selectedPayment.approvedAt)}</span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          {selectedPayment.activationDate && (
+                            <div className="flex items-center space-x-3">
+                              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                              <div className="flex-1">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm font-medium text-white">Activated</span>
+                                  <span className="text-xs text-gray-400">{formatDateTime(selectedPayment.activationDate)}</span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Payment Proof */}
+                    {selectedPayment.screenshot && (
+                      <div>
+                        <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                          <PhotoIcon className="h-5 w-5 mr-2 text-orange-400" />
+                          Payment Proof
+                        </h3>
+                        <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+                          <div className="relative overflow-hidden rounded-lg bg-gray-900 border border-gray-600">
+                            <Image
+                              src={selectedPayment.screenshot}
+                              alt="Payment screenshot"
+                              width={400}
+                              height={300}
+                              className="w-full h-64 object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() => handleViewImage(selectedPayment.screenshot!)}
+                            />
+                            <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100">
+                              <div className="bg-gray-800 rounded-full p-2 shadow-lg">
+                                <EyeIcon className="h-5 w-5 text-gray-300" />
+                              </div>
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-400 mt-2 text-center">Click to view full size</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Notes & Rejection Reason */}
+                {(selectedPayment.notes || selectedPayment.rejectionReason) && (
+                  <div className="border-t border-gray-600 pt-6">
+                    <div className="space-y-4">
+                      {selectedPayment.notes && selectedPayment.notes !== selectedPayment.rejectionReason && (
+                        <div className="bg-blue-900/20 rounded-xl p-4 border border-blue-700/30">
+                          <h4 className="text-sm font-medium text-blue-300 mb-2">Notes</h4>
+                          <p className="text-sm text-blue-200">{selectedPayment.notes}</p>
+                        </div>
+                      )}
+                      {selectedPayment.status === 'rejected' && selectedPayment.rejectionReason && (
+                        <div className="bg-red-900/20 rounded-xl p-4 border border-red-700/30">
+                          <h4 className="text-sm font-medium text-red-300 mb-2">Rejection Reason</h4>
+                          <p className="text-sm text-red-200">{selectedPayment.rejectionReason}</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

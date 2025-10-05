@@ -17,7 +17,7 @@ export class SwaggerConfig {
                 },
                 servers: [
                     {
-                        url: process.env.API_URL || 'http://localhost:5501',
+                        url: process.env.API_URL || 'http://localhost:5510',
                         description: 'Development server',
                     },
                 ],

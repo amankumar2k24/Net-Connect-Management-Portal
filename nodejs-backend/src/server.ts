@@ -25,7 +25,7 @@ import './utils/cronJobs';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5501;
+const PORT = process.env.PORT || 5510;
 
 // Rate limiting
 const limiter = rateLimit({

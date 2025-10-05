@@ -16,7 +16,7 @@ import {
   DocumentTextIcon,
   Bars3Icon,
   XMarkIcon,
-  ArrowRightOnRectangleIcon
+  ArrowLeftOnRectangleIcon
 } from '@heroicons/react/24/outline'
 import { Tooltip } from 'react-tooltip'
 
@@ -39,6 +39,11 @@ const adminMenuItems = [
     name: 'Payments',
     href: '/dashboard/payments',
     icon: CreditCardIcon,
+  },
+  {
+    name: 'Payment Plans',
+    href: '/dashboard/payment-plans',
+    icon: DocumentTextIcon,
   },
   {
     name: 'Profile',
@@ -94,8 +99,7 @@ export default function Sidebar({ className }: SidebarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
-  const isCollapsed = isSidebarCollapsed
-  const displayName = user?.fullName || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email || 'Guest'
+
 
   // Determine which menu items to use based on user role
   const menuItems = user?.role === 'admin' ? adminMenuItems : userMenuItems
@@ -156,8 +160,8 @@ export default function Sidebar({ className }: SidebarProps) {
 
       {/* Desktop sidebar */}
       <div className={cn('hidden lg:flex lg:flex-shrink-0', className)}>
-        <div className={cn('flex flex-col', isSidebarCollapsed ? 'w-20' : 'w-64')}>
-          <div className="flex flex-col h-0 flex-1 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 border-r border-slate-700/50 shadow-2xl">
+        <div className={cn('flex flex-col h-screen', isSidebarCollapsed ? 'w-20' : 'w-64')}>
+          <div className="flex flex-col flex-1 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 border-r border-slate-700/50 shadow-2xl">
             <SidebarContent menuItems={menuItems} pathname={pathname} user={user} onLogout={handleLogout} isCollapsed={isSidebarCollapsed} />
           </div>
         </div>
@@ -180,66 +184,69 @@ function SidebarContent({ menuItems, pathname, user, onLogout, isCollapsed = fal
         )}
       </div>
 
-      {/* Navigation */}
-      <div className="flex-1 flex flex-col overflow-y-auto">
-        <nav className="flex-1 px-4 py-6 space-y-3">
-          {menuItems.map((item) => {
-            const isActive = pathname === item.href
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  isActive
-                    ? 'bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-100 border border-blue-400/30'
-                    : 'text-slate-300 hover:bg-gradient-to-r hover:from-slate-700 hover:to-slate-600 hover:text-white hover:shadow-md hover:transform hover:scale-102',
-                  isCollapsed ? 'justify-center px-2 py-4' : 'px-4 py-3.5',
-                  'group flex items-center text-sm font-medium rounded-xl transition-all duration-300 ease-out backdrop-blur-sm'
-                )}
-                data-tooltip-id="sidebar-tooltip"
-                data-tooltip-content={item.name}
-                data-tooltip-place="right"
-              >
-                <div className={cn(
-                  isActive
-                    ? 'bg-white/20 text-white shadow-inner'
-                    : 'bg-slate-600/30 text-slate-300 group-hover:bg-slate-500/40 group-hover:text-white',
-                  'p-2 rounded-lg transition-all duration-300',
-                  isCollapsed ? 'mr-0' : 'mr-3'
-                )}>
-                  <item.icon
-                    className="h-5 w-5"
-                    aria-hidden="true"
-                  />
-                </div>
-                {!isCollapsed && (
-                  <>
-                    <span className={cn(
-                      isActive ? 'font-semibold text-white' : 'font-medium group-hover:font-semibold',
-                      'transition-all duration-300'
-                    )}>
-                      {item.name}
-                    </span>
-                    {isActive && (
-                      <div className="ml-auto">
-                        <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                      </div>
-                    )}
-                  </>
-                )}
-              </Link>
-            )
-          })}
-        </nav>
+      {/* Navigation and User Section - Scrollable Container */}
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        {/* Navigation - Scrollable */}
+        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
+          <nav className="px-4 py-6 space-y-3">
+            {menuItems.map((item) => {
+              const isActive = pathname === item.href
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={cn(
+                    isActive
+                      ? 'bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-100 border border-blue-400/30'
+                      : 'text-slate-300 hover:bg-gradient-to-r hover:from-slate-700 hover:to-slate-600 hover:text-white hover:shadow-md hover:transform hover:scale-102',
+                    isCollapsed ? 'justify-center px-2 py-4' : 'px-4 py-3.5',
+                    'group flex items-center text-sm font-medium rounded-xl transition-all duration-300 ease-out backdrop-blur-sm'
+                  )}
+                  data-tooltip-id="sidebar-tooltip"
+                  data-tooltip-content={item.name}
+                  data-tooltip-place="right"
+                >
+                  <div className={cn(
+                    isActive
+                      ? 'bg-white/20 text-white shadow-inner'
+                      : 'bg-slate-600/30 text-slate-300 group-hover:bg-slate-500/40 group-hover:text-white',
+                    'p-2 rounded-lg transition-all duration-300',
+                    isCollapsed ? 'mr-0' : 'mr-3'
+                  )}>
+                    <item.icon
+                      className="h-5 w-5"
+                      aria-hidden="true"
+                    />
+                  </div>
+                  {!isCollapsed && (
+                    <>
+                      <span className={cn(
+                        isActive ? 'font-semibold text-white' : 'font-medium group-hover:font-semibold',
+                        'transition-all duration-300'
+                      )}>
+                        {item.name}
+                      </span>
+                      {isActive && (
+                        <div className="ml-auto">
+                          <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                        </div>
+                      )}
+                    </>
+                  )}
+                </Link>
+              )
+            })}
+          </nav>
+        </div>
 
-        {/* User Profile Section */}
+        {/* User Profile Section - Fixed at bottom */}
         <div className="flex-shrink-0 border-t border-slate-600/50 bg-gradient-to-r from-slate-800 to-slate-700">
-          <div className="p-6">
+          <div className="p-4">
             {!isCollapsed && (
               <>
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3 mb-3">
                   <div className="flex-shrink-0">
-                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-lg border-2 border-blue-400/30">
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-lg border-2 border-blue-400/30">
                       <span className="text-sm font-bold text-white">
                         {displayName.charAt(0).toUpperCase()}
                       </span>
@@ -252,19 +259,19 @@ function SidebarContent({ menuItems, pathname, user, onLogout, isCollapsed = fal
                 </div>
                 <button
                   onClick={onLogout}
-                  className="mt-4 w-full flex items-center px-4 py-3 text-sm font-medium text-slate-300 rounded-xl hover:bg-gradient-to-r hover:from-red-600 hover:to-red-500 hover:text-white transition-all duration-300 hover:shadow-lg group cursor-pointer"
+                  className="w-full flex items-center px-3 py-2.5 text-sm font-medium text-slate-300 rounded-xl hover:bg-gradient-to-r hover:from-red-600 hover:to-red-500 hover:text-white transition-all duration-300 hover:shadow-lg group cursor-pointer"
                 >
                   <div className="p-1.5 rounded-lg bg-slate-600/30 group-hover:bg-white/20 transition-all duration-300 mr-3">
-                    <ArrowRightOnRectangleIcon className="h-4 w-4" aria-hidden="true" />
+                    <ArrowLeftOnRectangleIcon className="h-4 w-4" aria-hidden="true" />
                   </div>
                   <span className="group-hover:font-semibold transition-all duration-300">Sign out</span>
                 </button>
               </>
             )}
             {isCollapsed && (
-              <div className="flex flex-col items-center space-y-4">
+              <div className="flex flex-col items-center space-y-3">
                 <div className="flex-shrink-0">
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-lg border-2 border-blue-400/30">
+                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-lg border-2 border-blue-400/30">
                     <span className="text-xs font-bold text-white">
                       {displayName.charAt(0).toUpperCase()}
                     </span>
@@ -278,7 +285,7 @@ function SidebarContent({ menuItems, pathname, user, onLogout, isCollapsed = fal
                   data-tooltip-content="Sign out"
                   data-tooltip-place="right"
                 >
-                  <ArrowRightOnRectangleIcon className="h-5 w-5" aria-hidden="true" />
+                  <ArrowLeftOnRectangleIcon className="h-5 w-5" aria-hidden="true" />
                 </button>
               </div>
             )}
@@ -289,9 +296,15 @@ function SidebarContent({ menuItems, pathname, user, onLogout, isCollapsed = fal
       {/* Tooltip component */}
       <Tooltip
         id="sidebar-tooltip"
-        className="z-50 rounded-md bg-slate-800 px-3 py-2 text-sm text-white shadow-lg border border-slate-600"
-        noArrow={false}
-        place="right"
+        style={{
+          backgroundColor: 'rgb(30 41 59)',
+          color: 'white',
+          borderRadius: '6px',
+          padding: '8px 12px',
+          fontSize: '14px',
+          zIndex: 50,
+          border: '1px solid rgb(71 85 105)'
+        }}
       />
     </>
   )

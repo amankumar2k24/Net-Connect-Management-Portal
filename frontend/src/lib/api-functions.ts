@@ -6,11 +6,13 @@ import {
   PaginatedUsers,
   PaginatedPayments,
   Payment,
+  Pagination,
   Notification,
   NotificationList,
   DashboardSnapshot,
   PaymentDashboardSnapshot,
   PaymentStatus,
+  PaymentPlan,
 } from "@/types"
 
 type ApiPromise<T> = Promise<T>
@@ -104,8 +106,10 @@ export const paymentApi = {
   getMyPayments: (params?: { page?: number; limit?: number }) =>
     resolve<PaginatedPayments>(api.get("/payments/my-payments", { params })),
 
-  getUpcomingPayments: () =>
-    resolve<{ upcomingPayments: Payment[] }>(api.get("/payments/upcoming")),
+  getUpcomingPayments: (page: number = 1, limit: number = 10) =>
+    resolve<{ upcomingPayments: Payment[]; pagination: Pagination }>(
+      api.get("/payments/upcoming", { params: { page, limit } })
+    ),
 
   getUserPayments: (userId: string, params?: { page?: number; limit?: number }) =>
     resolve<PaginatedPayments>(api.get("/payments", { params: { ...params, userId } })),
@@ -151,6 +155,12 @@ export const paymentApi = {
     return Promise.reject(new Error("Cannot update payment status to pending"))
   },
 
+  approvePayment: (id: string, notes?: string) =>
+    resolve<{ payment: Payment }>(api.post(`/payments/${id}/approve`, { notes })),
+
+  rejectPayment: (id: string, reason: string, notes?: string) =>
+    resolve<{ payment: Payment }>(api.post(`/payments/${id}/reject`, { reason, notes })),
+
   deletePayment: (id: string) => resolve<{ message: string }>(api.delete(`/payments/${id}`)),
 
   getDashboardStats: () => resolve<PaymentDashboardSnapshot>(api.get("/payments/dashboard-stats")),
@@ -161,6 +171,7 @@ export const notificationApi = {
   getNotifications: (params?: {
     page?: number
     limit?: number
+    search?: string
     status?: "read" | "unread"
     userId?: string
   }) => {
@@ -181,6 +192,51 @@ export const notificationApi = {
 
   createNotification: (data: { userId: string; title: string; message: string; type: string }) =>
     resolve<{ notification: Notification }>(api.post("/notifications", data)),
+
+  createBulkNotification: (data: { userIds: string[]; title: string; message: string; type: string }) =>
+    resolve<{ notifications: Notification[] }>(api.post("/notifications/bulk", data)),
+}
+
+// Payment Plans API calls
+export const paymentPlansApi = {
+  getAll: () => resolve<{ paymentPlans: PaymentPlan[] }>(api.get("/payment-plans")),
+
+  getActive: () => resolve<{ paymentPlans: PaymentPlan[] }>(api.get("/payment-plans/active")),
+
+  create: (data: {
+    durationMonths: number
+    durationLabel: string
+    amount: number
+    isActive?: boolean
+    sortOrder?: number
+  }) => {
+    console.log('🔍 API Function - Sending data:', data);
+    console.log('🔍 API Function - Data types:', {
+      durationMonths: typeof data.durationMonths,
+      amount: typeof data.amount,
+      sortOrder: typeof data.sortOrder
+    });
+    return resolve<{ paymentPlan: PaymentPlan }>(api.post("/payment-plans", data));
+  },
+
+  update: (id: string, data: Partial<PaymentPlan>) => {
+    console.log('🔍 Frontend API - Update Payment Plan ID:', id);
+    console.log('🔍 Frontend API - Update Payment Plan Data:', data);
+    console.log('🔍 Frontend API - Update Payment Plan Data Types:', {
+      durationMonths: typeof data.durationMonths,
+      amount: typeof data.amount,
+      sortOrder: typeof data.sortOrder,
+      isActive: typeof data.isActive
+    });
+    return resolve<{ paymentPlan: PaymentPlan }>(api.patch(`/payment-plans/${id}`, data));
+  },
+
+  delete: (id: string) => resolve<{ message: string }>(api.delete(`/payment-plans/${id}`)),
+
+  getById: (id: string) => resolve<{ paymentPlan: PaymentPlan }>(api.get(`/payment-plans/${id}`)),
+
+  reorder: (reorderData: { id: string; sortOrder: number }[]) =>
+    resolve<{ paymentPlans: PaymentPlan[] }>(api.patch("/payment-plans/reorder", reorderData)),
 }
 
 // Admin helpers
