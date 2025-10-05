@@ -97,7 +97,7 @@ export default function AllUsersPage() {
 
   const { data: userPayments } = useQuery({
     queryKey: ["user-payments", selectedUser?.id],
-    queryFn: () => (selectedUser ? paymentApi.getUserPayments(selectedUser.id) : null),
+    queryFn: () => (selectedUser ? paymentApi.getMyPayments() : null),
     enabled: Boolean(selectedUser?.id),
   })
 
@@ -194,8 +194,16 @@ export default function AllUsersPage() {
   }
 
   const openUserModal = (user: User) => {
+    console.log('Opening user modal for:', user.email)
+    console.log('Current modal state before:', isUserModalOpen)
     setSelectedUser(user)
     setIsUserModalOpen(true)
+    console.log('Modal state set to true')
+
+    // Force a re-render to debug
+    setTimeout(() => {
+      console.log('Modal state after timeout:', isUserModalOpen)
+    }, 100)
   }
 
   const handleAddUser = () => {
@@ -335,13 +343,26 @@ export default function AllUsersPage() {
               <h1 className="text-3xl font-semibold text-foreground">All Users</h1>
               <p className="text-sm text-muted-foreground">Manage all registered users and their WiFi access.</p>
             </div>
-            <Button
-              onClick={handleAddUser}
-              className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 border border-blue-400/30 gap-2"
-            >
-              <UserPlusIcon className="h-4 w-4" />
-              Add User
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => {
+                  console.log('Test modal button clicked')
+                  setSelectedUser(users[0])
+                  setIsUserModalOpen(true)
+                }}
+                variant="outline"
+                className="text-xs"
+              >
+                Test Modal
+              </Button>
+              <Button
+                onClick={handleAddUser}
+                className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 border border-blue-400/30 gap-2"
+              >
+                <UserPlusIcon className="h-4 w-4" />
+                Add User
+              </Button>
+            </div>
           </header>
 
           <Card className="card-enhanced">
@@ -486,7 +507,9 @@ export default function AllUsersPage() {
                               onClick={(e) => e.stopPropagation()}
                             >
                               <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  e.stopPropagation()
                                   openUserModal(u)
                                   setOpenDropdownId(null)
                                 }}

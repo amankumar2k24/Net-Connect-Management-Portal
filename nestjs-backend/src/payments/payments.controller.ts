@@ -27,7 +27,7 @@ import { PaymentStatus, PaymentMethod } from './entities/payment.entity';
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class PaymentsController {
-  constructor(private readonly paymentsService: PaymentsService) {}
+  constructor(private readonly paymentsService: PaymentsService) { }
 
   @Post()
   @ApiOperation({ summary: 'Create a new payment' })

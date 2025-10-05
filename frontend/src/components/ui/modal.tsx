@@ -1,8 +1,6 @@
 'use client'
 
 import * as React from "react"
-import { Fragment } from 'react'
-import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { cn } from "@/lib/utils"
 
@@ -30,69 +28,67 @@ const Modal: React.FC<ModalProps> = ({
     xl: 'max-w-4xl',
   }
 
+  // Handle escape key
+  React.useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose()
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape)
+      document.body.style.overflow = 'hidden'
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen, onClose])
+
+  if (!isOpen) return null
+
   return (
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-black/25 cursor-pointer" />
-        </Transition.Child>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      {/* Background overlay */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      />
 
-        <div className="fixed inset-0 overflow-y-auto ">
-          <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
-              <Dialog.Panel
-                className={cn(
-                  "w-full transform overflow-hidden rounded-2xl bg-gray-900 text-white p-6 text-left align-middle shadow-xl transition-all",
-                  sizeClasses[size]
-                )}
+      {/* Modal panel */}
+      <div className={cn(
+        "relative w-full transform overflow-hidden rounded-2xl bg-white dark:bg-gray-900 shadow-2xl transition-all max-h-[90vh] overflow-y-auto",
+        sizeClasses[size]
+      )}>
+        {/* Header */}
+        {(title || showCloseButton) && (
+          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 sticky top-0 z-10">
+            {title && (
+              <h3 className="text-xl font-semibold !text-white">
+                {title}
+              </h3>
+            )}
+            {showCloseButton && (
+              <button
+                type="button"
+                className="flex items-center justify-center h-10 w-10 rounded-full text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                onClick={onClose}
               >
-                {(title || showCloseButton) && (
-                  <div className="flex items-center justify-between mb-4">
-                    {title && (
-                      <Dialog.Title
-                        as="h3"
-                        className="text-lg font-medium leading-6 text-white font-semibold"
-                      >
-                        {title}
-                      </Dialog.Title>
-                    )}
-                    {showCloseButton && (
-
-                      <button
-                        type="button"
-                        // className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        className="ml-1 flex items-center justify-center h-8 w-8 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-100 border border-blue-400/30 cursor-pointer"
-                        onClick={onClose}
-                      >
-                        <span className="sr-only">Close</span>
-                        <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-                      </button>
-                    )}
-                  </div>
-                )}
-                {children}
-              </Dialog.Panel>
-            </Transition.Child>
+                <span className="sr-only">Close</span>
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            )}
           </div>
+        )}
+
+        {/* Content */}
+        <div className="p-6 text-gray-900 dark:text-white">
+          {children}
         </div>
-      </Dialog>
-    </Transition>
+      </div>
+    </div>
   )
 }
 

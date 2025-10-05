@@ -49,54 +49,54 @@ export default function UserDashboard() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Active Subscription Card */}
-          <Card className="bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-900/20 dark:to-teal-800/20 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-emerald-900/20 dark:to-teal-800/20 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1">Active Subscriptions</p>
-                  <div className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">
+                  <p className="text-sm font-medium text-blue-700 dark:text-emerald-300 mb-1">Active Subscriptions</p>
+                  <div className="text-3xl font-bold text-blue-900 dark:text-emerald-100">
                     {activeSubscription}
                   </div>
-                  <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">Currently active</p>
+                  <p className="text-xs text-blue-600 dark:text-emerald-400 mt-1">Currently active</p>
                 </div>
-                <div className="p-3 bg-emerald-200 dark:bg-emerald-800/50 rounded-xl">
-                  <CheckCircleIcon className="h-6 w-6 text-emerald-600 dark:text-emerald-300" />
+                <div className="p-3 bg-blue-200 dark:bg-emerald-800/50 rounded-xl">
+                  <CheckCircleIcon className="h-6 w-6 text-blue-600 dark:text-emerald-300" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Pending Payments Card */}
-          <Card className="bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-800/20 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <Card className="bg-gradient-to-br from-rose-50 to-pink-100 dark:from-amber-900/20 dark:to-orange-800/20 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-amber-700 dark:text-amber-300 mb-1">Pending Payments</p>
-                  <div className="text-3xl font-bold text-amber-900 dark:text-amber-100">
+                  <p className="text-sm font-medium text-rose-700 dark:text-amber-300 mb-1">Pending Payments</p>
+                  <div className="text-3xl font-bold text-rose-900 dark:text-amber-100">
                     {pendingPayments}
                   </div>
-                  <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">Awaiting approval</p>
+                  <p className="text-xs text-rose-600 dark:text-amber-400 mt-1">Awaiting approval</p>
                 </div>
-                <div className="p-3 bg-amber-200 dark:bg-amber-800/50 rounded-xl">
-                  <ExclamationTriangleIcon className="h-6 w-6 text-amber-600 dark:text-amber-300" />
+                <div className="p-3 bg-rose-200 dark:bg-amber-800/50 rounded-xl">
+                  <ExclamationTriangleIcon className="h-6 w-6 text-rose-600 dark:text-amber-300" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Total Payments Card */}
-          <Card className="bg-gradient-to-br from-violet-50 to-purple-100 dark:from-violet-900/20 dark:to-purple-800/20 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <Card className="bg-gradient-to-br from-emerald-50 to-green-100 dark:from-violet-900/20 dark:to-purple-800/20 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-violet-700 dark:text-violet-300 mb-1">Total Payments</p>
-                  <div className="text-3xl font-bold text-violet-900 dark:text-violet-100">
+                  <p className="text-sm font-medium text-emerald-700 dark:text-violet-300 mb-1">Total Payments</p>
+                  <div className="text-3xl font-bold text-emerald-900 dark:text-violet-100">
                     {totalPayments}
                   </div>
-                  <p className="text-xs text-violet-600 dark:text-violet-400 mt-1">All time</p>
+                  <p className="text-xs text-emerald-600 dark:text-violet-400 mt-1">All time</p>
                 </div>
-                <div className="p-3 bg-violet-200 dark:bg-violet-800/50 rounded-xl">
-                  <DocumentTextIcon className="h-6 w-6 text-violet-600 dark:text-violet-300" />
+                <div className="p-3 bg-emerald-200 dark:bg-violet-800/50 rounded-xl">
+                  <DocumentTextIcon className="h-6 w-6 text-emerald-600 dark:text-violet-300" />
                 </div>
               </div>
             </CardContent>
@@ -106,13 +106,13 @@ export default function UserDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Payments */}
-        <Card className="bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-800/20 dark:to-slate-700/20 border-0 shadow-lg">
+        <Card className="bg-gradient-to-br from-cyan-50 to-sky-100 dark:from-slate-800/20 dark:to-slate-700/20 border-0 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-slate-800 dark:text-slate-100 font-poppins flex items-center">
-              <CreditCardIcon className="h-5 w-5 mr-2 text-slate-600 dark:text-slate-400" />
+            <CardTitle className="text-cyan-800 dark:text-slate-100 font-poppins flex items-center">
+              <CreditCardIcon className="h-5 w-5 mr-2 text-cyan-600 dark:text-slate-400" />
               Recent Payments
             </CardTitle>
-            <CardDescription className="text-slate-600 dark:text-slate-300">Your latest payment history</CardDescription>
+            <CardDescription className="text-cyan-600 dark:text-slate-300">Your latest payment history</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -121,7 +121,7 @@ export default function UserDashboard() {
               <div className="space-y-4">
                 {recentPayments.slice(0, 3).map((payment: any) => (
                   <div key={payment.id} className="flex items-center justify-between p-3 bg-white dark:bg-slate-800/50 rounded-lg border border-gray-100 dark:border-slate-700">
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-3 capitalize">
                       <div className={`p-2 rounded-lg ${payment.status === 'approved' ? 'bg-green-100 dark:bg-green-800/50' :
                         payment.status === 'pending' ? 'bg-yellow-100 dark:bg-yellow-800/50' : 'bg-red-100 dark:bg-red-800/50'
                         }`}>
@@ -135,7 +135,7 @@ export default function UserDashboard() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${payment.status === 'approved' ? 'bg-green-800 text-green-100 dark:bg-green-700 dark:text-green-100' :
+                      <span className={`inline-flex px-2 py-1 capitalize text-xs font-semibold rounded-full ${payment.status === 'approved' ? 'bg-green-800 text-green-100 dark:bg-green-700 dark:text-green-100' :
                         payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' :
                           'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
                         }`}>
@@ -154,13 +154,13 @@ export default function UserDashboard() {
         </Card>
 
         {/* Quick Actions */}
-        <Card className="bg-gradient-to-br from-indigo-50 to-purple-100 dark:from-indigo-900/20 dark:to-blue-800/20 border-0 shadow-lg">
+        <Card className="bg-gradient-to-br from-violet-50 to-purple-100 dark:from-indigo-900/20 dark:to-blue-800/20 border-0 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-indigo-900 dark:text-indigo-100 font-poppins flex items-center">
-              <CalendarDaysIcon className="h-5 w-5 mr-2 text-indigo-600 dark:text-indigo-400" />
+            <CardTitle className="text-violet-900 dark:text-indigo-100 font-poppins flex items-center">
+              <CalendarDaysIcon className="h-5 w-5 mr-2 text-violet-600 dark:text-indigo-400" />
               Quick Actions
             </CardTitle>
-            <CardDescription className="text-indigo-600 dark:text-indigo-300">Manage your subscription</CardDescription>
+            <CardDescription className="text-violet-600 dark:text-indigo-300">Manage your subscription</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center justify-center space-y-4 py-8">
             <Link href="/dashboard/next-payments?openModal=true" className="block w-full max-w-sm">

@@ -58,6 +58,8 @@ export default function PaymentsPage() {
   const [methodFilter, setMethodFilter] = useState("")
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null)
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false)
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string>("")
 
   const queryClient = useQueryClient()
 
@@ -77,7 +79,7 @@ export default function PaymentsPage() {
   })
 
   const payments = paymentsData?.payments ?? []
-  const totalPayments = paymentsData?.pagination.total ?? payments.length
+  const totalPayments = paymentsData?.pagination?.total ?? payments.length
   const stats = paymentStats || { totalPayments: 0, pendingPayments: 0, approvedPayments: 0, rejectedPayments: 0, totalRevenue: 0 }
 
   const updatePaymentStatusMutation = useMutation({
@@ -104,6 +106,11 @@ export default function PaymentsPage() {
 
   const handleReject = (payment: Payment) => {
     updatePaymentStatusMutation.mutate({ paymentId: payment.id, status: "rejected" })
+  }
+
+  const handleImageClick = (imageUrl: string) => {
+    setSelectedImageUrl(imageUrl)
+    setIsImageModalOpen(true)
   }
 
   return (
@@ -390,7 +397,8 @@ export default function PaymentsPage() {
                     alt="Payment screenshot"
                     width={900}
                     height={600}
-                    className="max-h-96 w-full object-contain bg-white dark:bg-slate-800"
+                    className="max-h-96 w-full object-contain bg-white dark:bg-slate-800 cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => selectedPayment.screenshotUrl && handleImageClick(selectedPayment.screenshotUrl)}
                   />
                 </div>
               </div>
@@ -419,6 +427,24 @@ export default function PaymentsPage() {
             )}
           </div>
         )}
+      </Modal>
+
+      {/* Image Modal for Full Size View */}
+      <Modal
+        isOpen={isImageModalOpen}
+        onClose={() => setIsImageModalOpen(false)}
+        title="Payment Screenshot"
+        size="xl"
+      >
+        <div className="flex justify-center">
+          <Image
+            src={selectedImageUrl}
+            alt="Payment screenshot - Full size"
+            width={1200}
+            height={800}
+            className="max-w-full max-h-[80vh] object-contain rounded-lg"
+          />
+        </div>
       </Modal>
     </DashboardLayout>
   )

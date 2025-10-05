@@ -69,7 +69,7 @@ export default function VerifyEmailPage() {
             } catch (error: any) {
                 console.error('Verification error:', error)
                 if (error.message.includes('Failed to fetch')) {
-                    setError('Cannot connect to server. Please make sure the backend is running on port 5500.')
+                    setError('Cannot connect to server. Please make sure the backend is running on port 5501.')
                 } else if (error.message.includes('404')) {
                     setError('Verification endpoint not found. Please contact support.')
                 } else {

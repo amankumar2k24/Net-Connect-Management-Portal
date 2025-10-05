@@ -76,12 +76,12 @@ npm run start:prod
 
 ## API Documentation
 
-Once the application is running, visit `http://localhost:5500/api` for Swagger documentation.
+Once the application is running, visit `http://localhost:5501/api` for Swagger documentation.
 
 ## Environment Variables
 
 ```env
-PORT=5500
+PORT=5501
 FRONTEND_URL=http://localhost:3000
 
 # Database

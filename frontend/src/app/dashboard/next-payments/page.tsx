@@ -198,11 +198,11 @@ export default function NextPaymentsPage() {
                     </div>
                     <div className="flex justify-end">
                       <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${payment.status === 'approved'
-                          ? 'bg-green-500/15 text-green-400'
+                        className={`inline-flex capitalize items-center rounded-full px-2.5 py-1 text-xs font-semibold ${payment.status === 'approved'
+                          ? 'bg-green-500 text-green-400'
                           : payment.status === 'pending'
-                            ? 'bg-yellow-500/15 text-yellow-400'
-                            : 'bg-red-500/15 text-red-400'
+                            ? 'bg-yellow-500 text-yellow-400'
+                            : 'bg-red-500 text-red-400'
                           }`}
                       >
                         {payment.status}
@@ -220,31 +220,29 @@ export default function NextPaymentsPage() {
         <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Amount (INR)</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Amount (INR)</label>
               <Input
-                variant="modal"
                 type="number"
                 min={100}
                 value={formState.amount}
                 onChange={(event) => setFormState((prev) => ({ ...prev, amount: Number(event.target.value) }))}
+                className="w-full"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Duration</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Duration</label>
               <Select
-                variant="modal"
                 value={formState.durationMonths}
                 onChange={(value) => setFormState((prev) => ({ ...prev, durationMonths: value }))}
                 options={durationOptions}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Payment Method</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Payment Method</label>
               <div className="grid grid-cols-2 gap-3">
                 <Button
                   type="button"
                   variant={formState.method === 'qr_code' ? 'default' : 'outline'}
-                  className={formState.method === 'qr_code' ? 'btn-primary ' : ''}
                   onClick={() => setFormState((prev) => ({ ...prev, method: 'qr_code' }))}
                 >
                   QR Code
@@ -252,7 +250,6 @@ export default function NextPaymentsPage() {
                 <Button
                   type="button"
                   variant={formState.method === 'upi' ? 'default' : 'outline'}
-                  className={formState.method === 'upi' ? 'btn-primary' : ''}
                   onClick={() => setFormState((prev) => ({ ...prev, method: 'upi' }))}
                 >
                   UPI
@@ -261,9 +258,8 @@ export default function NextPaymentsPage() {
             </div>
             {formState.method === 'upi' && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">UPI ID</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">UPI ID</label>
                 <Input
-                  variant="modal"
                   value={formState.upiId}
                   onChange={(event) => setFormState((prev) => ({ ...prev, upiId: event.target.value }))}
                   placeholder="yourname@upi"
@@ -273,14 +269,14 @@ export default function NextPaymentsPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">Payment Screenshot</label>
-            <label className="flex h-32 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border/70 bg-card text-sm text-muted-foreground hover:border-primary">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Payment Screenshot</label>
+            <label className="flex h-32 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm text-gray-600 dark:text-gray-400 hover:border-blue-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
               <ArrowUpTrayIcon className="h-5 w-5" />
               <span>Click to upload screenshot</span>
               <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
             </label>
             {screenshotFile && (
-              <div className="overflow-hidden rounded-xl border border-border/70">
+              <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
                 <Image
                   src={URL.createObjectURL(screenshotFile)}
                   alt="Payment screenshot preview"
@@ -293,25 +289,24 @@ export default function NextPaymentsPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">Notes (optional)</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Notes (optional)</label>
             <Input
-              variant="modal"
               value={formState.notes}
               onChange={(event) => setFormState((prev) => ({ ...prev, notes: event.target.value }))}
               placeholder="Any additional information"
             />
           </div>
 
-          <div className="flex justify-end gap-3">
-            <Button className="card-enhanced2" variant="outline" onClick={() => setIsModalOpen(false)}>
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <Button variant="outline" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>
             <Button
               onClick={() => createPaymentMutation.mutate()}
               disabled={createPaymentMutation.isPending || (!screenshotFile && formState.method === 'qr_code')}
-              className=" bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 text-white shadow-lg transform scale-100 border border-blue-400/30 gap-2"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
             >
-              <CreditCardIcon className="h-4 w-4" />
+              <CreditCardIcon className="h-4 w-4 mr-2" />
               {createPaymentMutation.isPending ? 'Submitting...' : 'Submit Payment'}
             </Button>
           </div>

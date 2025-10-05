@@ -20,12 +20,12 @@ import {
 export default function AdminDashboard() {
   const { user } = useAuth()
 
-  const { data: userStats, isLoading: isLoadingUsers } = useQuery({
+  const { data: userStats, isLoading: isLoadingUsers, error: userStatsError } = useQuery({
     queryKey: ['admin-dashboard-stats'],
     queryFn: () => adminApi.getDashboardStats(),
   })
 
-  const { data: paymentStats, isLoading: isLoadingPayments } = useQuery({
+  const { data: paymentStats, isLoading: isLoadingPayments, error: paymentStatsError } = useQuery({
     queryKey: ['payment-dashboard-stats'],
     queryFn: () => adminApi.getPaymentStats(),
   })
@@ -43,6 +43,35 @@ export default function AdminDashboard() {
   }
   const payments = paymentStats || { totalPayments: 0, pendingPayments: 0, approvedPayments: 0, rejectedPayments: 0, totalRevenue: 0, recentPayments: [] }
   const isLoading = isLoadingUsers || isLoadingPayments
+
+  // Debug logging
+  if (userStatsError) {
+    console.error('User stats error:', userStatsError)
+  }
+  if (paymentStatsError) {
+    console.error('Payment stats error:', paymentStatsError)
+  }
+
+  if (userStatsError || paymentStatsError) {
+    return (
+      <div className="space-y-6 sm:space-y-8">
+        <Card className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-3">
+              <ExclamationTriangleIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
+              <div>
+                <h3 className="text-red-800 dark:text-red-200 font-semibold">Error Loading Dashboard</h3>
+                <p className="text-red-600 dark:text-red-400 text-sm">
+                  {userStatsError ? 'Failed to load user statistics. ' : ''}
+                  {paymentStatsError ? 'Failed to load payment statistics.' : ''}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6 sm:space-y-8">
