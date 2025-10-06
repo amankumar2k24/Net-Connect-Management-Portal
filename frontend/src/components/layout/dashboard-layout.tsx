@@ -45,6 +45,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return () => clearInterval(interval)
   }, [isAuthenticated, user, checkUserStatus])
 
+  // Handle loading state after all hooks
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -53,6 +54,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     )
   }
 
+  // Handle unauthenticated state after all hooks
   if (!isAuthenticated) {
     return null
   }

@@ -45,7 +45,7 @@ export const authApi = {
   resendOtp: (email: string) =>
     resolve<{ message: string }>(api.post("/auth/send-otp", { email })),
 
-  logout: () => Promise.resolve(),
+  logout: () => Promise.resolve({ message: 'Logged out successfully' }),
 }
 
 // User API calls

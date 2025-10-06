@@ -16,6 +16,8 @@ const DEFAULT_THEME: Theme = "light"
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 
 const applyTheme = (theme: Theme) => {
+  if (typeof window === 'undefined') return
+
   const root = document.documentElement
 
   // Remove existing theme classes
@@ -31,11 +33,16 @@ const applyTheme = (theme: Theme) => {
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>(DEFAULT_THEME)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
+
+    if (typeof window === 'undefined') return
+
     const stored = window.localStorage.getItem(STORAGE_KEY) as Theme | null
 
-    if (stored) {
+    if (stored && (stored === 'light' || stored === 'dark')) {
       setThemeState(stored)
       applyTheme(stored)
       return
@@ -49,8 +56,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const setTheme = (next: Theme) => {
     setThemeState(next)
-    applyTheme(next)
-    window.localStorage.setItem(STORAGE_KEY, next)
+    if (mounted && typeof window !== 'undefined') {
+      applyTheme(next)
+      window.localStorage.setItem(STORAGE_KEY, next)
+    }
   }
 
   const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark")
@@ -59,6 +68,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     () => ({ theme, setTheme, toggleTheme }),
     [theme],
   )
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  }
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }

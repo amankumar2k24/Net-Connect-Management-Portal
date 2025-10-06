@@ -16,7 +16,8 @@ import {
   DocumentTextIcon,
   Bars3Icon,
   XMarkIcon,
-  ArrowLeftOnRectangleIcon
+  ArrowLeftOnRectangleIcon,
+  EnvelopeIcon
 } from '@heroicons/react/24/outline'
 import { Tooltip } from 'react-tooltip'
 
@@ -44,6 +45,11 @@ const adminMenuItems = [
     name: 'Payment Plans',
     href: '/dashboard/payment-plans',
     icon: DocumentTextIcon,
+  },
+  {
+    name: 'Contact Queries',
+    href: '/dashboard/contact-queries',
+    icon: EnvelopeIcon,
   },
   {
     name: 'Profile',
@@ -104,8 +110,8 @@ export default function Sidebar({ className }: SidebarProps) {
   // Determine which menu items to use based on user role
   const menuItems = user?.role === 'admin' ? adminMenuItems : userMenuItems
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    await logout()
   }
 
   // Listen for sidebar toggle events
@@ -160,8 +166,8 @@ export default function Sidebar({ className }: SidebarProps) {
 
       {/* Desktop sidebar */}
       <div className={cn('hidden lg:flex lg:flex-shrink-0', className)}>
-        <div className={cn('flex flex-col h-screen', isSidebarCollapsed ? 'w-20' : 'w-64')}>
-          <div className="flex flex-col flex-1 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 border-r border-slate-700/50 shadow-2xl">
+        <div className={cn('flex flex-col h-full', isSidebarCollapsed ? 'w-20' : 'w-64')}>
+          <div className="sidebar-container bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 border-r border-slate-700/50 shadow-2xl">
             <SidebarContent menuItems={menuItems} pathname={pathname} user={user} onLogout={handleLogout} isCollapsed={isSidebarCollapsed} />
           </div>
         </div>
@@ -184,10 +190,10 @@ function SidebarContent({ menuItems, pathname, user, onLogout, isCollapsed = fal
         )}
       </div>
 
-      {/* Navigation and User Section - Scrollable Container */}
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+      {/* Navigation and User Section - Proper Layout */}
+      <div className="flex-1 flex flex-col">
         {/* Navigation - Scrollable */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden sidebar-scroll" style={{ maxHeight: 'calc(100vh - 200px)' }}>
           <nav className="px-4 py-6 space-y-3">
             {menuItems.map((item) => {
               const isActive = pathname === item.href
@@ -240,7 +246,7 @@ function SidebarContent({ menuItems, pathname, user, onLogout, isCollapsed = fal
         </div>
 
         {/* User Profile Section - Fixed at bottom */}
-        <div className="flex-shrink-0 border-t border-slate-600/50 bg-gradient-to-r from-slate-800 to-slate-700">
+        <div className="flex-shrink-0 border-t border-slate-600/50 bg-gradient-to-r from-slate-800 to-slate-700" style={{ minHeight: '140px' }}>
           <div className="p-4">
             {!isCollapsed && (
               <>

@@ -1,123 +1,66 @@
-"use client"
-
-import { Fragment } from "react"
-import { Listbox, Transition } from "@headlessui/react"
-import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/outline"
+import * as React from "react"
 import { cn } from "@/lib/utils"
 
-export interface SelectOption {
+export interface SelectOptionType {
   label: string
   value: string
-  disabled?: boolean
-  description?: string
 }
 
-interface SelectProps {
-  value: string
-  onChange: (value: string) => void
-  options: SelectOption[]
-  placeholder?: string
+export interface SelectProps {
   className?: string
-  disabled?: boolean
-  emptyMessage?: string
-  variant?: 'default' | 'modal'
+  value?: string
+  onValueChange?: (value: string) => void
+  onChange?: (value: string) => void
+  placeholder?: string
+  children?: React.ReactNode
+  options?: SelectOptionType[]
+  variant?: string
 }
 
-export default function Select({ value, onChange, options, placeholder = "Select", className, disabled, emptyMessage, variant = 'default' }: SelectProps) {
-  const activeOption = options.find((option) => option.value === value)
+const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
+  ({ className, value, onValueChange, onChange, placeholder, children, options, variant, ...props }, ref) => {
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const newValue = e.target.value
+      onValueChange?.(newValue)
+      onChange?.(newValue)
+    }
 
-  const buttonClasses = {
-    default: "card-enhanced2 text-foreground shadow-lg shadow-black/5",
-    modal: "bg-gray-800 border border-gray-600 text-white shadow-lg shadow-black/20"
+    return (
+      <select
+        className={cn(
+          "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+          className
+        )}
+        ref={ref}
+        value={value}
+        onChange={handleChange}
+        {...props}
+      >
+        {placeholder && <option value="">{placeholder}</option>}
+        {options?.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+        {children}
+      </select>
+    )
   }
+)
+Select.displayName = "Select"
 
-  const optionsClasses = {
-    default: "border-border/60 bg-card/95",
-    modal: "border-gray-600 bg-gray-800/95"
-  }
-
-  return (
-    <Listbox value={value} onChange={onChange} disabled={disabled}>
-      {({ open }) => (
-        <div className={cn("relative", className)}>
-          <Listbox.Button
-            className={
-              cn(
-                "group relative w-full cursor-pointer rounded-2xl px-4 py-3 text-left text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background",
-                buttonClasses[variant],
-                disabled && "cursor-not-allowed opacity-60",
-              )
-            }
-          >
-            <span className="block truncate">
-              {activeOption ? (
-                <span className="flex items-center gap-2">
-                  <span className="truncate">{activeOption.label}</span>
-                  {activeOption.description && (
-                    <span className="text-xs font-normal text-muted-foreground">{activeOption.description}</span>
-                  )}
-                </span>
-              ) : (
-                <span className="text-muted-foreground">{placeholder}</span>
-              )}
-            </span>
-            <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-muted-foreground transition group-hover:text-foreground">
-              <ChevronUpDownIcon className="h-4 w-4" aria-hidden="true" />
-            </span>
-          </Listbox.Button>
-
-          <Transition
-            as={Fragment}
-            show={open}
-            enter="transition ease-out duration-150"
-            enterFrom="opacity-0 translate-y-1"
-            enterTo="opacity-100 translate-y-0"
-            leave="transition ease-in duration-100"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <Listbox.Options className={cn("absolute z-30 mt-2 w-full overflow-hidden rounded-2xl border p-1.5 shadow-xl shadow-black/10 backdrop-blur-md focus:outline-none", optionsClasses[variant])}>
-              {options.length === 0 && (
-                <div className="px-3 py-2 text-sm text-muted-foreground">
-                  {emptyMessage || "No options available"}
-                </div>
-              )}
-
-              {options.map((option) => (
-                <Listbox.Option
-                  key={option.value}
-                  value={option.value}
-                  disabled={option.disabled}
-                  className={({ active, disabled: optionDisabled }) =>
-                    cn(
-                      "relative flex cursor-pointer select-none items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors",
-                      optionDisabled && "cursor-not-allowed opacity-50",
-                      active && !optionDisabled ? "bg-primary/15 text-primary" : "text-foreground",
-                    )
-                  }
-                >
-                  {({ selected }) => (
-                    <>
-                      <div className="flex-1 truncate">
-                        <span className={cn("truncate", selected ? "font-semibold" : "font-medium")}>{option.label}</span>
-                        {option.description && (
-                          <p className="text-xs text-muted-foreground/80">{option.description}</p>
-                        )}
-                      </div>
-                      {selected ? (
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-primary">
-                          <CheckIcon className="h-3.5 w-3.5" aria-hidden="true" />
-                        </span>
-                      ) : null}
-                    </>
-                  )}
-                </Listbox.Option>
-              ))}
-            </Listbox.Options>
-          </Transition>
-        </div>
-      )}
-    </Listbox>
-  )
+// SelectOption component for better structure
+export interface SelectOptionProps {
+  value: string
+  children: React.ReactNode
 }
 
+const SelectOption: React.FC<SelectOptionProps> = ({ value, children }) => {
+  return <option value={value}>{children}</option>
+}
+
+// Type alias for backward compatibility
+export type SelectOption = SelectOptionType
+
+export { Select, SelectOption }
+export default Select

@@ -114,13 +114,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      await authApi.logout()
-    } finally {
+      console.log('🔄 Starting logout process...')
+
+      // Clear local storage first
+      localStorage.removeItem(STORAGE_TOKEN_KEY)
+      localStorage.removeItem(STORAGE_USER_KEY)
+
+      // Clear user state
+      setUser(null)
+
+      // Clear all cached data
+      queryClient.clear()
+
+      console.log('✅ Logout completed successfully')
+
+      // Redirect to login page
+      window.location.href = '/auth/login'
+    } catch (error) {
+      console.error('❌ Logout error:', error)
+      // Force logout even if there's an error
       localStorage.removeItem(STORAGE_TOKEN_KEY)
       localStorage.removeItem(STORAGE_USER_KEY)
       setUser(null)
-      // Clear all cached data on logout
       queryClient.clear()
+      window.location.href = '/auth/login'
     }
   }
 

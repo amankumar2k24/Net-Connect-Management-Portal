@@ -29,6 +29,13 @@ export class PaymentPlansController {
         return this.paymentPlansService.create(createPaymentPlanDto);
     }
 
+    @Get('public')
+    @ApiOperation({ summary: 'Get all active payment plans for public display' })
+    @ApiResponse({ status: 200, description: 'Payment plans retrieved successfully' })
+    findAllPublic() {
+        return this.paymentPlansService.findActive();
+    }
+
     @Get()
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.ADMIN)

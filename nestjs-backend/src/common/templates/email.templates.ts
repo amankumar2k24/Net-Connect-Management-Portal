@@ -217,6 +217,80 @@ export class EmailTemplates {
     };
   }
 
+  static getContactQueryNotificationTemplate(contactQuery: any): EmailTemplate {
+    return {
+      subject: `New Contact Query: ${contactQuery.subject}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>New Contact Query</title>
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f8fafc; }
+            .container { max-width: 600px; margin: 0 auto; background-color: white; }
+            .header { background: linear-gradient(135deg, #3b82f6, #1d4ed8); padding: 40px 30px; text-align: center; }
+            .logo { color: white; font-size: 28px; font-weight: bold; margin-bottom: 10px; }
+            .tagline { color: #e0e7ff; font-size: 14px; }
+            .content { padding: 40px 30px; }
+            .title { color: #1e293b; font-size: 24px; font-weight: 600; margin-bottom: 20px; }
+            .info-box { background-color: #f8fafc; border-left: 4px solid #3b82f6; padding: 20px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+            .info-label { font-weight: 600; color: #374151; margin-bottom: 5px; }
+            .info-value { color: #6b7280; margin-bottom: 15px; }
+            .message-box { background-color: #fef3c7; border: 1px solid #f59e0b; padding: 20px; border-radius: 8px; margin: 20px 0; }
+            .button { display: inline-block; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; }
+            .footer { background-color: #f1f5f9; padding: 30px; text-align: center; color: #64748b; font-size: 14px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <div class="logo">FlowLink</div>
+              <div class="tagline">WiFi Dashboard - Admin Panel</div>
+            </div>
+            <div class="content">
+              <h1 class="title">New Contact Query Received</h1>
+              
+              <div class="info-box">
+                <div class="info-label">From:</div>
+                <div class="info-value">${contactQuery.fullName} (${contactQuery.email})</div>
+                
+                ${contactQuery.phone ? `
+                <div class="info-label">Phone:</div>
+                <div class="info-value">${contactQuery.phone}</div>
+                ` : ''}
+                
+                ${contactQuery.company ? `
+                <div class="info-label">Company:</div>
+                <div class="info-value">${contactQuery.company}</div>
+                ` : ''}
+                
+                <div class="info-label">Subject:</div>
+                <div class="info-value">${contactQuery.subject}</div>
+                
+                <div class="info-label">Submitted:</div>
+                <div class="info-value">${new Date(contactQuery.createdAt).toLocaleString()}</div>
+              </div>
+              
+              <div class="message-box">
+                <div class="info-label">Message:</div>
+                <div style="color: #92400e; line-height: 1.6;">${contactQuery.message}</div>
+              </div>
+              
+              <a href="${process.env.FRONTEND_URL}/dashboard/contact-queries" class="button">View in Dashboard</a>
+            </div>
+            <div class="footer">
+              <p>This is an automated notification from FlowLink WiFi Dashboard.</p>
+              <p>© 2024 FlowLink. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+    };
+  }
+
   static getNotificationEmailTemplate(userName: string, title: string, message: string, dashboardUrl: string): EmailTemplate {
     return {
       subject: `${title} - Shobhit Wifi`,

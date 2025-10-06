@@ -100,4 +100,18 @@ export class EmailService {
 
     await this.transporter.sendMail(mailOptions);
   }
+
+  async sendContactQueryNotification(contactQuery: any) {
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@flowlink.com';
+    const template = EmailTemplates.getContactQueryNotificationTemplate(contactQuery);
+
+    const mailOptions = {
+      from: process.env.SMTP_USER,
+      to: adminEmail,
+      subject: template.subject,
+      html: template.html,
+    };
+
+    await this.transporter.sendMail(mailOptions);
+  }
 }
