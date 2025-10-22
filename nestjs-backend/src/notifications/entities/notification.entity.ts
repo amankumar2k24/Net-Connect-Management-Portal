@@ -78,6 +78,13 @@ export class Notification extends Model<Notification> {
   })
   readAt: Date;
 
+  @ApiProperty()
+  @Column({
+    type: DataType.UUID,
+    allowNull: true,
+  })
+  batchId: string;
+
   @BelongsTo(() => User)
   user: User;
 }

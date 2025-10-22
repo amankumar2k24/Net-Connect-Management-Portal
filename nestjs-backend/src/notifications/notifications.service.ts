@@ -42,9 +42,13 @@ export class NotificationsService {
   }
 
   async createBulk(userIds: string[], notificationData: Omit<CreateNotificationDto, 'userId'>): Promise<Notification[]> {
+    // Generate a unique batch ID for this bulk notification
+    const batchId = require('crypto').randomUUID();
+
     const notifications = userIds.map(userId => ({
       ...notificationData,
       userId,
+      batchId,
     }));
 
     // Create website notifications
@@ -106,7 +110,8 @@ export class NotificationsService {
       where.type = type;
     }
 
-    const { rows: notifications, count: total } = await this.notificationModel.findAndCountAll({
+    // Get all notifications first
+    const allNotifications = await this.notificationModel.findAll({
       where,
       include: [
         {
@@ -114,13 +119,52 @@ export class NotificationsService {
           attributes: ['id', 'firstName', 'lastName', 'email'],
         },
       ],
-      limit,
-      offset,
       order: [['createdAt', 'DESC']],
     });
 
+    // Group notifications by batchId for bulk notifications
+    const groupedNotifications = new Map();
+    const individualNotifications = [];
+
+    for (const notification of allNotifications) {
+      if (notification.batchId) {
+        if (!groupedNotifications.has(notification.batchId)) {
+          // Create a grouped notification entry
+          const userCount = allNotifications.filter(n => n.batchId === notification.batchId).length;
+          groupedNotifications.set(notification.batchId, {
+            ...notification.toJSON(),
+            id: notification.batchId, // Use batchId as the ID for grouped notifications
+            userId: 'bulk', // Special identifier for bulk notifications
+            user: {
+              id: 'bulk',
+              firstName: 'All',
+              lastName: 'Users',
+              email: `${userCount} recipients`,
+            },
+            isBulk: true,
+            recipientCount: userCount,
+          });
+        }
+      } else {
+        individualNotifications.push(notification);
+      }
+    }
+
+    // Combine grouped and individual notifications
+    const combinedNotifications = [
+      ...Array.from(groupedNotifications.values()),
+      ...individualNotifications,
+    ];
+
+    // Sort by creation date
+    combinedNotifications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    // Apply pagination
+    const paginatedNotifications = combinedNotifications.slice(offset, offset + limit);
+    const total = combinedNotifications.length;
+
     return {
-      notifications,
+      notifications: paginatedNotifications,
       total,
       page,
       totalPages: Math.ceil(total / limit),
@@ -229,6 +273,46 @@ export class NotificationsService {
     }
 
     await notification.destroy();
+  }
+
+  async createNotificationForAdmins(
+    title: string,
+    message: string,
+    type: NotificationType = NotificationType.SYSTEM,
+  ): Promise<Notification[]> {
+    // Find all admin users
+    const adminUsers = await this.userModel.findAll({
+      where: { role: UserRole.ADMIN },
+      attributes: ['id'],
+    });
+
+    if (adminUsers.length === 0) {
+      console.warn('No admin users found to send notification to');
+      return [];
+    }
+
+    const adminUserIds = adminUsers.map(user => user.id);
+
+    // Use createBulk to send notifications to all admins
+    return this.createBulk(adminUserIds, {
+      title,
+      message,
+      type,
+    });
+  }
+
+  async createNotification(
+    userId: string,
+    title: string,
+    message: string,
+    type: NotificationType = NotificationType.SYSTEM,
+  ): Promise<Notification> {
+    return this.create({
+      userId,
+      title,
+      message,
+      type,
+    });
   }
 
   async sendPaymentReminders(): Promise<void> {

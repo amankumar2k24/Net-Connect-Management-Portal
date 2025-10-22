@@ -84,6 +84,9 @@ export interface Notification {
   readAt?: string
   createdAt: string
   read?: boolean // Add this for compatibility with frontend usage
+  batchId?: string // For bulk notifications
+  isBulk?: boolean // Indicates if this is a bulk notification
+  recipientCount?: number // Number of recipients for bulk notifications
 }
 
 export interface NotificationList {
@@ -138,3 +141,42 @@ export interface PaymentFormData {
   notes?: string
 }
 
+export interface Ticket {
+  id: string
+  title: string
+  description: string
+  category: 'technical' | 'billing' | 'general' | 'complaint'
+  priority: 'low' | 'medium' | 'high' | 'urgent'
+  status: 'open' | 'in_progress' | 'resolved' | 'closed'
+  userId: string
+  assignedToId?: string
+  adminResponse?: string
+  resolvedAt?: string
+  createdAt: string
+  updatedAt: string
+  user?: {
+    id: string
+    name: string
+    email: string
+  }
+  assignedTo?: {
+    id: string
+    name: string
+    email: string
+  }
+}
+
+export interface TicketStats {
+  total: number
+  open: number
+  inProgress: number
+  resolved: number
+  closed: number
+}
+
+export interface PaginatedTickets {
+  tickets: Ticket[]
+  total: number
+  totalPages: number
+  currentPage: number
+}

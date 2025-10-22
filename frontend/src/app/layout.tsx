@@ -4,6 +4,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/contexts/theme-context"
 import ReactQueryProvider from "@/providers/react-query-provider"
 import { AuthProvider } from "@/contexts/auth-context"
+import { NotificationProvider } from "@/contexts/notification-context"
 import ToastProvider from "@/providers/toast-provider"
 
 const inter = Inter({
@@ -40,8 +41,10 @@ export default function RootLayout({
         <ThemeProvider>
           <ReactQueryProvider>
             <AuthProvider>
-              {children}
-              <ToastProvider />
+              <NotificationProvider>
+                {children}
+                <ToastProvider />
+              </NotificationProvider>
             </AuthProvider>
           </ReactQueryProvider>
         </ThemeProvider>

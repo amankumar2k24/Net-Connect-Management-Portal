@@ -22,4 +22,9 @@ export class CreateNotificationDto {
   @ApiProperty({ required: false })
   @IsOptional()
   metadata?: any;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsUUID()
+  batchId?: string;
 }

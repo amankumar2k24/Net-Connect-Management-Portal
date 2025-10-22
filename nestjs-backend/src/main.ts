@@ -25,13 +25,29 @@ async function bootstrap() {
 
   // Swagger API documentation
   const config = new DocumentBuilder()
-    .setTitle('NetConnect API')
-    .setDescription('WiFi operator management system API')
+    .setTitle('WaveNet WiFi Dashboard API')
+    .setDescription('WiFi operator management system API with user management, payments, and notifications')
     .setVersion('1.0')
+    .addTag('Authentication', 'User authentication and authorization')
+    .addTag('Users', 'User management operations')
+    .addTag('Payments', 'Payment processing and history')
+    .addTag('Payment Plans', 'Payment plan management')
+    .addTag('Notifications', 'Notification system')
+    .addTag('Admin', 'Administrative operations')
+    .addTag('Contact Queries', 'Contact form submissions')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      tagsSorter: 'alpha',
+      operationsSorter: 'alpha',
+    },
+    customSiteTitle: 'WaveNet API Documentation',
+  });
+
+  console.log(`📚 Swagger documentation available at: http://localhost:${process.env.PORT || 5510}/api`);
 
   // Seed payment plans
   try {

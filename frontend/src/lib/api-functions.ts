@@ -195,6 +195,16 @@ export const notificationApi = {
 
   createBulkNotification: (data: { userIds: string[]; title: string; message: string; type: string }) =>
     resolve<{ notifications: Notification[] }>(api.post("/notifications/bulk", data)),
+
+  getUnreadCount: async () => {
+    try {
+      const response = await notificationApi.getNotifications({ status: 'unread' })
+      return response?.notifications?.length || 0
+    } catch (error) {
+      console.error('Error fetching unread count:', error)
+      return 0
+    }
+  },
 }
 
 // Payment Plans API calls
@@ -259,3 +269,50 @@ export const adminApi = {
     ),
 }
 
+// Tickets API calls
+export const ticketApi = {
+  create: (data: {
+    title: string
+    description: string
+    category?: string
+    priority?: string
+  }) => resolve<{ ticket: any }>(api.post("/tickets", data)),
+
+  getMyTickets: (params?: { page?: number; limit?: number }) =>
+    resolve<{
+      tickets: any[]
+      total: number
+      totalPages: number
+      currentPage: number
+    }>(api.get("/tickets/my-tickets", { params })),
+
+  getAll: (params?: { page?: number; limit?: number; status?: string }) =>
+    resolve<{
+      tickets: any[]
+      total: number
+      totalPages: number
+      currentPage: number
+    }>(api.get("/tickets", { params })),
+
+  getById: (id: string) => resolve<any>(api.get(`/tickets/${id}`)),
+
+  update: (id: string, data: {
+    status?: string
+    priority?: string
+    adminResponse?: string
+    assignedToId?: number
+  }) => resolve<any>(api.patch(`/tickets/${id}`, data)),
+
+  updateStatus: (id: string, status: string) =>
+    resolve<any>(api.patch(`/tickets/${id}`, { status })),
+
+  delete: (id: string) => resolve<{ message: string }>(api.delete(`/tickets/${id}`)),
+
+  getStats: () => resolve<{
+    total: number
+    open: number
+    inProgress: number
+    resolved: number
+    closed: number
+  }>(api.get("/tickets/stats")),
+}

@@ -14,6 +14,7 @@ import { Notification } from '@/types'
 import { formatDate, formatDateTime } from '@/lib/utils'
 import { toast } from 'react-hot-toast'
 import { useAuth } from '@/contexts/auth-context'
+import { useNotifications } from '@/contexts/notification-context'
 import { FloatingParticlesLoader } from '@/components/ui/unique-loader'
 import {
   BellIcon,
@@ -37,6 +38,7 @@ const notificationTypes: SelectOption[] = [
 
 export default function NotificationsPage() {
   const { user } = useAuth()
+  const { refreshUnreadCount } = useNotifications()
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null)
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false)
   const [isCreateNotificationModalOpen, setIsCreateNotificationModalOpen] = useState(false)
@@ -93,6 +95,7 @@ export default function NotificationsPage() {
     mutationFn: (notificationId: string) => notificationApi.markAsRead(notificationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      refreshUnreadCount() // Update the bell icon count
       toast.success('Notification marked as read!')
       // Close the modal if it's open
       setIsNotificationModalOpen(false)
@@ -106,6 +109,7 @@ export default function NotificationsPage() {
     mutationFn: () => notificationApi.markAllAsRead(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      refreshUnreadCount() // Update the bell icon count
       toast.success('All notifications marked as read!')
     },
     onError: (error: any) => {
@@ -440,6 +444,11 @@ export default function NotificationsPage() {
                                   New
                                 </span>
                               )}
+                              {(notification as any).isBulk && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                                  📢 {(notification as any).recipientCount} recipients
+                                </span>
+                              )}
                             </div>
                             <p className={`mt-1 text-sm ${!notification.read ? 'text-foreground/90' : 'text-foreground/70'}`}>
                               {notification.message.length > 100
@@ -553,6 +562,11 @@ export default function NotificationsPage() {
                   <p className="text-sm text-muted-foreground capitalize">
                     {selectedNotification.type} notification
                   </p>
+                  {(selectedNotification as any).isBulk && (
+                    <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                      📢 Sent to {(selectedNotification as any).recipientCount} users
+                    </p>
+                  )}
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-muted-foreground">
